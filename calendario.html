@@ -7,170 +7,218 @@
     <meta name="theme-color" content="#1a1a1a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Geco">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon.svg">
     <script>(function(){try{var c=localStorage.getItem('activeColor');if(!c){var gs=JSON.parse(localStorage.getItem('geckos')||'[]'),id=localStorage.getItem('activeGeckoId')||'',gk=gs.find(function(g){return g.id===id;})||gs[0]||null;c=gk&&gk.colore?gk.colore:null;}if(c)document.documentElement.style.setProperty('--accent',c);}catch(e){}})();</script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --accent: #ff9940; }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
         body {
-            font-family: -apple-system, 'Segoe UI', sans-serif;
-            background: #111;
-            color: #f0f0f0;
-            min-height: 100vh;
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: calc(70px + env(safe-area-inset-bottom));
+            font-family:-apple-system,'Segoe UI',sans-serif;
+            background:#111; color:#f0f0f0; min-height:100vh;
+            padding-top:env(safe-area-inset-top);
+            padding-bottom:calc(70px + env(safe-area-inset-bottom));
         }
 
-        /* ── HEADER ── */
         header {
-            background: #1a1a1a;
-            padding: 18px 20px 14px;
-            border-bottom: 1px solid #2a2a2a;
-            display: flex; align-items: center; gap: 12px;
-            position: sticky; top: 0; z-index: 100;
+            background:#1a1a1a; padding:16px 20px 14px;
+            border-bottom:1px solid #2a2a2a;
+            display:flex; align-items:center; gap:12px;
+            position:sticky; top:0; z-index:100;
         }
-        .header-emoji { font-size: 26px; }
-        .header-text h1 { font-size: 17px; font-weight: 700; }
-        .header-text p  { font-size: 11px; color: #888; }
+        .h-emoji { font-size:24px; }
+        .h-text h1 { font-size:17px; font-weight:700; }
+        .h-text p  { font-size:11px; color:#888; }
 
-        .page { padding: 14px 16px; max-width: 500px; margin: 0 auto; }
+        .page { padding:12px 14px; max-width:500px; margin:0 auto; display:flex; flex-direction:column; gap:10px; }
 
-        /* ── MONTH SELECTOR ── */
-        .month-bar {
-            display: flex; align-items: center; gap: 8px;
-            margin-bottom: 14px;
+        /* ── METEO ── */
+        .meteo-card {
+            background:#1a1a1a; border:1px solid #2a2a2a;
+            border-radius:14px; padding:14px 16px;
+            display:flex; align-items:center; gap:12px;
         }
-        .month-btn {
-            background: #2a2a2a; border: 1px solid #333;
-            color: #f0f0f0; border-radius: 10px;
-            width: 42px; height: 42px; font-size: 18px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; flex-shrink: 0; transition: background .15s;
+        .meteo-icon { font-size:36px; flex-shrink:0; }
+        .meteo-temp { font-size:28px; font-weight:800; color:#f0f0f0; line-height:1; }
+        .meteo-desc { font-size:12px; color:#888; margin-top:3px; }
+        .meteo-loc  {
+            margin-left:auto; text-align:right; flex-shrink:0;
+            font-size:11px; font-weight:700; color:var(--accent);
+            line-height:1.5;
         }
-        .month-btn:active { background: #ff9940; color: #1a1a1a; }
-        .month-name {
-            flex: 1; text-align: center; font-size: 18px;
-            font-weight: 700; color: #ff9940;
+        .meteo-loading { font-size:13px; color:#555; }
+
+        /* ── NAV MESE ── */
+        .month-nav {
+            display:flex; align-items:center; gap:8px;
         }
+        .nav-btn {
+            background:#2a2a2a; border:1px solid #333; color:#f0f0f0;
+            border-radius:10px; width:40px; height:40px; font-size:20px;
+            display:flex; align-items:center; justify-content:center;
+            cursor:pointer; flex-shrink:0; transition:background .15s;
+        }
+        .nav-btn:active { background:var(--accent); color:#111; }
+        .month-name { flex:1; text-align:center; font-size:19px; font-weight:800; color:var(--accent); }
         .btn-oggi {
-            background: rgba(255,153,64,.15); border: 1px solid rgba(255,153,64,.4);
-            color: #ff9940; border-radius: 10px;
-            padding: 0 14px; height: 42px; font-size: 13px; font-weight: 600;
-            cursor: pointer; white-space: nowrap; transition: background .15s;
+            background:rgba(255,153,64,.12); border:1px solid rgba(255,153,64,.35);
+            color:var(--accent); border-radius:10px; padding:0 12px; height:40px;
+            font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap;
         }
-        .btn-oggi:active { background: #ff9940; color: #1a1a1a; }
+        .btn-oggi:active { background:var(--accent); color:#111; }
 
         /* ── PROGRESS ── */
-        .progress-box {
-            background: #1a1a1a; border: 1px solid #2a2a2a;
-            border-radius: 14px; padding: 14px 16px; margin-bottom: 14px;
+        .prog-box {
+            background:#1a1a1a; border:1px solid #2a2a2a;
+            border-radius:12px; padding:10px 14px;
+            display:flex; align-items:center; gap:12px;
         }
-        .prog-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-        .prog-label { font-size: 13px; color: #888; }
-        .prog-pct   { font-size: 15px; font-weight: 700; color: #ff9940; }
-        .prog-bar   { height: 8px; background: #2a2a2a; border-radius: 4px; overflow: hidden; }
-        .prog-fill  { height: 100%; background: linear-gradient(90deg,#ff9940,#ffb347); border-radius: 4px; transition: width .5s ease; }
-        .prog-detail{ font-size: 11px; color: #555; margin-top: 5px; }
+        .prog-circle { position:relative; flex-shrink:0; }
+        .prog-circle svg { display:block; }
+        .prog-arc { transition:stroke-dashoffset .7s ease; }
+        .prog-pct {
+            position:absolute; inset:0; display:flex;
+            align-items:center; justify-content:center;
+            font-size:12px; font-weight:800; color:var(--accent);
+        }
+        .prog-info { flex:1; }
+        .prog-label { font-size:11px; color:#666; }
+        .prog-detail { font-size:13px; font-weight:700; color:#f0f0f0; margin-top:2px; }
 
-        /* ── LIST GIORNI ── */
-        .giorni-list { display: flex; flex-direction: column; gap: 6px; }
+        /* ── GRIGLIA CALENDARIO ── */
+        .cal-wrap { background:#1a1a1a; border:1px solid #2a2a2a; border-radius:14px; padding:12px; }
 
-        .giorno-row {
-            background: #1a1a1a; border: 1px solid #2a2a2a;
-            border-radius: 12px; padding: 12px 14px;
-            display: flex; align-items: center; gap: 12px;
-            transition: border-color .15s;
+        .cal-week-headers {
+            display:grid; grid-template-columns:repeat(7,1fr);
+            gap:3px; margin-bottom:5px;
         }
-        .giorno-row.oggi-row {
-            border-color: #ff9940;
-            background: #1e1400;
+        .cal-wh {
+            text-align:center; font-size:11px; font-weight:700;
+            color:#555; padding:4px 0;
         }
-        .giorno-row.fatto-row {
-            border-color: rgba(34,197,94,.45);
-            background: rgba(34,197,94,.06);
-        }
-        .giorno-row.saltato-row {
-            border-color: rgba(239,68,68,.35);
-            background: rgba(239,68,68,.05);
-        }
-        .fatto-row .gr-num   { color: #22c55e; }
-        .saltato-row .gr-num { color: #ef4444; }
-        .giorno-row.digiuno-row { opacity: .45; }
+        .cal-wh.we { color:#444; }
 
-        .gr-num {
-            font-size: 13px; font-weight: 700; color: #555;
-            min-width: 28px; text-align: center; flex-shrink: 0;
-        }
-        .oggi-row .gr-num { color: #ff9940; }
+        .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
 
-        .gr-badge {
-            font-size: 10px; font-weight: 800; letter-spacing: .04em;
-            background: #ff9940; color: #1a1a1a;
-            padding: 2px 7px; border-radius: 6px; flex-shrink: 0;
+        .cal-cell {
+            aspect-ratio:1; border-radius:8px;
+            display:flex; flex-direction:column;
+            align-items:center; justify-content:center;
+            gap:2px; position:relative;
+            background:#161616; border:1px solid transparent;
+            transition:transform .1s;
         }
+        .cal-cell:active { transform:scale(.9); }
+        .cal-cell.vuoto  { background:transparent; border:none; pointer-events:none; }
+        .cal-cell.digiuno { background:#161616; border-color:transparent; opacity:.4; pointer-events:none; }
+        .cal-cell.fatto   { background:rgba(34,197,94,.14); border-color:rgba(34,197,94,.3); cursor:pointer; }
+        .cal-cell.saltato { background:rgba(239,68,68,.1); border-color:rgba(239,68,68,.25); cursor:pointer; }
+        .cal-cell.futuro  { background:#161616; border-color:transparent; pointer-events:none; }
+        .cal-cell.pasto   { background:#1e1a14; border-color:#2a2218; cursor:pointer; }
+        .cal-cell.oggi    { outline:2px solid var(--accent); outline-offset:-1px; }
 
-        .gr-content { flex: 1; min-width: 0; }
-        .gr-alim    { font-size: 14px; font-weight: 600; color: #f0f0f0; }
-        .gr-sub     { font-size: 11px; color: #666; margin-top: 1px; }
-        .digiuno-row .gr-alim { color: #555; }
+        .cal-num  { font-size:13px; font-weight:700; color:#888; line-height:1; }
+        .cal-cell.fatto   .cal-num { color:#22c55e; }
+        .cal-cell.saltato .cal-num { color:#ef4444; }
+        .cal-cell.oggi    .cal-num { color:var(--accent); font-size:14px; }
+        .cal-cell.pasto   .cal-num { color:#aaa; }
 
-        .gr-img {
-            width: 36px; height: 36px; border-radius: 8px;
-            object-fit: cover; flex-shrink: 0;
+        .cal-dot { font-size:9px; line-height:1; }
+
+        /* ── LEGENDA ── */
+        .legenda {
+            display:flex; gap:12px; flex-wrap:wrap;
+            justify-content:center; padding:4px 0;
         }
-
-        .gr-check {
-            width: 28px; height: 28px; flex-shrink: 0;
-            accent-color: #ff9940; cursor: pointer;
-        }
+        .leg-item { display:flex; align-items:center; gap:5px; font-size:11px; color:#666; }
+        .leg-dot  { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
 
         /* ── BOTTOM NAV ── */
         .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: #1a1a1a; border-top: 1px solid #2a2a2a;
-            display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 999;
+            position:fixed; bottom:0; left:0; right:0;
+            background:#1a1a1a; border-top:1px solid #2a2a2a;
+            display:flex; padding-bottom:env(safe-area-inset-bottom); z-index:999;
         }
         .bn-item {
-            flex: 1; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            padding: 10px 0; text-decoration: none; color: #555;
-            transition: color .15s; gap: 3px;
+            flex:1; display:flex; flex-direction:column; align-items:center;
+            justify-content:center; padding:8px 0; text-decoration:none;
+            color:#555; transition:color .15s; gap:2px;
         }
-        .bn-item.active { color: #ff9940; }
-        .bn-icon  { font-size: 22px; line-height: 1; }
-        .bn-label { font-size: 10px; font-weight: 600; }
+        .bn-item.active { color:var(--accent); }
+        .bn-icon  { font-size:20px; line-height:1; }
+        .bn-label { font-size:10px; font-weight:600; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="header-emoji">📅</div>
-    <div class="header-text">
-        <h1>Calendario Alimentare</h1>
-        <p>Subadulto · 6 mesi – 1 anno</p>
+    <div class="h-emoji">📅</div>
+    <div class="h-text">
+        <h1>Calendario</h1>
+        <p id="h-sub">Piano alimentare mensile</p>
     </div>
 </header>
 
 <div class="page">
-    <div class="month-bar">
-        <button class="month-btn" onclick="prevM()">‹</button>
-        <div class="month-name" id="monthName">—</div>
-        <button class="month-btn" onclick="nextM()">›</button>
-        <button class="btn-oggi" onclick="goToOggi()">📍 Oggi</button>
-    </div>
 
-    <div class="progress-box">
-        <div class="prog-row">
-            <span class="prog-label">✅ Pasti completati</span>
-            <span class="prog-pct" id="prog-pct">0%</span>
+    <!-- METEO -->
+    <div class="meteo-card" id="meteo-card">
+        <div class="meteo-icon" id="meteo-icon">🌤️</div>
+        <div>
+            <div class="meteo-loading" id="meteo-temp">Caricamento meteo...</div>
+            <div class="meteo-desc" id="meteo-desc"></div>
         </div>
-        <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
-        <div class="prog-detail" id="prog-detail">—</div>
+        <div class="meteo-loc">📍 Giarre<br>Catania</div>
     </div>
 
-    <div class="giorni-list" id="giorni-list"></div>
+    <!-- NAV MESE -->
+    <div class="month-nav">
+        <button class="nav-btn" onclick="prevM()">‹</button>
+        <div class="month-name" id="month-name">—</div>
+        <button class="nav-btn" onclick="nextM()">›</button>
+        <button class="btn-oggi" onclick="goOggi()">📍 Oggi</button>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="prog-box">
+        <div class="prog-circle">
+            <svg width="56" height="56" viewBox="0 0 56 56">
+                <circle cx="28" cy="28" r="22" fill="none" stroke="#2a2a2a" stroke-width="5"/>
+                <circle id="prog-arc" class="prog-arc" cx="28" cy="28" r="22" fill="none"
+                    stroke="var(--accent)" stroke-width="5" stroke-linecap="round"
+                    stroke-dasharray="138.2" stroke-dashoffset="138.2"
+                    transform="rotate(-90 28 28)"/>
+            </svg>
+            <div class="prog-pct" id="prog-pct">0%</div>
+        </div>
+        <div class="prog-info">
+            <div class="prog-label" id="prog-label">Pasti completati</div>
+            <div class="prog-detail" id="prog-detail">— / — questo mese</div>
+        </div>
+    </div>
+
+    <!-- GRIGLIA -->
+    <div class="cal-wrap">
+        <div class="cal-week-headers">
+            <div class="cal-wh">Lu</div>
+            <div class="cal-wh">Ma</div>
+            <div class="cal-wh">Me</div>
+            <div class="cal-wh">Gi</div>
+            <div class="cal-wh">Ve</div>
+            <div class="cal-wh we">Sa</div>
+            <div class="cal-wh we">Do</div>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+    </div>
+
+    <!-- LEGENDA -->
+    <div class="legenda">
+        <div class="leg-item"><div class="leg-dot" style="background:rgba(34,197,94,.5)"></div>Mangiato</div>
+        <div class="leg-item"><div class="leg-dot" style="background:rgba(239,68,68,.4)"></div>Saltato</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#1e1a14;border:1px solid #333"></div>Da fare</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#161616;opacity:.4"></div>Digiuno</div>
+    </div>
+
 </div>
 
 <nav class="bottom-nav">
@@ -182,128 +230,193 @@
 </nav>
 
 <script>
-    const MESI = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
-                  'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+    var MESI = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
+                'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+    var GS   = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
 
-    const PATTERN = [
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO',
-        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO',
-        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3','DIGIUNO'
+    var PATTERN = [
+        'INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI',
+        'INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI',
+        'DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI',
+        'DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO'
     ];
 
-    const oggi = new Date();
-    let mese = oggi.getMonth();
+    var METEO_ICONS = {
+        0:'☀️', 1:'🌤️', 2:'⛅', 3:'☁️',
+        45:'🌫️', 48:'🌫️',
+        51:'🌦️', 53:'🌦️', 55:'🌧️',
+        61:'🌧️', 63:'🌧️', 65:'🌧️',
+        71:'🌨️', 73:'🌨️', 75:'❄️',
+        80:'🌦️', 81:'🌧️', 82:'⛈️',
+        95:'⛈️', 96:'⛈️', 99:'⛈️'
+    };
+    var METEO_DESC = {
+        0:'Cielo sereno', 1:'Poco nuvoloso', 2:'Parzialmente nuvoloso', 3:'Nuvoloso',
+        45:'Nebbia', 48:'Nebbia',
+        51:'Pioggerella', 53:'Pioggerella', 55:'Pioggia leggera',
+        61:'Pioggia', 63:'Pioggia moderata', 65:'Pioggia forte',
+        71:'Neve leggera', 73:'Neve', 75:'Neve forte',
+        80:'Rovesci', 81:'Rovesci', 82:'Rovesci forti',
+        95:'Temporale', 96:'Temporale', 99:'Temporale con grandine'
+    };
 
-    function getDays(m) { return new Date(oggi.getFullYear(), m + 1, 0).getDate(); }
-    function getGecko() { try { var gs=JSON.parse(localStorage.getItem('geckos')||'[]'),id=localStorage.getItem('activeGeckoId')||''; return gs.find(function(g){return g.id===id;})||gs[0]||null; } catch(e){ return null; } }
-    function feedKey(gid, m, d) { return gid ? 'feed_'+gid+'_'+m+'_'+d : m+'_'+d; }
+    var oggi = new Date();
+    var anno = oggi.getFullYear();
+    var mese = oggi.getMonth();
 
-    function updateProgress() {
-        const gecko  = getGecko();
-        const nome   = MESI[mese];
-        const giorni = getDays(mese);
-        let completati = 0, totale = 0;
-        for (let i = 1; i <= giorni; i++) {
+    function getGecko() {
+        try {
+            var gs = JSON.parse(localStorage.getItem('geckos')||'[]');
+            var id = localStorage.getItem('activeGeckoId')||'';
+            return gs.find(function(g){return g.id===id;})||gs[0]||null;
+        } catch(e){ return null; }
+    }
+
+    function getDays(m, y) { return new Date(y, m+1, 0).getDate(); }
+    function feedKey(gid, mNome, g) { return 'feed_'+gid+'_'+mNome+'_'+g; }
+
+    // ── METEO ──
+    function caricaMeteo() {
+        fetch('https://api.open-meteo.com/v1/forecast?latitude=37.73&longitude=15.18&current=temperature_2m,weathercode&timezone=Europe/Rome')
+            .then(function(r){ return r.json(); })
+            .then(function(data) {
+                var temp = Math.round(data.current.temperature_2m);
+                var code = data.current.weathercode;
+                var icon = METEO_ICONS[code] || '🌤️';
+                var desc = METEO_DESC[code]  || 'Variabile';
+                document.getElementById('meteo-icon').textContent = icon;
+                document.getElementById('meteo-temp').innerHTML =
+                    '<span class="meteo-temp">' + temp + '°C</span>';
+                document.getElementById('meteo-desc').textContent = desc;
+            })
+            .catch(function() {
+                document.getElementById('meteo-temp').textContent = 'Meteo non disponibile';
+            });
+    }
+
+    // ── PROGRESS ──
+    function aggiornaProgress() {
+        var gecko  = getGecko();
+        var nome   = MESI[mese];
+        var giorni = getDays(mese, anno);
+        var comp = 0, tot = 0;
+        for (var i = 1; i <= giorni; i++) {
             if ((PATTERN[i-1]||'DIGIUNO') !== 'DIGIUNO') {
-                totale++;
-                if (localStorage.getItem(feedKey(gecko&&gecko.id, nome, i)) === 'true') completati++;
+                tot++;
+                if (gecko && localStorage.getItem(feedKey(gecko.id, nome, i)) === 'true') comp++;
             }
         }
-        const pct = totale > 0 ? Math.round(completati / totale * 100) : 0;
-        document.getElementById('prog-pct').textContent    = pct + '%';
-        document.getElementById('prog-fill').style.width   = pct + '%';
-        const geckoNome = gecko ? gecko.nome + ' — ' : '';
-        document.getElementById('prog-detail').textContent = geckoNome + completati + ' / ' + totale + ' pasti completati questo mese';
+        var pct  = tot > 0 ? Math.round(comp/tot*100) : 0;
+        var CIRC = 138.2;
+        document.getElementById('prog-pct').textContent = pct + '%';
+        document.getElementById('prog-detail').textContent = comp + ' / ' + tot + ' pasti ' + nome;
+        if (gecko) document.getElementById('prog-label').textContent = gecko.nome + ' — ' + MESI[mese];
+        setTimeout(function() {
+            var arc = document.getElementById('prog-arc');
+            if (arc) arc.setAttribute('stroke-dashoffset', String(CIRC * (1 - pct/100)));
+        }, 80);
     }
 
-    function buildList() {
-        const gecko  = getGecko();
-        const nome   = MESI[mese];
-        const giorni = getDays(mese);
-        const isCurMese   = mese === oggi.getMonth();
-        const isPastMese  = mese < oggi.getMonth();
-        const gg = oggi.getDate();
-        let html = '';
+    // ── GRIGLIA ──
+    function buildGrid() {
+        var gecko  = getGecko();
+        var nome   = MESI[mese];
+        var giorni = getDays(mese, anno);
+        var isCurMese  = mese === oggi.getMonth() && anno === oggi.getFullYear();
+        var isPastMese = anno < oggi.getFullYear() || (anno === oggi.getFullYear() && mese < oggi.getMonth());
+        var gg = oggi.getDate();
 
-        for (let i = 1; i <= giorni; i++) {
-            const alim    = PATTERN[i-1] || 'DIGIUNO';
-            const isDig   = alim === 'DIGIUNO';
-            const isD3    = alim.includes('D3');
-            const isToday = isCurMese && i === gg;
-            const isPast  = isPastMese || (isCurMese && i < gg);
-            const fatto   = !isDig && localStorage.getItem(feedKey(gecko&&gecko.id, nome, i)) === 'true';
+        // Primo giorno della settimana (0=Dom → offset)
+        var primoGiorno = new Date(anno, mese, 1).getDay();
+        var offset = primoGiorno === 0 ? 6 : primoGiorno - 1; // Lunedì = 0
 
-            let rowClass = 'giorno-row';
-            if (isToday)              rowClass += ' oggi-row';
-            else if (isDig && isPast) rowClass += ' digiuno-row';
-            else if (!isDig && isPast && fatto)  rowClass += ' fatto-row';
-            else if (!isDig && isPast && !fatto) rowClass += ' saltato-row';
+        document.getElementById('month-name').textContent = nome + ' ' + anno;
+        document.getElementById('h-sub').textContent = nome + ' ' + anno;
 
-            const badge = isToday ? '<span class="gr-badge">OGGI</span>' : '';
+        var html = '';
 
-            let inner = '';
+        // Celle vuote prima del primo giorno
+        for (var v = 0; v < offset; v++) {
+            html += '<div class="cal-cell vuoto"></div>';
+        }
+
+        for (var i = 1; i <= giorni; i++) {
+            var alim   = PATTERN[i-1] || 'DIGIUNO';
+            var isDig  = alim === 'DIGIUNO';
+            var isToday  = isCurMese && i === gg;
+            var isPastDay = isPastMese || (isCurMese && i < gg);
+            var isFuture = !isPastDay && !isToday;
+            var fatto  = !isDig && gecko && localStorage.getItem(feedKey(gecko.id, nome, i)) === 'true';
+
+            var cls = 'cal-cell';
+            if (isToday) cls += ' oggi';
+
+            var dot = '';
             if (isDig) {
-                inner = `<div class="gr-content"><div class="gr-alim">Digiuno</div></div>`;
+                cls += ' digiuno';
+                dot = '<span class="cal-dot" style="color:#333">—</span>';
+            } else if (isPastDay) {
+                cls += fatto ? ' fatto' : ' saltato';
+                dot = fatto
+                    ? '<span class="cal-dot">✓</span>'
+                    : '<span class="cal-dot" style="color:#ef444488">✕</span>';
+            } else if (isFuture) {
+                cls += ' pasto';
+                dot = '<span class="cal-dot" style="color:#ff994055">🍽</span>';
             } else {
-                const img    = isD3 ? 'calcio-d3.jpg' : 'calcio-puro.jpg';
-                const subTxt = isD3 ? 'Calcio + Vitamina D3' : 'Calcio Puro';
-                inner = `
-                    <div class="gr-content">
-                        <div class="gr-alim" style="${fatto ? 'opacity:.45;text-decoration:line-through' : ''}">
-                            5-7 Insetti
-                        </div>
-                        <div class="gr-sub">${subTxt}</div>
-                    </div>
-                    <img src="${img}" class="gr-img" alt="${subTxt}">
-                    <input type="checkbox" class="gr-check" data-g="${i}" ${fatto ? 'checked' : ''}>`;
+                // oggi + pasto
+                cls += ' pasto';
+                dot = fatto
+                    ? '<span class="cal-dot">✓</span>'
+                    : '<span class="cal-dot" style="color:var(--accent)">🍽</span>';
             }
 
-            html += `<div class="${rowClass}" id="gr-${i}">
-                <div class="gr-num">${i}</div>
-                ${badge}
-                ${inner}
-            </div>`;
+            var onclick = (!isDig && (isPastDay || isToday || isFuture))
+                ? ' onclick="toggleGiorno(' + i + ')"' : '';
+
+            html += '<div class="' + cls + '"' + onclick + ' id="dc-' + i + '">' +
+                '<span class="cal-num">' + i + '</span>' +
+                dot +
+            '</div>';
         }
 
-        document.getElementById('giorni-list').innerHTML = html;
-        document.getElementById('monthName').textContent = nome;
-
-        if (isMeseOggi) {
-            setTimeout(function() {
-                var el = document.getElementById('gr-' + gg);
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 100);
-        }
+        document.getElementById('cal-grid').innerHTML = html;
     }
 
-    document.addEventListener('change', function(e) {
-        if (!e.target.dataset.g) return;
-        const gecko = getGecko();
-        const g   = e.target.dataset.g;
-        const key = feedKey(gecko&&gecko.id, MESI[mese], g);
-        if (e.target.checked) localStorage.setItem(key, 'true');
-        else                   localStorage.removeItem(key);
-        // strikethrough
-        var row = document.getElementById('gr-' + g);
-        if (row) {
-            var alimEl = row.querySelector('.gr-alim');
-            if (alimEl) alimEl.style.cssText = e.target.checked
-                ? 'opacity:.45;text-decoration:line-through' : '';
-        }
-        updateProgress();
-    });
+    function toggleGiorno(g) {
+        var gecko = getGecko();
+        if (!gecko) return;
+        var alim = PATTERN[g-1] || 'DIGIUNO';
+        if (alim === 'DIGIUNO') return;
+        var key = feedKey(gecko.id, MESI[mese], g);
+        if (localStorage.getItem(key) === 'true') localStorage.removeItem(key);
+        else localStorage.setItem(key, 'true');
+        buildGrid();
+        aggiornaProgress();
+    }
 
-    function prevM() { mese = (mese - 1 + 12) % 12; buildList(); updateProgress(); }
-    function nextM() { mese = (mese + 1) % 12;       buildList(); updateProgress(); }
-    function goToOggi() { mese = oggi.getMonth(); buildList(); updateProgress(); }
+    function prevM() {
+        mese--;
+        if (mese < 0) { mese = 11; anno--; }
+        buildGrid(); aggiornaProgress();
+    }
+    function nextM() {
+        mese++;
+        if (mese > 11) { mese = 0; anno++; }
+        buildGrid(); aggiornaProgress();
+    }
+    function goOggi() {
+        mese = oggi.getMonth(); anno = oggi.getFullYear();
+        buildGrid(); aggiornaProgress();
+        setTimeout(function() {
+            var el = document.getElementById('dc-' + oggi.getDate());
+            if (el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+        }, 100);
+    }
 
-    buildList();
-    updateProgress();
+    caricaMeteo();
+    buildGrid();
+    aggiornaProgress();
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').catch(function(){});
