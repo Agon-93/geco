@@ -52,15 +52,16 @@
 
         .row {
             display: flex;
-            gap: 20px;
+            gap: 16px;
+            flex-wrap: wrap;
         }
 
         .field {
             flex: 1;
-            min-width: 0;
+            min-width: 120px;
         }
 
-        .field.wide { flex: 2; }
+        .field.wide { flex: 2; min-width: 160px; }
 
         .field-label {
             font-size: 12px;
@@ -77,9 +78,8 @@
             border-bottom: 1.5px solid #2a9070;
             padding-bottom: 5px;
             min-height: 24px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            word-break: break-word;
+            line-height: 1.4;
         }
 
         .field-value.empty { color: #aaa; font-weight: 400; }
@@ -166,15 +166,15 @@
     }
 
     function val(v) {
-        if (!v) return '<span class="field-value empty">—</span>';
-        return '<span class="field-value">' + v + '</span>';
+        if (!v) return '<div class="field-value empty">—</div>';
+        return '<div class="field-value">' + v + '</div>';
     }
 
     function render(gecko) {
         var sessoLabel = gecko.sesso === 'M' ? '♂ Maschio' : gecko.sesso === 'F' ? '♀ Femmina' : null;
         var nascitaStr = formatData(gecko.nascita);
         var eta        = calcEta(gecko.nascita);
-        var nascitaFull = nascitaStr ? (nascitaStr + (eta ? ' (' + eta + ')' : '')) : null;
+        var nascitaFull = nascitaStr ? (nascitaStr + (eta ? '<br><span style="font-size:12px;color:#555;font-weight:400;">' + eta + '</span>' : '')) : null;
 
         document.getElementById('card-body').innerHTML =
             '<div class="row">' +
