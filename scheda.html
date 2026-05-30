@@ -127,6 +127,8 @@
         }
         .btn:active { opacity: .75; }
         .btn-print { background: #1a7a65; color: #fff; }
+        .btn-pdf   { background: #1a7a65; color: #fff; }
+        .btn-save  { background: #c8e8df; color: #1a7a65; }
         .btn-app   { background: #c8e8df; color: #1a7a65; }
 
         /* ── NOT FOUND ── */
@@ -138,12 +140,38 @@
 
         /* ── STAMPA ── */
         @media print {
-            body { background: #fff; padding: 10mm; justify-content: flex-start; }
-            .card { box-shadow: none; max-width: 170mm; border: 2px solid #2a9070; border-radius: 12px; }
-            .card-footer { display: none; }
-            .card-header  { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .card         { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .qr-wrap      { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @page { margin: 12mm; size: A4; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            body {
+                background: #fff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                display: block !important;
+                min-height: unset;
+            }
+            .card {
+                box-shadow: none !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                border: 2px solid #2a9070 !important;
+                border-radius: 10px !important;
+            }
+            .card-header {
+                font-size: 18px !important;
+                padding: 16px 24px !important;
+            }
+            .fields-col {
+                padding: 22px 24px 20px !important;
+                gap: 16px !important;
+            }
+            .qr-col {
+                width: 160px !important;
+                padding: 20px 16px !important;
+            }
+            .field-label { font-size: 12px !important; }
+            .field-value { font-size: 15px !important; padding-bottom: 6px !important; }
+            .qr-label { font-size: 11px !important; }
+            .card-footer { display: none !important; }
         }
 
         @media (max-width: 360px) {
@@ -212,8 +240,8 @@
                 '</div>' +
             '</div>' +
             '<div class="card-footer">' +
-                '<button class="btn btn-print" onclick="window.print()">🖨️ Stampa / Salva PDF</button>' +
-                '<a href="profili.html" class="btn btn-app">🦎 Apri app</a>' +
+                '<button class="btn btn-pdf"  id="btn-pdf"  onclick="salvaPDF()">📄 Salva PDF</button>' +
+                '<button class="btn btn-save" id="btn-save" onclick="salvaGalleria()">📸 Salva Immagine</button>' +
             '</div>';
 
         // Genera QR
@@ -283,6 +311,118 @@
         render(gecko, qrUrl);
     } else {
         renderNotFound();
+    }
+
+    function salvaPDF() {
+        var btn = document.getElementById('btn-pdf');
+        btn.textContent = '⏳ Creazione...';
+        btn.disabled = true;
+
+        function doSavePDF() {
+            html2canvas(document.getElementById('card'), {
+                scale: 3, useCORS: true, allowTaint: true,
+                backgroundColor: '#e5f3ee', logging: false
+            }).then(function(canvas) {
+                var nome     = (gecko && gecko.nome ? gecko.nome : 'geco').toLowerCase().replace(/\s+/g,'-');
+                var filename = 'scheda-' + nome + '.pdf';
+                var imgData  = canvas.toDataURL('image/png');
+                var pdf      = new window.jspdf.jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+                var pw       = pdf.internal.pageSize.getWidth();
+                var iw       = pw - 20;
+                var ih       = (canvas.height * iw) / canvas.width;
+                pdf.addImage(imgData, 'PNG', 10, 10, iw, ih);
+                pdf.save(filename);
+                btn.textContent = '📄 Salva PDF';
+                btn.disabled = false;
+            }).catch(function() {
+                alert('Errore nella creazione PDF');
+                btn.textContent = '📄 Salva PDF';
+                btn.disabled = false;
+            });
+        }
+
+        function loadAndSave() {
+            if (!window.html2canvas) {
+                var s1 = document.createElement('script');
+                s1.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+                s1.onload = function() {
+                    var s2 = document.createElement('script');
+                    s2.src = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
+                    s2.onload = doSavePDF;
+                    s2.onerror = function() { alert('Connessione necessaria la prima volta'); btn.textContent='📄 Salva PDF'; btn.disabled=false; };
+                    document.head.appendChild(s2);
+                };
+                s1.onerror = function() { alert('Connessione necessaria la prima volta'); btn.textContent='📄 Salva PDF'; btn.disabled=false; };
+                document.head.appendChild(s1);
+            } else if (!window.jspdf) {
+                var s2 = document.createElement('script');
+                s2.src = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
+                s2.onload = doSavePDF;
+                document.head.appendChild(s2);
+            } else {
+                doSavePDF();
+            }
+        }
+        loadAndSave();
+    }
+
+    function salvaGalleria() {
+        var btn = document.getElementById('btn-save');
+        btn.textContent = '⏳ Creazione...';
+        btn.disabled = true;
+
+        function doSave() {
+            html2canvas(document.getElementById('card'), {
+                scale: 3,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#e5f3ee',
+                logging: false
+            }).then(function(canvas) {
+                var nome     = (gecko && gecko.nome ? gecko.nome : 'geco').toLowerCase().replace(/\s+/g,'-');
+                var filename = 'scheda-' + nome + '.png';
+
+                canvas.toBlob(function(blob) {
+                    var file = new File([blob], filename, { type: 'image/png' });
+                    // iPhone: usa Web Share → "Salva in Foto"
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        navigator.share({ files: [file], title: 'Scheda ' + (gecko && gecko.nome || 'Geco') })
+                            .catch(function() { scaricaDiretto(canvas, filename); });
+                    } else {
+                        // Android / PC: download diretto
+                        scaricaDiretto(canvas, filename);
+                    }
+                    btn.textContent = '📸 Salva in Galleria';
+                    btn.disabled = false;
+                });
+            }).catch(function() {
+                alert('Errore nella creazione immagine');
+                btn.textContent = '📸 Salva in Galleria';
+                btn.disabled = false;
+            });
+        }
+
+        // Carica html2canvas la prima volta
+        if (!window.html2canvas) {
+            var s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+            s.onload = doSave;
+            s.onerror = function() {
+                alert('Connessione necessaria la prima volta');
+                btn.textContent = '📸 Salva in Galleria';
+                btn.disabled = false;
+            };
+            document.head.appendChild(s);
+        } else {
+            doSave();
+        }
+    }
+
+    function scaricaDiretto(canvas, filename) {
+        var a = document.createElement('a');
+        a.href = canvas.toDataURL('image/png');
+        a.download = filename;
+        a.click();
     }
 
     if ('serviceWorker' in navigator) {
