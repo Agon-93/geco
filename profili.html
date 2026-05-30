@@ -223,6 +223,22 @@
             border-radius:12px; padding:13px; font-size:14px; font-weight:700; cursor:pointer;
         }
 
+        /* ══ TEMI ══ */
+        .tema-sabbia  { background-image: radial-gradient(circle, rgba(255,255,255,.07) 1px, transparent 1px); background-size:10px 10px; }
+        .tema-scaglie { background-image: repeating-linear-gradient(60deg, rgba(255,255,255,.04) 0px, rgba(255,255,255,.04) 1px, transparent 1px, transparent 12px), repeating-linear-gradient(-60deg, rgba(255,255,255,.04) 0px, rgba(255,255,255,.04) 1px, transparent 1px, transparent 12px); }
+        .tema-notte   { background-image: radial-gradient(circle, rgba(255,255,255,.12) 1px, transparent 1px), radial-gradient(circle, rgba(255,255,255,.06) 1px, transparent 1px); background-size:8px 8px, 22px 22px; background-position:0 0, 4px 4px; }
+        .tema-righe   { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.04) 0, rgba(255,255,255,.04) 1px, transparent 0, transparent 50%); background-size:8px 8px; }
+
+        .tema-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+        .tema-opt {
+            border:2px solid #333; border-radius:10px; padding:10px 4px;
+            text-align:center; cursor:pointer; background:#2a2a2a; transition:.15s;
+        }
+        .tema-opt .t-icon  { font-size:20px; display:block; margin-bottom:3px; }
+        .tema-opt .t-label { font-size:10px; font-weight:600; color:#666; }
+        .tema-opt.sel { border-color:var(--accent,#ff9940); background:rgba(255,153,64,.1); }
+        .tema-opt.sel .t-label { color:var(--accent,#ff9940); }
+
         /* ══ SEARCH ══ */
         .search-wrap { padding:12px 16px 0; max-width:500px; margin:0 auto; }
         .search-box {
@@ -400,6 +416,11 @@
             </div>
 
             <div class="form-group">
+                <label>Tema sfondo</label>
+                <div class="tema-grid" id="tema-grid"></div>
+            </div>
+
+            <div class="form-group">
                 <label>Morfologia (opzionale)</label>
                 <input class="form-input" id="f-morfo" placeholder="Es: Normal, Blizzard, Albino...">
             </div>
@@ -525,9 +546,10 @@
                 : '';
             var meta   = [sesso, eta, gecko.morfo].filter(Boolean).join(' · ');
 
-            var c   = gecko.colore || '#ff9940';
+            var c        = gecko.colore || '#ff9940';
+            var temaClass = gecko.tema && gecko.tema !== 'default' ? ' tema-' + gecko.tema : '';
             var cBg = isAtt ? 'background:' + c + '18;' : '';
-            return '<div class="gecko-card" style="border-color:' + c + '55;' + cBg + '">' +
+            return '<div class="gecko-card' + temaClass + '" style="border-color:' + c + '55;' + cBg + '">' +
                 '<div class="gc-top">' +
                     '<div class="gc-foto" style="border-color:' + c + '">' + fotoHTML + '</div>' +
                     '<div class="gc-info">' +
@@ -586,10 +608,19 @@
         showToast('✅ ' + (g ? g.nome : 'Geco') + ' selezionato!');
     }
 
+    var TEMI = [
+        { id:'default', icon:'⬛', label:'Nessuno' },
+        { id:'sabbia',  icon:'🏜️', label:'Sabbia'  },
+        { id:'scaglie', icon:'🐊', label:'Scaglie' },
+        { id:'notte',   icon:'🌙', label:'Stelle'  },
+        { id:'righe',   icon:'〰️', label:'Righe'   }
+    ];
+
     var _editId   = null;
     var _sessoSel = '';
     var _fotoB64  = '';
     var _coloreSel = '#ff9940';
+    var _temaSel   = 'default';
 
     function openForm(id) {
         _editId = id;
@@ -605,7 +636,9 @@
         document.getElementById('opt-M').className = 'sesso-opt';
         document.getElementById('opt-F').className = 'sesso-opt';
         _coloreSel = '#ff9940';
+        _temaSel   = 'default';
         buildColoreGrid();
+        buildTemaGrid();
 
         if (id) {
             var g = getGeckos().find(function(x){return x.id===id;});
@@ -617,12 +650,14 @@
                 _sessoSel  = g.sesso  || '';
                 _fotoB64   = g.foto   || '';
                 _coloreSel = g.colore || '#ff9940';
+                _temaSel   = g.tema   || 'default';
                 if (g.foto) {
                     document.getElementById('foto-preview').innerHTML =
                         '<img src="' + g.foto + '" alt=""><input type="file" id="foto-input" accept="image/*" onchange="handleFoto(this)">';
                 }
                 if (g.sesso) selSesso(g.sesso);
                 buildColoreGrid();
+                buildTemaGrid();
             }
         }
 
@@ -643,6 +678,19 @@
         document.getElementById('opt-M').className = 'sesso-opt' + (s==='M' ? ' sel-M' : '');
         document.getElementById('opt-F').className = 'sesso-opt' + (s==='F' ? ' sel-F' : '');
     }
+
+    function buildTemaGrid() {
+        var grid = document.getElementById('tema-grid');
+        if (!grid) return;
+        grid.innerHTML = TEMI.map(function(t) {
+            return '<div class="tema-opt' + (t.id === _temaSel ? ' sel' : '') + '" onclick="pickTema(\'' + t.id + '\')">' +
+                '<span class="t-icon">' + t.icon + '</span>' +
+                '<span class="t-label">' + t.label + '</span>' +
+            '</div>';
+        }).join('');
+    }
+
+    function pickTema(id) { _temaSel = id; buildTemaGrid(); }
 
     function buildColoreGrid() {
         var grid = document.getElementById('colore-grid');
@@ -693,6 +741,7 @@
                 geckos[idx].morfo      = document.getElementById('f-morfo').value.trim();
                 geckos[idx].noteRapide = document.getElementById('f-note').value.trim();
                 geckos[idx].colore     = _coloreSel;
+                geckos[idx].tema       = _temaSel;
                 if (_fotoB64) geckos[idx].foto = _fotoB64;
             }
         } else {
@@ -704,7 +753,8 @@
                 morfo:      document.getElementById('f-morfo').value.trim(),
                 noteRapide: document.getElementById('f-note').value.trim(),
                 foto:       _fotoB64,
-                colore:     _coloreSel
+                colore:     _coloreSel,
+                tema:       _temaSel
             };
             geckos.push(newGeco);
             if (!getActiveId()) setActive(newGeco.id);
