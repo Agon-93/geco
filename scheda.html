@@ -158,14 +158,19 @@
 
     var params = new URLSearchParams(window.location.search);
     var id     = params.get('id');
+    var d      = params.get('d');
+    var gecko  = null;
 
-    if (id) {
-        var gecko = getGeckos().find(function(g){ return g.id === id; });
-        if (gecko) render(gecko);
-        else renderNotFound();
-    } else {
-        renderNotFound();
+    // Stesso dispositivo: legge da localStorage (foto inclusa)
+    if (id) gecko = getGeckos().find(function(g){ return g.id === id; });
+
+    // Altro dispositivo: decodifica dati dall'URL
+    if (!gecko && d) {
+        try { gecko = JSON.parse(decodeURIComponent(escape(atob(d)))); } catch(e) {}
     }
+
+    if (gecko) render(gecko);
+    else renderNotFound();
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').catch(function(){});

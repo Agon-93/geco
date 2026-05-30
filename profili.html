@@ -840,12 +840,12 @@
             if (mesi < 24) eta = mesi + ' mesi';
             else { var anni = Math.floor(mesi/12); eta = anni + ' ann' + (anni===1?'o':'i'); }
         }
-        var meta = [sesso, gecko.morfo, eta].filter(Boolean).join(' · ');
-        var lines = ['🦎 ' + gecko.nome];
-        if (meta) lines.push(meta);
-        if (nascitaStr) lines.push('Nato il ' + nascitaStr);
-        if (gecko.noteRapide) lines.push(gecko.noteRapide);
-        var text = lines.join('\n');
+        var geckoData = {
+            nome: gecko.nome, sesso: gecko.sesso, nascita: gecko.nascita,
+            morfo: gecko.morfo, noteRapide: gecko.noteRapide, colore: gecko.colore
+        };
+        var b64  = btoa(unescape(encodeURIComponent(JSON.stringify(geckoData))));
+        var text = 'https://agon-93.github.io/geco/scheda.html?id=' + gecko.id + '&d=' + b64;
         try {
             var qr = qrcode(0, 'M');
             qr.addData(text);
