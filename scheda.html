@@ -11,7 +11,7 @@
 
         body {
             font-family: Arial, 'Helvetica Neue', sans-serif;
-            background: #f2f2f2;
+            background: #f0f0f0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -21,161 +21,94 @@
             gap: 14px;
         }
 
-        /* ── CARD ── */
         .card {
             background: #e5f3ee;
             border: 2px solid #2a9070;
-            border-radius: 18px;
+            border-radius: 16px;
             overflow: hidden;
             width: 100%;
-            max-width: 480px;
-            box-shadow: 0 6px 24px rgba(0,0,0,.15);
+            max-width: 420px;
+            box-shadow: 0 4px 20px rgba(0,0,0,.12);
         }
 
         .card-header {
             background: #1a7a65;
             color: #fff;
             text-align: center;
-            padding: 14px 20px;
-            font-size: 16px;
+            padding: 16px 20px;
+            font-size: 17px;
             font-weight: 800;
             letter-spacing: .08em;
             text-transform: uppercase;
         }
 
-        /* ── BODY A DUE COLONNE ── */
         .card-body {
-            display: flex;
-            gap: 0;
-            padding: 0;
-        }
-
-        .fields-col {
-            flex: 1;
-            padding: 20px 20px 16px;
+            padding: 20px 24px 8px;
             display: flex;
             flex-direction: column;
             gap: 14px;
-            border-right: 1.5px solid #c5ddd7;
         }
 
-        .qr-col {
-            width: 140px;
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 16px 12px;
-            gap: 8px;
-        }
-
-        .qr-wrap {
-            background: #fff;
-            border-radius: 10px;
-            padding: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,.1);
-        }
-
-        #qr-canvas { display: block; }
-
-        .qr-label {
-            font-size: 10px;
-            color: #1a7a65;
-            font-weight: 700;
-            text-align: center;
-            letter-spacing: .03em;
-        }
-
-        /* ── CAMPI ── */
         .field { display: flex; flex-direction: column; gap: 4px; }
 
         .field-label {
             font-size: 11px;
             font-weight: 700;
             color: #1a7a65;
-            letter-spacing: .04em;
+            letter-spacing: .06em;
             text-transform: uppercase;
         }
 
         .field-value {
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 600;
             color: #111;
             border-bottom: 1.5px solid #2a9070;
-            padding-bottom: 4px;
-            min-height: 22px;
+            padding-bottom: 6px;
+            min-height: 26px;
             word-break: break-word;
             line-height: 1.4;
         }
 
-        .field-value.vuoto { color: #aaa; font-weight: 400; }
+        .field-value.vuoto { color: #bbb; font-weight: 400; font-style: italic; }
 
-        /* ── FOOTER ── */
+        .card-spacer { height: 12px; }
+
         .card-footer {
-            padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+            padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
             display: flex;
             gap: 10px;
             border-top: 1.5px solid #c5ddd7;
         }
 
         .btn {
-            flex: 1; padding: 12px; border-radius: 12px;
+            flex: 1; padding: 13px; border-radius: 12px;
             font-size: 14px; font-weight: 700; cursor: pointer;
             border: none; text-align: center; text-decoration: none;
             display: block; transition: opacity .15s;
         }
         .btn:active { opacity: .75; }
-        .btn-print { background: #1a7a65; color: #fff; }
-        .btn-pdf   { background: #1a7a65; color: #fff; }
-        .btn-save  { background: #c8e8df; color: #1a7a65; }
-        .btn-app   { background: #c8e8df; color: #1a7a65; }
+        .btn-pdf  { background: #1a7a65; color: #fff; }
+        .btn-img  { background: #c8e8df; color: #1a7a65; }
 
-        /* ── NOT FOUND ── */
-        .not-found { text-align: center; padding: 40px 24px; }
-        .not-found .icon { font-size: 56px; margin-bottom: 14px; display: block; }
-        .not-found h2 { font-size: 19px; font-weight: 700; color: #111; margin-bottom: 8px; }
-        .not-found p  { font-size: 13px; color: #888; margin-bottom: 20px; }
-        .not-found a  { color: #1a7a65; font-weight: 700; text-decoration: none; }
+        /* NOT FOUND */
+        .not-found { text-align:center; padding:40px 24px; }
+        .not-found .icon { font-size:56px; margin-bottom:14px; display:block; }
+        .not-found h2 { font-size:19px; font-weight:700; color:#111; margin-bottom:8px; }
+        .not-found p  { font-size:13px; color:#888; margin-bottom:20px; }
+        .not-found a  { color:#1a7a65; font-weight:700; text-decoration:none; }
 
-        /* ── STAMPA ── */
+        /* STAMPA */
         @media print {
             @page { margin: 12mm; size: A4; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            body {
-                background: #fff !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                display: block !important;
-                min-height: unset;
-            }
-            .card {
-                box-shadow: none !important;
-                max-width: 100% !important;
-                width: 100% !important;
-                border: 2px solid #2a9070 !important;
-                border-radius: 10px !important;
-            }
-            .card-header {
-                font-size: 18px !important;
-                padding: 16px 24px !important;
-            }
-            .fields-col {
-                padding: 22px 24px 20px !important;
-                gap: 16px !important;
-            }
-            .qr-col {
-                width: 160px !important;
-                padding: 20px 16px !important;
-            }
-            .field-label { font-size: 12px !important; }
-            .field-value { font-size: 15px !important; padding-bottom: 6px !important; }
-            .qr-label { font-size: 11px !important; }
-            .card-footer { display: none !important; }
-        }
-
-        @media (max-width: 360px) {
-            .qr-col { width: 110px; }
+            body { background:#fff !important; padding:0 !important; display:block !important; }
+            .card { box-shadow:none !important; max-width:100% !important; width:100% !important; border-radius:10px !important; }
+            .card-header { font-size:19px !important; padding:18px !important; }
+            .card-body { padding:24px 28px 12px !important; gap:18px !important; }
+            .field-label { font-size:12px !important; }
+            .field-value  { font-size:16px !important; padding-bottom:8px !important; }
+            .card-footer  { display:none !important; }
         }
     </style>
 </head>
@@ -183,8 +116,8 @@
 
 <div class="card" id="card">
     <div class="card-header">SCHEDA IDENTIFICAZIONE</div>
-    <div id="card-inner">
-        <div style="text-align:center;padding:30px;color:#888;font-size:14px;">Caricamento...</div>
+    <div id="card-body" class="card-body">
+        <div style="text-align:center;padding:20px 0;color:#888;">Caricamento...</div>
     </div>
 </div>
 
@@ -213,217 +146,133 @@
     }
 
     function field(label, value) {
-        var v = value
-            ? '<div class="field-value">' + value + '</div>'
-            : '<div class="field-value vuoto">—</div>';
-        return '<div class="field"><div class="field-label">' + label + '</div>' + v + '</div>';
+        var cls = value ? 'field-value' : 'field-value vuoto';
+        var val = value || '—';
+        return '<div class="field">' +
+            '<div class="field-label">' + label + '</div>' +
+            '<div class="' + cls + '">' + val + '</div>' +
+        '</div>';
     }
 
-    function render(gecko, qrUrl) {
-        var sessoLabel = gecko.sesso === 'M' ? '♂ Maschio' : gecko.sesso === 'F' ? '♀ Femmina' : null;
-        var nascitaStr = formatData(gecko.nascita);
-        var eta        = calcEta(gecko.nascita);
+    var gecko = null;
+
+    function render(g) {
+        gecko = g;
+        var sessoLabel = g.sesso === 'M' ? '♂ Maschio' : g.sesso === 'F' ? '♀ Femmina' : null;
+        var nascitaStr = formatData(g.nascita);
+        var eta        = calcEta(g.nascita);
         var nascitaFull = nascitaStr ? nascitaStr + (eta ? ' (' + eta + ')' : '') : null;
 
-        document.getElementById('card-inner').innerHTML =
-            '<div class="card-body">' +
-                '<div class="fields-col">' +
-                    field('Nome', gecko.nome) +
-                    field('Data di Nascita', nascitaFull) +
-                    field('Sesso', sessoLabel) +
-                    field('Morfologia', gecko.morfo) +
-                    field('Note', gecko.noteRapide) +
-                '</div>' +
-                '<div class="qr-col">' +
-                    '<div class="qr-wrap"><canvas id="qr-canvas"></canvas></div>' +
-                    '<div class="qr-label">Scansiona per info</div>' +
-                '</div>' +
-            '</div>' +
-            '<div class="card-footer">' +
-                '<button class="btn btn-pdf"  id="btn-pdf"  onclick="salvaPDF()">📄 Salva PDF</button>' +
-                '<button class="btn btn-save" id="btn-save" onclick="salvaGalleria()">📸 Salva Immagine</button>' +
-            '</div>';
+        document.getElementById('card-body').innerHTML =
+            field('Nome', g.nome) +
+            field('Data di Nascita', nascitaFull) +
+            field('Sesso', sessoLabel) +
+            field('Morfologia', g.morfo) +
+            field('Note', g.noteRapide) +
+            '<div class="card-spacer"></div>';
 
-        // Genera QR
-        if (!window.qrcode) {
-            var s = document.createElement('script');
-            s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';
-            s.onload = function() { drawQR(qrUrl); };
-            document.head.appendChild(s);
-        } else {
-            drawQR(qrUrl);
-        }
-    }
-
-    function drawQR(text) {
-        try {
-            var qr    = qrcode(0, 'M');
-            qr.addData(text);
-            qr.make();
-            var canvas = document.getElementById('qr-canvas');
-            if (!canvas) return;
-            var cells  = qr.getModuleCount();
-            var scale  = Math.max(3, Math.floor(100 / cells));
-            var pad    = 4;
-            var size   = cells * scale + pad * 2;
-            canvas.width  = size; canvas.height = size;
-            canvas.style.width = size + 'px'; canvas.style.height = size + 'px';
-            var ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, size, size);
-            ctx.fillStyle = '#111';
-            for (var r = 0; r < cells; r++) {
-                for (var c = 0; c < cells; c++) {
-                    if (qr.isDark(r, c)) ctx.fillRect(c*scale+pad, r*scale+pad, scale, scale);
-                }
-            }
-        } catch(e) {}
+        document.getElementById('card').insertAdjacentHTML('beforeend',
+            '<div class="card-footer" id="card-footer">' +
+                '<button class="btn btn-pdf" id="btn-pdf" onclick="salvaPDF()">📄 Salva PDF</button>' +
+                '<button class="btn btn-img" id="btn-img" onclick="salvaImmagine()">📸 Salva Immagine</button>' +
+            '</div>'
+        );
     }
 
     function renderNotFound() {
-        document.getElementById('card-inner').innerHTML =
+        document.getElementById('card-body').innerHTML =
             '<div class="not-found">' +
                 '<span class="icon">🦎</span>' +
                 '<h2>Geco non trovato</h2>' +
-                '<p>Apri l\'app e genera il QR dal profilo del geco</p>' +
+                '<p>Apri l\'app e accedi al profilo del geco</p>' +
                 '<a href="profili.html">Apri l\'app →</a>' +
             '</div>';
     }
 
-    // Carica dati
-    var params = new URLSearchParams(window.location.search);
-    var id     = params.get('id');
-    var d      = params.get('d');
-    var gecko  = null;
-
-    if (id) gecko = getGeckos().find(function(g){ return g.id === id; });
-    if (!gecko && d) {
-        try { gecko = JSON.parse(decodeURIComponent(escape(atob(d)))); } catch(e) {}
-    }
-
-    if (gecko) {
-        // Costruisci URL per QR
-        var geckoData = {
-            nome: gecko.nome, sesso: gecko.sesso, nascita: gecko.nascita,
-            morfo: gecko.morfo, noteRapide: gecko.noteRapide, colore: gecko.colore
-        };
-        var b64    = btoa(unescape(encodeURIComponent(JSON.stringify(geckoData))));
-        var qrUrl  = 'https://agon-93.github.io/geco/scheda.html?id=' + (id || '') + '&d=' + b64;
-        render(gecko, qrUrl);
-    } else {
-        renderNotFound();
-    }
-
-    function salvaPDF() {
-        var btn = document.getElementById('btn-pdf');
-        btn.textContent = '⏳ Creazione...';
-        btn.disabled = true;
-
-        function doSavePDF() {
+    // ── CATTURA ──
+    function cattura(callback) {
+        var footer = document.getElementById('card-footer');
+        if (footer) footer.style.display = 'none';
+        function esegui() {
             html2canvas(document.getElementById('card'), {
                 scale: 3, useCORS: true, allowTaint: true,
                 backgroundColor: '#e5f3ee', logging: false
             }).then(function(canvas) {
-                var nome     = (gecko && gecko.nome ? gecko.nome : 'geco').toLowerCase().replace(/\s+/g,'-');
-                var filename = 'scheda-' + nome + '.pdf';
-                var imgData  = canvas.toDataURL('image/png');
-                var pdf      = new window.jspdf.jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
-                var pw       = pdf.internal.pageSize.getWidth();
-                var iw       = pw - 20;
-                var ih       = (canvas.height * iw) / canvas.width;
-                pdf.addImage(imgData, 'PNG', 10, 10, iw, ih);
-                pdf.save(filename);
-                btn.textContent = '📄 Salva PDF';
-                btn.disabled = false;
+                if (footer) footer.style.display = '';
+                callback(canvas);
             }).catch(function() {
-                alert('Errore nella creazione PDF');
-                btn.textContent = '📄 Salva PDF';
-                btn.disabled = false;
+                if (footer) footer.style.display = '';
+                alert('Errore nella creazione del file');
             });
         }
-
-        function loadAndSave() {
-            if (!window.html2canvas) {
-                var s1 = document.createElement('script');
-                s1.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-                s1.onload = function() {
-                    var s2 = document.createElement('script');
-                    s2.src = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
-                    s2.onload = doSavePDF;
-                    s2.onerror = function() { alert('Connessione necessaria la prima volta'); btn.textContent='📄 Salva PDF'; btn.disabled=false; };
-                    document.head.appendChild(s2);
-                };
-                s1.onerror = function() { alert('Connessione necessaria la prima volta'); btn.textContent='📄 Salva PDF'; btn.disabled=false; };
-                document.head.appendChild(s1);
-            } else if (!window.jspdf) {
-                var s2 = document.createElement('script');
-                s2.src = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
-                s2.onload = doSavePDF;
-                document.head.appendChild(s2);
-            } else {
-                doSavePDF();
-            }
-        }
-        loadAndSave();
-    }
-
-    function salvaGalleria() {
-        var btn = document.getElementById('btn-save');
-        btn.textContent = '⏳ Creazione...';
-        btn.disabled = true;
-
-        function doSave() {
-            html2canvas(document.getElementById('card'), {
-                scale: 3,
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: '#e5f3ee',
-                logging: false
-            }).then(function(canvas) {
-                var nome     = (gecko && gecko.nome ? gecko.nome : 'geco').toLowerCase().replace(/\s+/g,'-');
-                var filename = 'scheda-' + nome + '.png';
-
-                canvas.toBlob(function(blob) {
-                    var file = new File([blob], filename, { type: 'image/png' });
-                    // iPhone: usa Web Share → "Salva in Foto"
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        navigator.share({ files: [file], title: 'Scheda ' + (gecko && gecko.nome || 'Geco') })
-                            .catch(function() { scaricaDiretto(canvas, filename); });
-                    } else {
-                        // Android / PC: download diretto
-                        scaricaDiretto(canvas, filename);
-                    }
-                    btn.textContent = '📸 Salva in Galleria';
-                    btn.disabled = false;
-                });
-            }).catch(function() {
-                alert('Errore nella creazione immagine');
-                btn.textContent = '📸 Salva in Galleria';
-                btn.disabled = false;
-            });
-        }
-
-        // Carica html2canvas la prima volta
         if (!window.html2canvas) {
             var s = document.createElement('script');
             s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-            s.onload = doSave;
-            s.onerror = function() {
-                alert('Connessione necessaria la prima volta');
-                btn.textContent = '📸 Salva in Galleria';
-                btn.disabled = false;
-            };
+            s.onload = esegui;
+            s.onerror = function() { if (footer) footer.style.display=''; alert('Connessione necessaria la prima volta'); };
             document.head.appendChild(s);
-        } else {
-            doSave();
-        }
+        } else { esegui(); }
+    }
+
+    // ── SALVA PDF ──
+    function salvaPDF() {
+        var btn = document.getElementById('btn-pdf');
+        btn.textContent = '⏳ Creazione...'; btn.disabled = true;
+        cattura(function(canvas) {
+            function faiPDF() {
+                var nome = (gecko && gecko.nome ? gecko.nome : 'geco').toLowerCase().replace(/\s+/g,'-');
+                var pdf  = new window.jspdf.jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+                var pw   = pdf.internal.pageSize.getWidth();
+                var iw   = pw - 20;
+                var ih   = (canvas.height * iw) / canvas.width;
+                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 10, iw, ih);
+                pdf.save('scheda-' + nome + '.pdf');
+                btn.textContent = '📄 Salva PDF'; btn.disabled = false;
+            }
+            if (!window.jspdf) {
+                var s = document.createElement('script');
+                s.src = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
+                s.onload = faiPDF;
+                document.head.appendChild(s);
+            } else { faiPDF(); }
+        });
+    }
+
+    // ── SALVA IMMAGINE ──
+    function salvaImmagine() {
+        var btn = document.getElementById('btn-img');
+        btn.textContent = '⏳ Creazione...'; btn.disabled = true;
+        cattura(function(canvas) {
+            var nome = (gecko && gecko.nome ? gecko.nome : 'geco').toLowerCase().replace(/\s+/g,'-');
+            var filename = 'scheda-' + nome + '.png';
+            canvas.toBlob(function(blob) {
+                var file = new File([blob], filename, { type:'image/png' });
+                if (navigator.canShare && navigator.canShare({ files:[file] })) {
+                    navigator.share({ files:[file], title:'Scheda ' + (gecko&&gecko.nome||'Geco') })
+                        .catch(function(){ scaricaDiretto(canvas, filename); });
+                } else { scaricaDiretto(canvas, filename); }
+                btn.textContent = '📸 Salva Immagine'; btn.disabled = false;
+            });
+        });
     }
 
     function scaricaDiretto(canvas, filename) {
         var a = document.createElement('a');
         a.href = canvas.toDataURL('image/png');
-        a.download = filename;
-        a.click();
+        a.download = filename; a.click();
     }
+
+    // ── CARICA DATI ──
+    var params = new URLSearchParams(window.location.search);
+    var id = params.get('id');
+    var d  = params.get('d');
+    var g  = null;
+
+    if (id) g = getGeckos().find(function(x){ return x.id === id; });
+    if (!g && d) { try { g = JSON.parse(decodeURIComponent(escape(atob(d)))); } catch(e){} }
+
+    if (g) render(g);
+    else renderNotFound();
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').catch(function(){});
