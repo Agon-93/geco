@@ -217,6 +217,7 @@
         <div class="leg-item"><div class="leg-dot" style="background:rgba(239,68,68,.4)"></div>Saltato</div>
         <div class="leg-item"><div class="leg-dot" style="background:#1e1a14;border:1px solid #333"></div>Da fare</div>
         <div class="leg-item"><div class="leg-dot" style="background:#161616;opacity:.4"></div>Digiuno</div>
+        <div class="leg-item"><span style="font-size:10px;font-weight:800;color:#a78bfa;">D3</span>&nbsp;Vitamina D3</div>
     </div>
 
 </div>
@@ -235,10 +236,14 @@
     var GS   = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
 
     var PATTERN = [
-        'INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI',
-        'INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI',
-        'DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI',
-        'DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO'
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
+        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO',
+        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
+        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO',
+        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3','DIGIUNO'
     ];
 
     var METEO_ICONS = {
@@ -351,6 +356,11 @@
             var cls = 'cal-cell';
             if (isToday) cls += ' oggi';
 
+            var isD3  = alim.includes('D3');
+            var badge = isD3
+                ? '<span style="font-size:8px;font-weight:800;color:#a78bfa;line-height:1;letter-spacing:-.01em;">D3</span>'
+                : '';
+
             var dot = '';
             if (isDig) {
                 cls += ' digiuno';
@@ -358,17 +368,16 @@
             } else if (isPastDay) {
                 cls += fatto ? ' fatto' : ' saltato';
                 dot = fatto
-                    ? '<span class="cal-dot">✓</span>'
-                    : '<span class="cal-dot" style="color:#ef444488">✕</span>';
+                    ? '<span class="cal-dot">✓</span>' + badge
+                    : '<span class="cal-dot" style="color:#ef444488">✕</span>' + badge;
             } else if (isFuture) {
                 cls += ' pasto';
-                dot = '<span class="cal-dot" style="color:#ff994055">🍽</span>';
+                dot = '<span class="cal-dot" style="color:#ff994055">·</span>' + badge;
             } else {
-                // oggi + pasto
                 cls += ' pasto';
                 dot = fatto
-                    ? '<span class="cal-dot">✓</span>'
-                    : '<span class="cal-dot" style="color:var(--accent)">🍽</span>';
+                    ? '<span class="cal-dot">✓</span>' + badge
+                    : '<span class="cal-dot" style="color:var(--accent)">·</span>' + badge;
             }
 
             var onclick = (!isDig && (isPastDay || isToday || isFuture))
