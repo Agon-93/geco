@@ -18,7 +18,7 @@
             align-items: center;
             justify-content: center;
             padding: 24px 16px;
-            gap: 16px;
+            gap: 14px;
         }
 
         /* ── CARD ── */
@@ -28,7 +28,7 @@
             border-radius: 18px;
             overflow: hidden;
             width: 100%;
-            max-width: 420px;
+            max-width: 480px;
             box-shadow: 0 6px 24px rgba(0,0,0,.15);
         }
 
@@ -36,99 +36,118 @@
             background: #1a7a65;
             color: #fff;
             text-align: center;
-            padding: 16px 20px;
-            font-size: 17px;
+            padding: 14px 20px;
+            font-size: 16px;
             font-weight: 800;
             letter-spacing: .08em;
             text-transform: uppercase;
         }
 
+        /* ── BODY A DUE COLONNE ── */
         .card-body {
-            padding: 22px 24px 10px;
+            display: flex;
+            gap: 0;
+            padding: 0;
+        }
+
+        .fields-col {
+            flex: 1;
+            padding: 20px 20px 16px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
+            border-right: 1.5px solid #c5ddd7;
         }
 
-        .row {
+        .qr-col {
+            width: 140px;
+            flex-shrink: 0;
             display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 12px;
+            gap: 8px;
         }
 
-        .field {
-            flex: 1;
-            min-width: 120px;
+        .qr-wrap {
+            background: #fff;
+            border-radius: 10px;
+            padding: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.1);
         }
 
-        .field.wide { flex: 2; min-width: 160px; }
+        #qr-canvas { display: block; }
+
+        .qr-label {
+            font-size: 10px;
+            color: #1a7a65;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: .03em;
+        }
+
+        /* ── CAMPI ── */
+        .field { display: flex; flex-direction: column; gap: 4px; }
 
         .field-label {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             color: #1a7a65;
             letter-spacing: .04em;
-            margin-bottom: 5px;
+            text-transform: uppercase;
         }
 
         .field-value {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             color: #111;
             border-bottom: 1.5px solid #2a9070;
-            padding-bottom: 5px;
-            min-height: 24px;
+            padding-bottom: 4px;
+            min-height: 22px;
             word-break: break-word;
             line-height: 1.4;
         }
 
-        .field-value.empty { color: #aaa; font-weight: 400; }
+        .field-value.vuoto { color: #aaa; font-weight: 400; }
 
-        .card-spacer { height: 16px; }
-
-        /* ── BOTTONI ── */
-        .card-btns {
-            padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+        /* ── FOOTER ── */
+        .card-footer {
+            padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
             display: flex;
             gap: 10px;
-            border-top: 1px solid #c5ddd7;
+            border-top: 1.5px solid #c5ddd7;
         }
 
         .btn {
-            flex: 1; padding: 13px; border-radius: 12px;
+            flex: 1; padding: 12px; border-radius: 12px;
             font-size: 14px; font-weight: 700; cursor: pointer;
             border: none; text-align: center; text-decoration: none;
-            display: block;
+            display: block; transition: opacity .15s;
         }
-        .btn:active { opacity: .8; }
+        .btn:active { opacity: .75; }
         .btn-print { background: #1a7a65; color: #fff; }
         .btn-app   { background: #c8e8df; color: #1a7a65; }
 
         /* ── NOT FOUND ── */
-        .not-found {
-            text-align: center; padding: 40px 24px;
-        }
+        .not-found { text-align: center; padding: 40px 24px; }
         .not-found .icon { font-size: 56px; margin-bottom: 14px; display: block; }
         .not-found h2 { font-size: 19px; font-weight: 700; color: #111; margin-bottom: 8px; }
         .not-found p  { font-size: 13px; color: #888; margin-bottom: 20px; }
-        .not-found a  { color: #1a7a65; font-weight: 700; text-decoration: none; font-size: 14px; }
+        .not-found a  { color: #1a7a65; font-weight: 700; text-decoration: none; }
 
         /* ── STAMPA ── */
         @media print {
-            body {
-                background: #fff;
-                padding: 15mm;
-                justify-content: flex-start;
-            }
-            .card {
-                box-shadow: none;
-                max-width: 160mm;
-                border: 2px solid #2a9070;
-            }
-            .card-btns { display: none; }
-            .field-value { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .card-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .card { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body { background: #fff; padding: 10mm; justify-content: flex-start; }
+            .card { box-shadow: none; max-width: 170mm; border: 2px solid #2a9070; border-radius: 12px; }
+            .card-footer { display: none; }
+            .card-header  { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .card         { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .qr-wrap      { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+
+        @media (max-width: 360px) {
+            .qr-col { width: 110px; }
         }
     </style>
 </head>
@@ -136,8 +155,8 @@
 
 <div class="card" id="card">
     <div class="card-header">SCHEDA IDENTIFICAZIONE</div>
-    <div class="card-body" id="card-body">
-        <div style="text-align:center;padding:20px 0;color:#888;font-size:14px;">Caricamento...</div>
+    <div id="card-inner">
+        <div style="text-align:center;padding:30px;color:#888;font-size:14px;">Caricamento...</div>
     </div>
 </div>
 
@@ -165,62 +184,84 @@
         return anni + ' ann' + (anni===1?'o':'i') + (mr>0?' e '+mr+' mesi':'');
     }
 
-    function val(v) {
-        if (!v) return '<div class="field-value empty">—</div>';
-        return '<div class="field-value">' + v + '</div>';
+    function field(label, value) {
+        var v = value
+            ? '<div class="field-value">' + value + '</div>'
+            : '<div class="field-value vuoto">—</div>';
+        return '<div class="field"><div class="field-label">' + label + '</div>' + v + '</div>';
     }
 
-    function render(gecko) {
+    function render(gecko, qrUrl) {
         var sessoLabel = gecko.sesso === 'M' ? '♂ Maschio' : gecko.sesso === 'F' ? '♀ Femmina' : null;
         var nascitaStr = formatData(gecko.nascita);
         var eta        = calcEta(gecko.nascita);
-        var nascitaFull = nascitaStr ? (nascitaStr + (eta ? '<br><span style="font-size:12px;color:#555;font-weight:400;">' + eta + '</span>' : '')) : null;
+        var nascitaFull = nascitaStr ? nascitaStr + (eta ? ' (' + eta + ')' : '') : null;
 
-        document.getElementById('card-body').innerHTML =
-            '<div class="row">' +
-                '<div class="field wide">' +
-                    '<div class="field-label">Nome</div>' +
-                    val(gecko.nome) +
+        document.getElementById('card-inner').innerHTML =
+            '<div class="card-body">' +
+                '<div class="fields-col">' +
+                    field('Nome', gecko.nome) +
+                    field('Data di Nascita', nascitaFull) +
+                    field('Sesso', sessoLabel) +
+                    field('Morfologia', gecko.morfo) +
+                    field('Note', gecko.noteRapide) +
                 '</div>' +
-                '<div class="field wide">' +
-                    '<div class="field-label">Data di Nascita</div>' +
-                    val(nascitaFull) +
-                '</div>' +
-            '</div>' +
-            '<div class="row">' +
-                '<div class="field">' +
-                    '<div class="field-label">Sesso</div>' +
-                    val(sessoLabel) +
-                '</div>' +
-                '<div class="field wide">' +
-                    '<div class="field-label">Morfologia</div>' +
-                    val(gecko.morfo) +
+                '<div class="qr-col">' +
+                    '<div class="qr-wrap"><canvas id="qr-canvas"></canvas></div>' +
+                    '<div class="qr-label">Scansiona per info</div>' +
                 '</div>' +
             '</div>' +
-            '<div class="field">' +
-                '<div class="field-label">Note</div>' +
-                val(gecko.noteRapide) +
-            '</div>' +
-            '<div class="card-spacer"></div>';
-
-        document.getElementById('card').insertAdjacentHTML('beforeend',
-            '<div class="card-btns">' +
-                '<button class="btn btn-print" onclick="window.print()">🖨️ Stampa</button>' +
+            '<div class="card-footer">' +
+                '<button class="btn btn-print" onclick="window.print()">🖨️ Stampa / Salva PDF</button>' +
                 '<a href="profili.html" class="btn btn-app">🦎 Apri app</a>' +
-            '</div>'
-        );
+            '</div>';
+
+        // Genera QR
+        if (!window.qrcode) {
+            var s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';
+            s.onload = function() { drawQR(qrUrl); };
+            document.head.appendChild(s);
+        } else {
+            drawQR(qrUrl);
+        }
+    }
+
+    function drawQR(text) {
+        try {
+            var qr    = qrcode(0, 'M');
+            qr.addData(text);
+            qr.make();
+            var canvas = document.getElementById('qr-canvas');
+            if (!canvas) return;
+            var cells  = qr.getModuleCount();
+            var scale  = Math.max(3, Math.floor(100 / cells));
+            var pad    = 4;
+            var size   = cells * scale + pad * 2;
+            canvas.width  = size; canvas.height = size;
+            canvas.style.width = size + 'px'; canvas.style.height = size + 'px';
+            var ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, size, size);
+            ctx.fillStyle = '#111';
+            for (var r = 0; r < cells; r++) {
+                for (var c = 0; c < cells; c++) {
+                    if (qr.isDark(r, c)) ctx.fillRect(c*scale+pad, r*scale+pad, scale, scale);
+                }
+            }
+        } catch(e) {}
     }
 
     function renderNotFound() {
-        document.getElementById('card-body').innerHTML =
+        document.getElementById('card-inner').innerHTML =
             '<div class="not-found">' +
                 '<span class="icon">🦎</span>' +
                 '<h2>Geco non trovato</h2>' +
-                '<p>Questo QR appartiene a un altro dispositivo</p>' +
+                '<p>Apri l\'app e genera il QR dal profilo del geco</p>' +
                 '<a href="profili.html">Apri l\'app →</a>' +
             '</div>';
     }
 
+    // Carica dati
     var params = new URLSearchParams(window.location.search);
     var id     = params.get('id');
     var d      = params.get('d');
@@ -231,8 +272,18 @@
         try { gecko = JSON.parse(decodeURIComponent(escape(atob(d)))); } catch(e) {}
     }
 
-    if (gecko) render(gecko);
-    else renderNotFound();
+    if (gecko) {
+        // Costruisci URL per QR
+        var geckoData = {
+            nome: gecko.nome, sesso: gecko.sesso, nascita: gecko.nascita,
+            morfo: gecko.morfo, noteRapide: gecko.noteRapide, colore: gecko.colore
+        };
+        var b64    = btoa(unescape(encodeURIComponent(JSON.stringify(geckoData))));
+        var qrUrl  = 'https://agon-93.github.io/geco/scheda.html?id=' + (id || '') + '&d=' + b64;
+        render(gecko, qrUrl);
+    } else {
+        renderNotFound();
+    }
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').catch(function(){});
