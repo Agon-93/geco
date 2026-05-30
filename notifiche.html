@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Notifiche - Geco</title>
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Geco">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.svg">
+    <script>(function(){try{var c=localStorage.getItem('activeColor');if(!c){var gs=JSON.parse(localStorage.getItem('geckos')||'[]'),id=localStorage.getItem('activeGeckoId')||'',gk=gs.find(function(g){return g.id===id;})||gs[0]||null;c=gk&&gk.colore?gk.colore:null;}if(c)document.documentElement.style.setProperty('--accent',c);}catch(e){}})();</script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: -apple-system, 'Segoe UI', sans-serif;
+            background: #111;
+            color: #f0f0f0;
+            min-height: 100vh;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: calc(70px + env(safe-area-inset-bottom));
+        }
+
+        header {
+            background: #1a1a1a;
+            padding: 18px 20px 14px;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .header-emoji { font-size: 26px; }
+        .header-text h1 { font-size: 17px; font-weight: 700; }
+        .header-text p  { font-size: 11px; color: #888; }
+
+        .page { padding: 16px; max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+
+        /* ── CARD ── */
+        .card {
+            background: #1a1a1a; border: 1px solid #2a2a2a;
+            border-radius: 16px; padding: 18px 20px;
+        }
+        .card-title {
+            font-size: 12px; font-weight: 700; color: #888;
+            text-transform: uppercase; letter-spacing: .07em; margin-bottom: 14px;
+        }
+
+        /* ── PERMISSION CARD ── */
+        .perm-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .perm-info h3 { font-size: 16px; font-weight: 700; margin-bottom: 3px; }
+        .perm-info p  { font-size: 13px; color: #888; }
+        .perm-dot {
+            width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+        }
+        .dot-green  { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,.5); }
+        .dot-red    { background: #ef4444; box-shadow: 0 0 8px rgba(239,68,68,.5); }
+        .dot-yellow { background: #f59e0b; box-shadow: 0 0 8px rgba(245,158,11,.5); }
+
+        .btn-enable {
+            width: 100%; margin-top: 14px;
+            background: #ff9940; color: #1a1a1a;
+            border: none; border-radius: 12px; padding: 14px;
+            font-size: 16px; font-weight: 700; cursor: pointer;
+            transition: opacity .15s;
+        }
+        .btn-enable:active { opacity: .75; }
+        .btn-enable:disabled { background: #2a2a2a; color: #555; }
+
+        /* ── TIME SETTING ── */
+        .time-row { display: flex; align-items: center; gap: 12px; }
+        .time-label { flex: 1; }
+        .time-label h3 { font-size: 15px; font-weight: 600; }
+        .time-label p  { font-size: 12px; color: #888; margin-top: 2px; }
+
+        input[type="time"] {
+            background: #2a2a2a; border: 1px solid #3a3a3a;
+            color: #ff9940; border-radius: 10px;
+            padding: 10px 14px; font-size: 18px; font-weight: 700;
+            font-family: -apple-system, monospace; outline: none;
+            -webkit-appearance: none; cursor: pointer;
+        }
+        input[type="time"]:focus { border-color: #ff9940; }
+
+        .btn-save-time {
+            margin-top: 14px; width: 100%;
+            background: #2a2a2a; color: #f0f0f0;
+            border: 1px solid #3a3a3a; border-radius: 12px;
+            padding: 13px; font-size: 15px; font-weight: 600;
+            cursor: pointer; transition: .15s;
+        }
+        .btn-save-time:active { background: #ff9940; color: #1a1a1a; border-color: #ff9940; }
+
+        /* ── TOGGLE ── */
+        .toggle-row { display: flex; align-items: center; justify-content: space-between; }
+        .toggle-label h3 { font-size: 15px; font-weight: 600; }
+        .toggle-label p  { font-size: 12px; color: #888; margin-top: 2px; }
+
+        .toggle {
+            width: 52px; height: 30px; border-radius: 15px;
+            background: #2a2a2a; border: 1px solid #3a3a3a;
+            cursor: pointer; position: relative; transition: background .25s;
+            flex-shrink: 0;
+        }
+        .toggle.on { background: #ff9940; border-color: #ff9940; }
+        .toggle::after {
+            content: ''; position: absolute;
+            width: 24px; height: 24px; border-radius: 50%;
+            background: #888; top: 2px; left: 2px;
+            transition: transform .25s, background .25s;
+        }
+        .toggle.on::after { transform: translateX(22px); background: #fff; }
+
+        /* ── NEXT NOTIFICATION ── */
+        .next-card {
+            background: rgba(255,153,64,.08);
+            border: 1px solid rgba(255,153,64,.2);
+            border-radius: 16px; padding: 18px 20px;
+        }
+        .next-card.no-notif { background: #1a1a1a; border-color: #2a2a2a; }
+        .next-label { font-size: 11px; color: #ff9940; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
+        .next-label.muted { color: #555; }
+        .next-time { font-size: 28px; font-weight: 700; color: #ff9940; margin-bottom: 4px; }
+        .next-time.muted { color: #444; font-size: 18px; }
+        .next-day  { font-size: 13px; color: #888; }
+        .next-alim { font-size: 14px; color: #f0f0f0; margin-top: 8px; font-weight: 600; }
+
+        /* ── TEST BUTTON ── */
+        .btn-test {
+            width: 100%; background: #1a1a1a;
+            border: 1px solid #2a2a2a; color: #888;
+            border-radius: 12px; padding: 13px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: .15s;
+        }
+        .btn-test:active { border-color: #ff9940; color: #ff9940; }
+
+        /* ── INFO BOX ── */
+        .info-box {
+            background: #1a1a1a; border: 1px solid #2a2a2a;
+            border-radius: 16px; padding: 16px 18px;
+        }
+        .info-title { font-size: 13px; font-weight: 700; color: #ff9940; margin-bottom: 10px; }
+        .info-list  { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .info-list li { font-size: 13px; color: #888; padding-left: 18px; position: relative; line-height: 1.4; }
+        .info-list li::before { content: '•'; position: absolute; left: 0; color: #ff9940; }
+
+        /* ── TOAST ── */
+        .toast {
+            position: fixed; bottom: calc(90px + env(safe-area-inset-bottom));
+            left: 50%; transform: translateX(-50%);
+            background: #22c55e; color: #fff;
+            padding: 10px 22px; border-radius: 30px;
+            font-size: 14px; font-weight: 600;
+            opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap;
+        }
+        .toast.error { background: #ef4444; }
+        .toast.show  { opacity: 1; }
+
+        /* ── BOTTOM NAV ── */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #1a1a1a; border-top: 1px solid #2a2a2a;
+            display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 999;
+        }
+        .bn-item {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 10px 0; text-decoration: none; color: #555;
+            transition: color .15s; gap: 3px;
+        }
+        .bn-item.active { color: #ff9940; }
+        .bn-icon  { font-size: 20px; line-height: 1; }
+        .bn-label { font-size: 10px; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-emoji">🔔</div>
+    <div class="header-text">
+        <h1>Notifiche</h1>
+        <p>Promemoria pasto giornaliero</p>
+    </div>
+</header>
+
+<div class="page">
+
+    <!-- PERMESSO -->
+    <div class="card" id="perm-card">
+        <div class="card-title">Permesso notifiche</div>
+        <div class="perm-row">
+            <div class="perm-info">
+                <h3 id="perm-title">Verifica in corso...</h3>
+                <p  id="perm-sub">—</p>
+            </div>
+            <div class="perm-dot dot-yellow" id="perm-dot"></div>
+        </div>
+        <button class="btn-enable" id="btn-enable" onclick="requestPermission()">
+            🔔 Attiva Notifiche
+        </button>
+    </div>
+
+    <!-- TOGGLE ON/OFF -->
+    <div class="card">
+        <div class="card-title">Promemoria</div>
+        <div class="toggle-row">
+            <div class="toggle-label">
+                <h3>Notifica pasto giornaliero</h3>
+                <p>Solo nei giorni di alimentazione</p>
+            </div>
+            <div class="toggle" id="toggle-notif" onclick="toggleNotif()"></div>
+        </div>
+    </div>
+
+    <!-- ORARIO -->
+    <div class="card">
+        <div class="card-title">Orario promemoria</div>
+        <div class="time-row">
+            <div class="time-label">
+                <h3>Quando vuoi la notifica?</h3>
+                <p>Arriva solo nei giorni di pasto</p>
+            </div>
+            <input type="time" id="notif-time" value="08:30">
+        </div>
+        <button class="btn-save-time" onclick="saveTime()">Salva orario</button>
+    </div>
+
+    <!-- PROSSIMA NOTIFICA -->
+    <div id="next-card"></div>
+
+    <!-- TEST -->
+    <button class="btn-test" onclick="testNotif()">🔔 Invia notifica di prova adesso</button>
+
+    <!-- INFO -->
+    <div class="info-box">
+        <div class="info-title">ℹ️ Come funziona</div>
+        <ul class="info-list">
+            <li>La notifica arriva solo nei giorni in cui il geco deve mangiare</li>
+            <li>Ogni volta che apri l'app, il promemoria viene riprogrammato</li>
+            <li><strong style="color:#f0f0f0">Su iPhone:</strong> apri l'app la sera prima o la mattina presto — poi arriva la notifica alle 08:30</li>
+            <li>Se il telefono è spento o l'app mai aperta, la notifica non arriva</li>
+            <li>I giorni di digiuno non riceverai nessuna notifica</li>
+        </ul>
+    </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<nav class="bottom-nav">
+    <a href="index.html"      class="bn-item"><span class="bn-icon">🏠</span><span class="bn-label">Home</span></a>
+    <a href="calendario.html" class="bn-item"><span class="bn-icon">📅</span><span class="bn-label">Calendario</span></a>
+    <a href="profili.html"    class="bn-item"><span class="bn-icon">🦎</span><span class="bn-label">Gechi</span></a>
+    <a href="note.html"       class="bn-item"><span class="bn-icon">📝</span><span class="bn-label">Note</span></a>
+    <a href="notifiche.html"  class="bn-item active"><span class="bn-icon">🔔</span><span class="bn-label">Notifiche</span></a>
+</nav>
+
+<script>
+    const MESI = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
+                  'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+    const GIORNI = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
+
+    const PATTERN = [
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
+        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO',
+        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
+        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO',
+        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3','DIGIUNO'
+    ];
+
+    // ── UTILS ──
+    function showToast(msg, isError) {
+        var t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = 'toast' + (isError ? ' error' : '') + ' show';
+        setTimeout(function() { t.className = 'toast' + (isError ? ' error' : ''); }, 2500);
+    }
+
+    function getTime() { return localStorage.getItem('notifTime') || '08:30'; }
+    function isEnabled() { return localStorage.getItem('notifEnabled') === '1'; }
+
+    // ── PATTERN ──
+    function getPatternForDate(date) {
+        var day = date.getDate();
+        return PATTERN[day - 1] || 'DIGIUNO';
+    }
+
+    // Trova il prossimo giorno di pasto a partire da `fromDate`
+    function nextFeedingDate(fromDate) {
+        var d = new Date(fromDate);
+        for (var i = 0; i < 60; i++) {
+            if (getPatternForDate(d) !== 'DIGIUNO') return d;
+            d.setDate(d.getDate() + 1);
+        }
+        return null;
+    }
+
+    // ── SCHEDULE ──
+    function scheduleNotification() {
+        if (Notification.permission !== 'granted') return;
+        if (!isEnabled()) return;
+
+        var timeParts = getTime().split(':');
+        var h = parseInt(timeParts[0], 10);
+        var m = parseInt(timeParts[1], 10);
+
+        var now    = new Date();
+        var target = new Date();
+        target.setHours(h, m, 0, 0);
+
+        // Se l'orario è già passato oggi, vai a domani
+        if (now >= target) target.setDate(target.getDate() + 1);
+
+        // Trova il prossimo giorno di pasto a partire da target
+        var feedDay = nextFeedingDate(target);
+        if (!feedDay) return;
+
+        // Aggiusta l'orario del feedDay
+        feedDay.setHours(h, m, 0, 0);
+        var delay = feedDay - now;
+        if (delay < 0) return;
+
+        var alim = getPatternForDate(feedDay);
+        var isD3 = alim.includes('D3');
+        var body = '🍽️ 5-7 insetti + ' + (isD3 ? 'Calcio con D3' : 'Calcio Puro');
+
+        navigator.serviceWorker.ready.then(function(reg) {
+            if (reg.active) {
+                reg.active.postMessage({
+                    type:  'SCHEDULE_NOTIFICATION',
+                    title: '🦎 È ora di dar da mangiare al geco!',
+                    body:  body,
+                    delay: delay
+                });
+            }
+        });
+
+        localStorage.setItem('nextNotifISO', feedDay.toISOString());
+        localStorage.setItem('nextNotifAlim', alim);
+        renderNextCard();
+    }
+
+    function cancelNotification() {
+        navigator.serviceWorker.ready.then(function(reg) {
+            if (reg.active) reg.active.postMessage({ type: 'CANCEL_NOTIFICATION' });
+        });
+        localStorage.removeItem('nextNotifISO');
+        localStorage.removeItem('nextNotifAlim');
+        renderNextCard();
+    }
+
+    // ── PERMISSION ──
+    function updatePermUI() {
+        var perm   = Notification.permission;
+        var title  = document.getElementById('perm-title');
+        var sub    = document.getElementById('perm-sub');
+        var dot    = document.getElementById('perm-dot');
+        var btn    = document.getElementById('btn-enable');
+
+        if (perm === 'granted') {
+            title.textContent = 'Notifiche attive';
+            sub.textContent   = 'Il tuo browser può ricevere notifiche';
+            dot.className     = 'perm-dot dot-green';
+            btn.textContent   = '✅ Permesso già concesso';
+            btn.disabled      = true;
+        } else if (perm === 'denied') {
+            title.textContent = 'Notifiche bloccate';
+            sub.textContent   = 'Vai nelle impostazioni del browser per abilitarle';
+            dot.className     = 'perm-dot dot-red';
+            btn.textContent   = '⚙️ Apri Impostazioni';
+            btn.disabled      = false;
+            btn.onclick       = function() { showToast('Vai su Impostazioni → Safari → Notifiche', false); };
+        } else {
+            title.textContent = 'Permesso richiesto';
+            sub.textContent   = 'Tocca il bottone per abilitare le notifiche';
+            dot.className     = 'perm-dot dot-yellow';
+            btn.textContent   = '🔔 Attiva Notifiche';
+            btn.disabled      = false;
+        }
+    }
+
+    function requestPermission() {
+        if (!('Notification' in window)) {
+            showToast('Il tuo browser non supporta le notifiche', true);
+            return;
+        }
+        Notification.requestPermission().then(function(result) {
+            updatePermUI();
+            if (result === 'granted') {
+                showToast('✅ Notifiche attivate!');
+                if (isEnabled()) scheduleNotification();
+            } else {
+                showToast('Notifiche non concesse', true);
+            }
+        });
+    }
+
+    // ── TOGGLE ──
+    function updateToggleUI() {
+        var t = document.getElementById('toggle-notif');
+        t.className = 'toggle' + (isEnabled() ? ' on' : '');
+    }
+
+    function toggleNotif() {
+        if (Notification.permission !== 'granted') {
+            showToast('Prima attiva il permesso notifiche', true);
+            return;
+        }
+        var nowEnabled = isEnabled();
+        if (nowEnabled) {
+            localStorage.removeItem('notifEnabled');
+            cancelNotification();
+            showToast('Promemoria disattivato');
+        } else {
+            localStorage.setItem('notifEnabled', '1');
+            scheduleNotification();
+            showToast('✅ Promemoria attivato!');
+        }
+        updateToggleUI();
+    }
+
+    // ── TIME ──
+    function saveTime() {
+        var t = document.getElementById('notif-time').value;
+        if (!t) return;
+        localStorage.setItem('notifTime', t);
+        if (isEnabled() && Notification.permission === 'granted') {
+            scheduleNotification();
+        }
+        showToast('✅ Orario salvato: ' + t);
+        renderNextCard();
+    }
+
+    // ── NEXT CARD ──
+    function renderNextCard() {
+        var container = document.getElementById('next-card');
+        var iso  = localStorage.getItem('nextNotifISO');
+        var alim = localStorage.getItem('nextNotifAlim') || '';
+
+        if (!iso || !isEnabled() || Notification.permission !== 'granted') {
+            container.innerHTML = '<div class="next-card no-notif">' +
+                '<div class="next-label muted">Prossima notifica</div>' +
+                '<div class="next-time muted">—</div>' +
+                '<div class="next-day">Nessun promemoria programmato</div>' +
+            '</div>';
+            return;
+        }
+
+        var d    = new Date(iso);
+        var time = d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0');
+        var dayLabel = GIORNI[d.getDay()] + ' ' + d.getDate() + ' ' + MESI[d.getMonth()];
+        var isD3 = alim.includes('D3');
+        var alimLabel = isD3 ? '🍽️ 5-7 insetti + Calcio con D3' : '🍽️ 5-7 insetti + Calcio Puro';
+
+        container.innerHTML = '<div class="next-card">' +
+            '<div class="next-label">Prossima notifica</div>' +
+            '<div class="next-time">' + time + '</div>' +
+            '<div class="next-day">' + dayLabel + '</div>' +
+            '<div class="next-alim">' + alimLabel + '</div>' +
+        '</div>';
+    }
+
+    // ── TEST ──
+    function testNotif() {
+        if (Notification.permission !== 'granted') {
+            showToast('Prima attiva il permesso notifiche', true);
+            return;
+        }
+        navigator.serviceWorker.ready.then(function(reg) {
+            if (reg.active) {
+                reg.active.postMessage({
+                    type:  'SCHEDULE_NOTIFICATION',
+                    title: '🦎 Test — Pasto del geco!',
+                    body:  '🍽️ Questa è una notifica di prova',
+                    delay: 3000
+                });
+                showToast('Notifica di prova in arrivo in 3 secondi...');
+            }
+        });
+    }
+
+    // ── INIT ──
+    document.getElementById('notif-time').value = getTime();
+    updatePermUI();
+    updateToggleUI();
+    renderNextCard();
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').then(function() {
+            // Auto-schedule se permesso già concesso e toggle on
+            if (Notification.permission === 'granted' && isEnabled()) {
+                scheduleNotification();
+            }
+        }).catch(function(){});
+    }
+</script>
+<script src="transitions.js"></script>
+</body>
+</html>

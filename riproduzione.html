@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Riproduzione - Geco</title>
+    <meta name="theme-color" content="#111">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="manifest" href="manifest.json">
+    <script>
+    (function(){
+        try {
+            var gs=JSON.parse(localStorage.getItem('geckos')||'[]');
+            var id=localStorage.getItem('activeGeckoId')||'';
+            var gk=gs.find(function(g){return g.id===id;})||gs[0]||null;
+            if(gk&&gk.colore) document.documentElement.style.setProperty('--accent',gk.colore);
+        } catch(e){}
+    })();
+    </script>
+    <style>
+        :root { --accent: #ff9940; }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        body {
+            font-family:-apple-system,'Segoe UI',sans-serif;
+            background:#111; color:#f0f0f0; min-height:100vh;
+            padding-top:env(safe-area-inset-top);
+            padding-bottom:calc(70px + env(safe-area-inset-bottom));
+        }
+
+        header {
+            background:#1a1a1a; padding:16px 20px 14px;
+            border-bottom:1px solid #2a2a2a;
+            display:flex; align-items:center; justify-content:space-between;
+        }
+        .h-left { display:flex; align-items:center; gap:10px; }
+        .h-dot  { width:12px; height:12px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+        .h-title{ font-size:17px; font-weight:700; }
+        .h-sub  { font-size:11px; color:#888; margin-top:2px; }
+        .btn-add-ev {
+            background:var(--accent); color:#1a1a1a; border:none;
+            border-radius:10px; padding:8px 16px; font-size:14px; font-weight:700; cursor:pointer;
+        }
+
+        .page { padding:14px 16px; max-width:500px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
+
+        /* ── EMPTY ── */
+        .empty-card {
+            background:#1a1a1a; border:1px dashed #333; border-radius:16px;
+            padding:40px 20px; text-align:center;
+        }
+        .empty-card .ec-icon { font-size:52px; margin-bottom:12px; }
+        .empty-card h3 { font-size:17px; font-weight:700; margin-bottom:6px; }
+        .empty-card p  { font-size:13px; color:#666; }
+
+        /* ── EVENT CARD ── */
+        .ev-card {
+            background:#1a1a1a; border:1px solid #2a2a2a;
+            border-radius:14px; padding:14px 16px;
+            display:flex; gap:14px; align-items:flex-start;
+        }
+        .ev-icon { font-size:28px; flex-shrink:0; margin-top:2px; }
+        .ev-body { flex:1; min-width:0; }
+        .ev-tipo { font-size:14px; font-weight:700; color:var(--accent); }
+        .ev-data { font-size:12px; color:#888; margin-top:3px; }
+        .ev-note { font-size:13px; color:#ccc; margin-top:6px; line-height:1.4; }
+        .ev-countdown {
+            margin-top:8px; display:inline-block;
+            background:rgba(255,153,64,.12); border:1px solid rgba(255,153,64,.25);
+            border-radius:8px; padding:5px 12px;
+            font-size:12px; font-weight:700; color:var(--accent);
+        }
+        .ev-countdown.passato {
+            background:rgba(34,197,94,.12); border-color:rgba(34,197,94,.25); color:#22c55e;
+        }
+        .ev-del {
+            background:none; border:none; color:#444; font-size:18px;
+            cursor:pointer; padding:4px; flex-shrink:0; transition:color .15s;
+        }
+        .ev-del:active { color:#ef4444; }
+
+        /* ── MODAL ── */
+        .modal-overlay {
+            position:fixed; inset:0; background:rgba(0,0,0,.75);
+            z-index:1000; display:none; align-items:flex-end;
+        }
+        .modal-overlay.open { display:flex; }
+        .modal-sheet {
+            background:#1a1a1a; border-radius:22px 22px 0 0; width:100%;
+            max-height:90vh; display:flex; flex-direction:column;
+            animation:slideUp .3s ease;
+        }
+        @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+        .modal-handle { text-align:center; padding:12px 0 0; flex-shrink:0; }
+        .modal-handle::after { content:''; display:inline-block; width:36px; height:4px; background:#3a3a3a; border-radius:2px; }
+        .modal-header {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:14px 20px; border-bottom:1px solid #2a2a2a; flex-shrink:0;
+        }
+        .modal-title { font-size:17px; font-weight:700; }
+        .modal-close { background:none; border:none; color:#888; font-size:22px; cursor:pointer; }
+        .modal-body  { padding:20px; display:flex; flex-direction:column; gap:14px; overflow-y:auto; flex:1; }
+        .modal-foot  { padding:14px 20px calc(16px + env(safe-area-inset-bottom)); border-top:1px solid #2a2a2a; flex-shrink:0; }
+
+        /* tipo selector */
+        .tipo-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+        .tipo-opt {
+            border:1px solid #333; border-radius:12px; padding:12px 10px;
+            text-align:center; cursor:pointer; background:#2a2a2a;
+            transition:.15s;
+        }
+        .tipo-opt .to-icon { font-size:24px; display:block; margin-bottom:4px; }
+        .tipo-opt .to-label{ font-size:12px; font-weight:600; color:#888; }
+        .tipo-opt.sel { border-color:var(--accent); background:rgba(255,153,64,.1); }
+        .tipo-opt.sel .to-label { color:var(--accent); }
+
+        .form-group label {
+            display:block; font-size:11px; font-weight:700; color:#888;
+            text-transform:uppercase; letter-spacing:.07em; margin-bottom:7px;
+        }
+        .form-input, .form-textarea {
+            width:100%; background:#2a2a2a; border:1px solid #333;
+            border-radius:12px; color:#f0f0f0;
+            font-family:-apple-system,'Segoe UI',sans-serif;
+            font-size:15px; padding:13px 16px; outline:none; transition:border-color .15s;
+        }
+        .form-input:focus, .form-textarea:focus { border-color:var(--accent); }
+        .form-textarea { resize:none; min-height:80px; }
+        .btn-salva {
+            width:100%; background:var(--accent); color:#1a1a1a;
+            border:none; border-radius:12px; padding:15px;
+            font-size:16px; font-weight:700; cursor:pointer;
+        }
+        .btn-salva:active { opacity:.75; }
+
+        /* bottom nav */
+        .bottom-nav {
+            position:fixed; bottom:0; left:0; right:0;
+            background:#1a1a1a; border-top:1px solid #2a2a2a;
+            display:flex; padding-bottom:env(safe-area-inset-bottom); z-index:998;
+        }
+        .bn-item {
+            flex:1; display:flex; flex-direction:column; align-items:center;
+            justify-content:center; padding:8px 0; text-decoration:none;
+            color:#555; transition:color .15s; gap:2px;
+        }
+        .bn-item.active { color:var(--accent); }
+        .bn-icon  { font-size:20px; line-height:1; }
+        .bn-label { font-size:10px; font-weight:600; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="h-left">
+        <div class="h-dot"></div>
+        <div>
+            <div class="h-title" id="h-title">Diario Riproduzione</div>
+            <div class="h-sub"  id="h-sub">—</div>
+        </div>
+    </div>
+    <button class="btn-add-ev" onclick="openModal()">+ Aggiungi</button>
+</header>
+
+<div class="page" id="ev-list"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="handleOverlay(event)">
+    <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <div class="modal-title">Nuovo Evento</div>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Tipo evento</label>
+                <div class="tipo-grid">
+                    <div class="tipo-opt sel" id="opt-accoppiamento" onclick="selTipo('accoppiamento')">
+                        <span class="to-icon">🤝</span><span class="to-label">Accoppiamento</span>
+                    </div>
+                    <div class="tipo-opt" id="opt-deposizione" onclick="selTipo('deposizione')">
+                        <span class="to-icon">🥚</span><span class="to-label">Deposizione Uova</span>
+                    </div>
+                    <div class="tipo-opt" id="opt-schiusa_attesa" onclick="selTipo('schiusa_attesa')">
+                        <span class="to-icon">⏳</span><span class="to-label">Schiusa Prevista</span>
+                    </div>
+                    <div class="tipo-opt" id="opt-schiusa_avvenuta" onclick="selTipo('schiusa_avvenuta')">
+                        <span class="to-icon">🐣</span><span class="to-label">Schiusa Avvenuta</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Data</label>
+                <input type="date" class="form-input" id="f-data">
+            </div>
+            <div class="form-group" id="uova-group" style="display:none">
+                <label>Numero uova</label>
+                <input type="number" class="form-input" id="f-uova" placeholder="Es: 2" min="1" max="20">
+            </div>
+            <div class="form-group" id="piccoli-group" style="display:none">
+                <label>Numero piccoli nati</label>
+                <input type="number" class="form-input" id="f-piccoli" placeholder="Es: 2" min="1" max="20">
+            </div>
+            <div class="form-group">
+                <label>Note (opzionale)</label>
+                <textarea class="form-textarea" id="f-note" placeholder="Aggiungi dettagli..."></textarea>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn-salva" onclick="salvaEvento()">💾 Salva Evento</button>
+        </div>
+    </div>
+</div>
+
+<nav class="bottom-nav">
+    <a href="index.html"      class="bn-item"><span class="bn-icon">🏠</span><span class="bn-label">Home</span></a>
+    <a href="calendario.html" class="bn-item"><span class="bn-icon">📅</span><span class="bn-label">Calendario</span></a>
+    <a href="profili.html"    class="bn-item active"><span class="bn-icon">🦎</span><span class="bn-label">Gechi</span></a>
+    <a href="note.html"       class="bn-item"><span class="bn-icon">📝</span><span class="bn-label">Note</span></a>
+    <a href="notifiche.html"  class="bn-item"><span class="bn-icon">🔔</span><span class="bn-label">Notifiche</span></a>
+</nav>
+
+<script>
+    var TIPI = {
+        accoppiamento:  { icon:'🤝', label:'Accoppiamento' },
+        deposizione:    { icon:'🥚', label:'Deposizione Uova' },
+        schiusa_attesa: { icon:'⏳', label:'Schiusa Prevista' },
+        schiusa_avvenuta:{ icon:'🐣', label:'Schiusa Avvenuta' }
+    };
+
+    var MESI = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
+                'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+
+    // Leggi geckoId dall'URL
+    var geckoId = new URLSearchParams(window.location.search).get('id') || '';
+
+    function getGeckos() { try { return JSON.parse(localStorage.getItem('geckos')||'[]'); } catch(e){ return []; } }
+    function getGecko()  { return getGeckos().find(function(g){return g.id===geckoId;})||null; }
+    function getEvents() { try { return JSON.parse(localStorage.getItem('repro_'+geckoId)||'[]'); } catch(e){ return []; } }
+    function saveEvents(evs) { localStorage.setItem('repro_'+geckoId, JSON.stringify(evs)); }
+
+    function formatData(str) {
+        if (!str) return '—';
+        var p = str.split('-');
+        if (p.length < 3) return str;
+        return parseInt(p[2],10) + ' ' + MESI[parseInt(p[1],10)-1] + ' ' + p[0];
+    }
+
+    function countdown(dataStr) {
+        if (!dataStr) return '';
+        var p = dataStr.split('-');
+        var d = new Date(parseInt(p[0],10), parseInt(p[1],10)-1, parseInt(p[2],10));
+        var oggi = new Date(); oggi.setHours(0,0,0,0);
+        var diff = Math.round((d - oggi) / 86400000);
+        if (diff > 0) return '<div class="ev-countdown">⏳ Tra ' + diff + ' giorni</div>';
+        if (diff === 0) return '<div class="ev-countdown passato">🐣 Oggi!</div>';
+        return '<div class="ev-countdown passato">✅ ' + Math.abs(diff) + ' giorni fa</div>';
+    }
+
+    function renderList() {
+        var gecko = getGecko();
+        var list  = document.getElementById('ev-list');
+
+        if (!gecko) {
+            list.innerHTML = '<div class="empty-card"><div class="ec-icon">🦎</div><h3>Geco non trovato</h3><p>Torna alla pagina Gechi</p></div>';
+            return;
+        }
+
+        document.getElementById('h-title').textContent = gecko.nome + ' — Riproduzione';
+        document.getElementById('h-sub').textContent = 'Diario eventi riproduttivi';
+
+        var evs = getEvents();
+        evs.sort(function(a,b){ return b.data.localeCompare(a.data); });
+
+        if (evs.length === 0) {
+            list.innerHTML = '<div class="empty-card"><div class="ec-icon">🥚</div><h3>Nessun evento</h3><p>Tocca "+ Aggiungi" per registrare accoppiamenti, deposizioni e schiuse</p></div>';
+            return;
+        }
+
+        list.innerHTML = evs.map(function(ev) {
+            var t = TIPI[ev.tipo] || { icon:'📌', label:ev.tipo };
+            var extra = '';
+            if (ev.tipo === 'deposizione' && ev.uova) extra = '<div class="ev-note">🥚 ' + ev.uova + ' uova deposte</div>';
+            if (ev.tipo === 'schiusa_avvenuta' && ev.piccoli) extra = '<div class="ev-note">🐣 ' + ev.piccoli + ' piccoli nati</div>';
+            if (ev.tipo === 'schiusa_attesa') extra = countdown(ev.data);
+            var note = ev.note ? '<div class="ev-note">' + ev.note + '</div>' : '';
+
+            return '<div class="ev-card">' +
+                '<div class="ev-icon">' + t.icon + '</div>' +
+                '<div class="ev-body">' +
+                    '<div class="ev-tipo">' + t.label + '</div>' +
+                    '<div class="ev-data">' + formatData(ev.data) + '</div>' +
+                    extra + note +
+                '</div>' +
+                '<button class="ev-del" onclick="eliminaEvento(\'' + ev.id + '\')">🗑️</button>' +
+            '</div>';
+        }).join('');
+    }
+
+    function eliminaEvento(id) {
+        if (!confirm('Eliminare questo evento?')) return;
+        var evs = getEvents().filter(function(e){ return e.id !== id; });
+        saveEvents(evs);
+        renderList();
+    }
+
+    // ── MODAL ──
+    var _tipoSel = 'accoppiamento';
+
+    function openModal() {
+        var oggi = new Date();
+        var m = String(oggi.getMonth()+1).padStart(2,'0');
+        var d = String(oggi.getDate()).padStart(2,'0');
+        document.getElementById('f-data').value = oggi.getFullYear() + '-' + m + '-' + d;
+        document.getElementById('f-note').value = '';
+        document.getElementById('f-uova').value = '';
+        document.getElementById('f-piccoli').value = '';
+        selTipo('accoppiamento');
+        document.getElementById('modal').classList.add('open');
+    }
+
+    function closeModal() { document.getElementById('modal').classList.remove('open'); }
+    function handleOverlay(e) { if (e.target === document.getElementById('modal')) closeModal(); }
+
+    function selTipo(tipo) {
+        _tipoSel = tipo;
+        Object.keys(TIPI).forEach(function(t) {
+            document.getElementById('opt-'+t).className = 'tipo-opt' + (t === tipo ? ' sel' : '');
+        });
+        document.getElementById('uova-group').style.display   = tipo === 'deposizione'     ? '' : 'none';
+        document.getElementById('piccoli-group').style.display = tipo === 'schiusa_avvenuta' ? '' : 'none';
+    }
+
+    function salvaEvento() {
+        var data = document.getElementById('f-data').value;
+        if (!data) { alert('Inserisci la data'); return; }
+        var ev = {
+            id:      'ev_' + Date.now(),
+            tipo:    _tipoSel,
+            data:    data,
+            note:    document.getElementById('f-note').value.trim(),
+            uova:    document.getElementById('f-uova').value || '',
+            piccoli: document.getElementById('f-piccoli').value || ''
+        };
+        var evs = getEvents();
+        evs.push(ev);
+        saveEvents(evs);
+        closeModal();
+        renderList();
+    }
+
+    renderList();
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(function(){});
+    }
+</script>
+<script src="transitions.js"></script>
+</body>
+</html>

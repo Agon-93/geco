@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Geco Leopardino</title>
+    <meta name="theme-color" content="#111">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Geco">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.svg">
+    <script>(function(){try{var c=localStorage.getItem('activeColor');if(!c){var gs=JSON.parse(localStorage.getItem('geckos')||'[]'),id=localStorage.getItem('activeGeckoId')||'',gk=gs.find(function(g){return g.id===id;})||gs[0]||null;c=gk&&gk.colore?gk.colore:null;}if(c)document.documentElement.style.setProperty('--accent',c);}catch(e){}})();</script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+        body {
+            font-family:-apple-system,'Segoe UI',sans-serif;
+            background:#111; color:#f0f0f0; min-height:100vh;
+            padding-top:env(safe-area-inset-top);
+            padding-bottom:calc(65px + env(safe-area-inset-bottom));
+        }
+
+        /* ══ SPLASH ══ */
+        #splash {
+            position:fixed; inset:0; background:#111;
+            z-index:9999; display:flex; flex-direction:column;
+            align-items:center; justify-content:center;
+            transition:opacity .5s ease, visibility .5s ease;
+        }
+        #splash.hide { opacity:0; visibility:hidden; pointer-events:none; }
+        .sp-emoji { font-size:90px; animation:spBounce .7s cubic-bezier(.34,1.56,.64,1) both; }
+        .sp-title { font-size:26px; font-weight:800; color:#f0f0f0; margin-top:18px; letter-spacing:-.01em; animation:spFade .5s ease .35s both; }
+        .sp-sub   { font-size:14px; color:#ff9940; margin-top:6px; animation:spFade .5s ease .55s both; }
+        .sp-bar   { width:48px; height:3px; background:#2a2a2a; border-radius:2px; margin-top:32px; overflow:hidden; animation:spFade .5s ease .7s both; }
+        .sp-fill  { height:100%; background:#ff9940; border-radius:2px; animation:spLoad 1.2s ease .7s both; }
+        @keyframes spBounce { 0%{transform:scale(.2);opacity:0} 70%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+        @keyframes spFade   { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+        @keyframes spLoad   { from{width:0%} to{width:100%} }
+
+        /* ══ HEADER ══ */
+        header {
+            background:#1a1a1a; padding:14px 16px 12px;
+            border-bottom:1px solid #2a2a2a;
+            display:flex; align-items:center; gap:12px;
+        }
+        .h-gecko { display:flex; align-items:center; gap:10px; flex:1; min-width:0; }
+        .h-foto  {
+            width:38px; height:38px; border-radius:50%;
+            background:#2a2a2a; flex-shrink:0;
+            display:flex; align-items:center; justify-content:center;
+            font-size:20px; overflow:hidden;
+            border:2px solid rgba(255,153,64,.35);
+        }
+        .h-foto img { width:100%; height:100%; object-fit:cover; }
+        .h-info h1 { font-size:16px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .h-info p  { font-size:11px; color:#888; }
+        .h-switch {
+            background:rgba(255,153,64,.12); border:1px solid rgba(255,153,64,.3);
+            color:#ff9940; border-radius:8px; padding:6px 12px;
+            font-size:12px; font-weight:700; cursor:pointer; flex-shrink:0;
+            text-decoration:none;
+        }
+
+        .page { padding:14px 16px; max-width:500px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
+
+        .date-chip { font-size:11px; color:#666; font-weight:600; text-transform:uppercase; letter-spacing:.06em; }
+
+        /* ══ NO GECKO CARD ══ */
+        .empty-card {
+            background:#1a1a1a; border:1px dashed #333; border-radius:16px;
+            padding:32px 20px; text-align:center;
+        }
+        .empty-card .ec-icon { font-size:48px; margin-bottom:12px; }
+        .empty-card h3 { font-size:17px; font-weight:700; margin-bottom:6px; }
+        .empty-card p  { font-size:13px; color:#666; margin-bottom:18px; }
+        .btn-add-gecko {
+            display:inline-block; background:#ff9940; color:#1a1a1a;
+            border-radius:12px; padding:13px 28px;
+            font-size:15px; font-weight:700; text-decoration:none;
+        }
+
+        /* ══ TODAY CARD ══ */
+        .today-card {
+            border-radius:16px; padding:18px;
+            border:1px solid #2a2a2a;
+        }
+        .tc-label  { font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px; }
+        .tc-main   { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+        .tc-info h2 { font-size:20px; font-weight:700; margin-bottom:3px; }
+        .tc-info p  { font-size:13px; color:#aaa; line-height:1.4; }
+        .tc-img    { width:60px; height:60px; object-fit:cover; border-radius:12px; flex-shrink:0; }
+        .tc-icon   { width:60px; height:60px; border-radius:12px; background:#2a2a2a; display:flex; align-items:center; justify-content:center; font-size:32px; flex-shrink:0; }
+        .tc-btn    { width:100%; margin-top:14px; background:#ff9940; color:#1a1a1a; border:none; border-radius:12px; padding:14px; font-size:15px; font-weight:700; cursor:pointer; transition:opacity .15s; }
+        .tc-btn:active { opacity:.75; }
+        .tc-btn.undo { background:#2a2a2a; color:#ff9940; font-size:14px; }
+        .card-feed { background:#1e1400; border-color:rgba(255,153,64,.25); }
+        .card-done { background:#0d1e10; border-color:rgba(34,197,94,.25); }
+        .card-rest { background:#1a1a1a; }
+
+        /* ══ PROGRESS ══ */
+        .progress-card {
+            background:#1a1a1a; border:1px solid #2a2a2a;
+            border-radius:16px; padding:16px 18px;
+        }
+        .pc-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+        .pc-label { font-size:13px; color:#888; }
+        .pc-pct   { font-size:15px; font-weight:700; color:#ff9940; }
+        .prog-bar { height:8px; background:#2a2a2a; border-radius:4px; overflow:hidden; }
+        .prog-fill{ height:100%; background:linear-gradient(90deg,#ff9940,#ffb347); border-radius:4px; transition:width .5s ease; }
+        .pc-sub   { font-size:12px; color:#555; margin-top:6px; }
+
+        /* ══ QUICK LINKS ══ */
+        .quick-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .ql-card {
+            background:#1a1a1a; border:1px solid #2a2a2a; border-radius:14px;
+            padding:16px 14px; text-decoration:none; color:#f0f0f0;
+            display:flex; flex-direction:column; gap:6px; transition:border-color .15s;
+        }
+        .ql-card:active { border-color:#ff9940; }
+        .ql-icon  { font-size:26px; }
+        .ql-title { font-size:14px; font-weight:700; }
+        .ql-sub   { font-size:11px; color:#666; }
+
+        /* ══ COMPLEANNO ══ */
+        .bday-card {
+            border-radius: 16px; padding: 20px 18px; text-align: center;
+            background: linear-gradient(135deg, #1a0e00, #251500);
+            border: 1px solid rgba(255,153,64,.5);
+            position: relative; overflow: hidden;
+        }
+        .bday-card::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(255,153,64,.18), transparent 70%);
+            pointer-events: none;
+        }
+        .bday-emoji { font-size: 48px; margin-bottom: 10px; display: block; animation: bdayBounce 1s ease infinite alternate; }
+        .bday-title { font-size: 20px; font-weight: 800; color: #ff9940; margin-bottom: 6px; }
+        .bday-sub   { font-size: 14px; color: #c0a060; line-height: 1.5; }
+        @keyframes bdayBounce { from { transform: scale(1); } to { transform: scale(1.12); } }
+        @keyframes confettiFall {
+            0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh)  rotate(720deg); opacity: 0; }
+        }
+
+        /* ══ GECKO SCROLL ══ */
+        .gecko-scroll-wrap {
+            background:#1a1a1a; border:1px solid #2a2a2a;
+            border-radius:16px; padding:14px 16px;
+        }
+        .gecko-scroll-title {
+            font-size:11px; font-weight:700; color:#666;
+            text-transform:uppercase; letter-spacing:.07em; margin-bottom:12px;
+        }
+        .gecko-scroll {
+            display:flex; gap:16px;
+            overflow-x:auto; padding-bottom:2px;
+            scrollbar-width:none;
+        }
+        .gecko-scroll::-webkit-scrollbar { display:none; }
+        .gsi {
+            display:flex; flex-direction:column; align-items:center;
+            gap:6px; flex-shrink:0; width:64px;
+        }
+        .gsi-foto {
+            width:56px; height:56px; border-radius:50%;
+            background:#2a2a2a; border:3px solid #333;
+            display:flex; align-items:center; justify-content:center;
+            font-size:22px; overflow:hidden; position:relative;
+            transition:border-color .2s; cursor:pointer;
+        }
+        .gsi-foto img { width:100%; height:100%; object-fit:cover; }
+        .gsi-foto.fatto   { border-color:#22c55e; }
+        .gsi-foto.digiuno { opacity:.4; }
+        .gsi-foto:active  { transform:scale(.9); }
+        .gsi-overlay {
+            position:absolute; inset:0; border-radius:50%;
+            background:rgba(34,197,94,.25);
+            display:flex; align-items:center; justify-content:center;
+            font-size:20px;
+        }
+        .gsi-nome {
+            font-size:11px; font-weight:600; color:#ccc; text-align:center;
+            width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+        }
+        .gsi-stato { font-size:10px; font-weight:700; color:#22c55e; }
+        .gsi-stato.rest { color:#444; }
+
+        /* ══ PROFILO SHEET ══ */
+        .profile-overlay {
+            position:fixed; inset:0; background:rgba(0,0,0,.7);
+            z-index:1000; display:none; align-items:flex-end;
+        }
+        .profile-overlay.open { display:flex; }
+        .profile-sheet {
+            background:#1a1a1a; border-radius:22px 22px 0 0;
+            width:100%; max-height:88vh; overflow-y:auto;
+            padding-bottom:calc(20px + env(safe-area-inset-bottom));
+            animation:slideUp .3s ease;
+        }
+        @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+        .ps-handle { text-align:center; padding:12px 0 0; }
+        .ps-handle::after { content:''; display:inline-block; width:36px; height:4px; background:#3a3a3a; border-radius:2px; }
+
+        .ps-foto-wrap { text-align:center; padding:20px 20px 0; }
+        .ps-foto {
+            width:90px; height:90px; border-radius:50%; margin:0 auto;
+            background:#2a2a2a; border:3px solid #3a3a3a;
+            display:flex; align-items:center; justify-content:center;
+            font-size:40px; overflow:hidden;
+        }
+        .ps-foto img { width:100%; height:100%; object-fit:cover; }
+        .ps-nome  { font-size:22px; font-weight:800; text-align:center; margin-top:12px; }
+        .ps-sesso { text-align:center; font-size:15px; font-weight:600; margin-top:4px; }
+
+        .ps-rows  { margin:16px 20px 0; border:1px solid #2a2a2a; border-radius:14px; overflow:hidden; }
+        .ps-row   { display:flex; justify-content:space-between; align-items:center; padding:13px 16px; border-bottom:1px solid #222; }
+        .ps-row:last-child { border-bottom:none; }
+        .ps-row-label { font-size:13px; color:#666; }
+        .ps-row-value { font-size:14px; font-weight:600; color:#f0f0f0; text-align:right; }
+
+        .ps-actions { display:flex; gap:10px; margin:16px 20px 0; }
+        .ps-btn-edit {
+            flex:1; background:#2a2a2a; border:1px solid #3a3a3a;
+            color:#f0f0f0; border-radius:12px; padding:13px;
+            font-size:14px; font-weight:600; text-align:center;
+            text-decoration:none; cursor:pointer;
+        }
+        .ps-btn-close {
+            flex:1; background:#ff9940; border:none;
+            color:#1a1a1a; border-radius:12px; padding:13px;
+            font-size:14px; font-weight:700; cursor:pointer;
+        }
+        .ps-btn-close:active { opacity:.75; }
+
+        /* ══ BOTTOM NAV ══ */
+        .bottom-nav {
+            position:fixed; bottom:0; left:0; right:0;
+            background:#1a1a1a; border-top:1px solid #2a2a2a;
+            display:flex; padding-bottom:env(safe-area-inset-bottom); z-index:998;
+        }
+        .bn-item {
+            flex:1; display:flex; flex-direction:column; align-items:center;
+            justify-content:center; padding:8px 0; text-decoration:none;
+            color:#555; transition:color .15s; gap:2px;
+        }
+        .bn-item.active { color:#ff9940; }
+        .bn-icon  { font-size:20px; line-height:1; }
+        .bn-label { font-size:10px; font-weight:600; }
+    </style>
+</head>
+<body>
+
+<!-- SPLASH SCREEN -->
+<div id="splash">
+    <div class="sp-emoji">🦎</div>
+    <div class="sp-title">Geco Leopardino</div>
+    <div class="sp-sub">Guida completa di cura</div>
+    <div class="sp-bar"><div class="sp-fill"></div></div>
+</div>
+
+<header>
+    <div class="h-gecko">
+        <div class="h-foto"><span>🦎</span></div>
+        <div class="h-info">
+            <h1>I miei Gechi</h1>
+            <p id="h-sub">Caricamento...</p>
+        </div>
+    </div>
+    <a href="profili.html" class="h-switch">+ Gechi</a>
+</header>
+
+<div class="page">
+    <div class="date-chip" id="date-chip"></div>
+    <div id="main-content"></div>
+</div>
+
+<!-- PROFILO SHEET -->
+<div class="profile-overlay" id="profile-overlay" onclick="handleOverlayClick(event)">
+    <div class="profile-sheet" id="profile-sheet">
+        <div class="ps-handle"></div>
+        <div id="ps-content"></div>
+    </div>
+</div>
+
+<nav class="bottom-nav">
+    <a href="index.html"    class="bn-item active"><span class="bn-icon">🏠</span><span class="bn-label">Home</span></a>
+    <a href="calendario.html" class="bn-item"><span class="bn-icon">📅</span><span class="bn-label">Calendario</span></a>
+    <a href="profili.html"  class="bn-item"><span class="bn-icon">🦎</span><span class="bn-label">Gechi</span></a>
+    <a href="note.html"     class="bn-item"><span class="bn-icon">📝</span><span class="bn-label">Note</span></a>
+    <a href="notifiche.html" class="bn-item"><span class="bn-icon">🔔</span><span class="bn-label">Notifiche</span></a>
+</nav>
+
+<script>
+    // ── SPLASH ──
+    var _splashShown = sessionStorage.getItem('splashShown');
+    if (_splashShown) {
+        document.getElementById('splash').classList.add('hide');
+    } else {
+        sessionStorage.setItem('splashShown', '1');
+        setTimeout(function() { document.getElementById('splash').classList.add('hide'); }, 1800);
+    }
+
+    // ── DATA ──
+    const MESI = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
+                  'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+    const GS   = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
+    const PATTERN = [
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
+        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO',
+        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
+        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO',
+        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3','DIGIUNO'
+    ];
+
+    function getGeckos()   { try { return JSON.parse(localStorage.getItem('geckos')||'[]'); } catch(e){ return []; } }
+    function getActiveId() { return localStorage.getItem('activeGeckoId')||''; }
+    function getActive()   { var gs=getGeckos(),id=getActiveId(); return gs.find(function(g){return g.id===id;})||gs[0]||null; }
+    function feedKey(gid,m,d){ return 'feed_'+gid+'_'+m+'_'+d; }
+    function getDays(mo) { return new Date(oggi.getFullYear(),mo+1,0).getDate(); }
+    function calcEta(nascita) {
+        var d = parseDateLocal(nascita);
+        if (!d) return '';
+        var diff = oggi - d;
+        if (diff < 0) return '⚠️ data futura';
+        var giorni = Math.floor(diff / (1000*60*60*24));
+        if (giorni === 0) return '🎂 nato oggi!';
+        if (giorni < 30)  return giorni + ' giorn' + (giorni===1?'o':'i');
+        var mesi = Math.floor(diff / (1000*60*60*24*30.5));
+        if (mesi < 24) return mesi + ' mes' + (mesi===1?'e':'i');
+        var anni = Math.floor(mesi/12), mr = mesi%12;
+        return anni + ' ann' + (anni===1?'o':'i') + (mr>0?' e '+mr+' mesi':'');
+    }
+
+    function sessoHTML(sesso) {
+        if (sesso === 'M') return '<span style="color:#3b82f6;font-weight:700;">♂</span>';
+        if (sesso === 'F') return '<span style="color:#ec4899;font-weight:700;">♀</span>';
+        return '';
+    }
+
+    var oggi = new Date();
+    var g    = oggi.getDate();
+    var m    = oggi.getMonth();
+    var alim = PATTERN[g - 1] || 'DIGIUNO';
+    var isDig = alim === 'DIGIUNO';
+
+    document.getElementById('date-chip').textContent = GS[oggi.getDay()] + ', ' + g + ' ' + MESI[m] + ' ' + oggi.getFullYear();
+
+    // ── COMPLEANNO ──
+    function parseDateLocal(nascita) {
+        if (!nascita) return null;
+        var p = nascita.split('-');
+        if (p.length < 3) return null;
+        return new Date(parseInt(p[0],10), parseInt(p[1],10)-1, parseInt(p[2],10));
+    }
+
+    function isCompleanno(nascita) {
+        var d = parseDateLocal(nascita);
+        if (!d) return false;
+        return d.getDate() === oggi.getDate() && d.getMonth() === oggi.getMonth();
+    }
+
+    function etaCompie(nascita) {
+        var d = parseDateLocal(nascita);
+        if (!d) return '';
+        var mesi = Math.floor((oggi - d) / (1000*60*60*24*30.5));
+        if (mesi < 1)  return 'il suo primo giorno!';
+        if (mesi < 12) return mesi + ' mes' + (mesi===1?'e':'i');
+        var anni = Math.floor(mesi/12), mr = mesi%12;
+        return anni + ' ann' + (anni===1?'o':'i') + (mr>0?' e '+mr+' mesi':'');
+    }
+
+    function launchConfetti() {
+        var colors = ['#ff9940','#ffb347','#22c55e','#3b82f6','#ec4899','#f59e0b','#fff'];
+        var wrap = document.createElement('div');
+        wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9997;overflow:hidden;';
+        for (var i = 0; i < 55; i++) {
+            var p = document.createElement('div');
+            var size = (Math.random()*7+4).toFixed(1);
+            var left = (Math.random()*100).toFixed(1);
+            var delay = (Math.random()*1.8).toFixed(2);
+            var dur   = (Math.random()*2+2.5).toFixed(2);
+            var isCircle = Math.random() > 0.4;
+            p.style.cssText = 'position:absolute;width:'+size+'px;height:'+size+'px;' +
+                'background:'+colors[Math.floor(Math.random()*colors.length)]+';' +
+                'border-radius:'+(isCircle?'50%':'2px')+';' +
+                'left:'+left+'%;top:-20px;' +
+                'animation:confettiFall '+dur+'s ease '+delay+'s both;';
+            wrap.appendChild(p);
+        }
+        document.body.appendChild(wrap);
+        setTimeout(function(){ if(wrap.parentNode) wrap.parentNode.removeChild(wrap); }, 5500);
+    }
+
+    function toggleFatto(geckoId) {
+        var key = feedKey(geckoId, MESI[m], g);
+        if (localStorage.getItem(key) === 'true') {
+            localStorage.removeItem(key);
+        } else {
+            localStorage.setItem(key, 'true');
+            if (navigator.vibrate) navigator.vibrate(40);
+        }
+        renderContent();
+    }
+
+    function renderContent() {
+        var geckos  = getGeckos();
+        var content = document.getElementById('main-content');
+
+        // Header subtitle
+        if (geckos.length === 0) {
+            document.getElementById('h-sub').textContent = 'Nessun geco aggiunto';
+        } else if (isDig) {
+            document.getElementById('h-sub').textContent = 'Oggi: giorno di digiuno per tutti';
+        } else {
+            var fatti = geckos.filter(function(gecko) {
+                return localStorage.getItem(feedKey(gecko.id, MESI[m], g)) === 'true';
+            }).length;
+            document.getElementById('h-sub').textContent = fatti + ' / ' + geckos.length + ' gechi alimentati oggi';
+        }
+
+        // Empty state
+        if (geckos.length === 0) {
+            content.innerHTML = '<div class="empty-card">' +
+                '<div class="ec-icon">🦎</div>' +
+                '<h3>Nessun geco aggiunto</h3>' +
+                '<p>Aggiungi il tuo primo geco per iniziare a tracciare i pasti</p>' +
+                '<a href="profili.html" class="btn-add-gecko">+ Aggiungi Geco</a>' +
+            '</div>';
+            return;
+        }
+
+        // Compleanni
+        var bdayGeckos = geckos.filter(function(gk){ return isCompleanno(gk.nascita); });
+        var bdayHTML = '';
+        if (bdayGeckos.length > 0) {
+            bdayHTML = bdayGeckos.map(function(gk) {
+                var eta = etaCompie(gk.nascita);
+                return '<div class="bday-card">' +
+                    '<span class="bday-emoji">🎂</span>' +
+                    '<div class="bday-title">Buon compleanno ' + gk.nome + '!</div>' +
+                    '<div class="bday-sub">Oggi compie <strong style="color:#ff9940">' + eta + '</strong> 🦎🎉<br>Festeggia il tuo piccolo!</div>' +
+                '</div>';
+            }).join('');
+            setTimeout(launchConfetti, 400);
+        }
+
+        // Feeding info banner
+        var isD3  = alim.includes('D3');
+        var img   = isD3 ? 'calcio-d3.jpg' : 'calcio-puro.jpg';
+        var tipo  = isD3 ? 'Calcio + Vitamina D3' : 'Calcio Puro';
+
+        var bannerHTML = isDig
+            ? '<div class="today-card card-rest" style="display:flex;align-items:center;gap:14px;padding:16px 18px;">' +
+                '<div class="tc-icon" style="width:48px;height:48px;font-size:26px;">😴</div>' +
+                '<div><div style="font-size:15px;font-weight:700;color:#555;">Giorno di digiuno</div>' +
+                '<div style="font-size:12px;color:#444;margin-top:2px;">Nessuna alimentazione oggi</div></div>' +
+              '</div>'
+            : '<div class="today-card card-feed" style="display:flex;align-items:center;gap:14px;padding:14px 18px;">' +
+                '<img src="' + img + '" class="tc-img" style="width:48px;height:48px;" alt="">' +
+                '<div><div style="font-size:15px;font-weight:700;color:#ff9940;">🍽️ Giorno di pasto — Giorno ' + g + '</div>' +
+                '<div style="font-size:12px;color:#aaa;margin-top:2px;">5-7 insetti + ' + tipo + '</div></div>' +
+              '</div>';
+
+        // Gecko cerchi scroll
+        var geckoCardsHTML = geckos.map(function(gecko) {
+            var fatto = !isDig && localStorage.getItem(feedKey(gecko.id, MESI[m], g)) === 'true';
+            var gc    = gecko.colore || '#ff9940';
+            var fotoHTML = gecko.foto
+                ? '<img src="' + gecko.foto + '" alt="">'
+                : '<span style="font-size:22px;color:' + gc + '">' + (gecko.nome ? gecko.nome[0].toUpperCase() : '🦎') + '</span>';
+            var borderColor = isDig ? '#333' : fatto ? '#22c55e' : gc;
+            var fotoStyle   = 'border-color:' + borderColor + ';' + (fatto ? 'background:' + gc + '18;' : isDig ? '' : 'background:' + gc + '0d;');
+            var fotoClass   = 'gsi-foto' + (isDig ? ' digiuno' : '');
+            var overlay     = fatto ? '<div class="gsi-overlay" style="background:rgba(34,197,94,.25)">✅</div>' : '';
+            var stato       = isDig
+                ? '<div class="gsi-stato rest">Riposo</div>'
+                : fatto
+                ? '<div class="gsi-stato" style="color:#22c55e">Fatto ✓</div>'
+                : '<div class="gsi-stato" style="color:' + gc + '">Da fare</div>';
+            var tap = isDig ? '' : ' onclick="toggleFatto(\'' + gecko.id + '\')"';
+
+            return '<div class="gsi">' +
+                '<div class="' + fotoClass + '" style="' + fotoStyle + '"' + tap + '>' + fotoHTML + overlay + '</div>' +
+                '<div class="gsi-nome">' + gecko.nome + '</div>' +
+                stato +
+            '</div>';
+        }).join('');
+
+        // Progress solo geco attivo
+        var geckoAttivo = getActive();
+        var giorni = getDays(m);
+        var completati = 0, totale = 0;
+        if (geckoAttivo) {
+            for (var i = 1; i <= giorni; i++) {
+                if ((PATTERN[i-1]||'DIGIUNO') !== 'DIGIUNO') {
+                    totale++;
+                    if (localStorage.getItem(feedKey(geckoAttivo.id, MESI[m], i)) === 'true') completati++;
+                }
+            }
+        }
+        var pct = totale > 0 ? Math.round(completati/totale*100) : 0;
+        var progressHTML = geckoAttivo
+            ? '<div class="pc-top"><span class="pc-label">📊 ' + MESI[m] + ' — ' + geckoAttivo.nome + '</span><span class="pc-pct">' + pct + '%</span></div>' +
+              '<div class="prog-bar"><div class="prog-fill" style="width:' + pct + '%"></div></div>' +
+              '<div class="pc-sub">' + completati + ' / ' + totale + ' pasti completati</div>'
+            : '';
+
+        content.innerHTML =
+            bdayHTML +
+            bannerHTML +
+            '<div class="gecko-scroll-wrap">' +
+                '<div class="gecko-scroll-title">I miei Gechi</div>' +
+                '<div class="gecko-scroll">' + geckoCardsHTML + '</div>' +
+            '</div>' +
+            (geckoAttivo ? '<div class="progress-card">' + progressHTML + '</div>' : '') +
+            '<div class="quick-grid">' +
+                '<a href="calendario.html" class="ql-card"><div class="ql-icon">📅</div><div class="ql-title">Calendario</div><div class="ql-sub">Piano mensile</div></a>' +
+                '<a href="profili.html" class="ql-card"><div class="ql-icon">🦎</div><div class="ql-title">I miei Gechi</div><div class="ql-sub">Gestisci profili</div></a>' +
+            '</div>';
+    }
+
+    // ── PROFILO SHEET ──
+    function openProfile(geckoId) {
+        var gecko = getGeckos().find(function(x){ return x.id === geckoId; });
+        if (!gecko) return;
+
+        var fotoHTML = gecko.foto
+            ? '<img src="' + gecko.foto + '" alt="">'
+            : '<span style="font-size:36px;">' + (gecko.nome ? gecko.nome[0].toUpperCase() : '🦎') + '</span>';
+
+        var sessoLabel = gecko.sesso === 'M'
+            ? '<span style="color:#3b82f6;font-size:20px;font-weight:800;">♂</span> Maschio'
+            : gecko.sesso === 'F'
+            ? '<span style="color:#ec4899;font-size:20px;font-weight:800;">♀</span> Femmina'
+            : '—';
+
+        var eta      = calcEta(gecko.nascita) || '—';
+        var complean = gecko.nascita ? formatData(gecko.nascita) : '—';
+        var morfo    = gecko.morfo || '—';
+        var note     = gecko.noteRapide || '—';
+
+        var bday = isCompleanno(gecko.nascita)
+            ? '<div style="text-align:center;font-size:13px;color:#ff9940;font-weight:700;margin-top:8px;">🎂 Oggi è il suo compleanno!</div>'
+            : '';
+
+        document.getElementById('ps-content').innerHTML =
+            '<div class="ps-foto-wrap">' +
+                '<div class="ps-foto">' + fotoHTML + '</div>' +
+                '<div class="ps-nome">' + gecko.nome + '</div>' +
+                '<div class="ps-sesso">' + sessoLabel + '</div>' +
+                bday +
+            '</div>' +
+            '<div class="ps-rows">' +
+                '<div class="ps-row"><span class="ps-row-label">Età</span><span class="ps-row-value">' + eta + '</span></div>' +
+                '<div class="ps-row"><span class="ps-row-label">Data di nascita</span><span class="ps-row-value">' + complean + '</span></div>' +
+                '<div class="ps-row"><span class="ps-row-label">Morfologia</span><span class="ps-row-value">' + morfo + '</span></div>' +
+                '<div class="ps-row"><span class="ps-row-label">Note</span><span class="ps-row-value" style="max-width:55%;text-align:right;">' + note + '</span></div>' +
+            '</div>' +
+            '<div class="ps-actions">' +
+                '<a href="profili.html" class="ps-btn-edit">✏️ Modifica profilo</a>' +
+                '<button class="ps-btn-close" onclick="closeProfile()">Chiudi</button>' +
+            '</div>';
+
+        document.getElementById('profile-overlay').classList.add('open');
+    }
+
+    function closeProfile() {
+        document.getElementById('profile-overlay').classList.remove('open');
+    }
+
+    function handleOverlayClick(e) {
+        if (e.target === document.getElementById('profile-overlay')) closeProfile();
+    }
+
+    function formatData(nascita) {
+        var d = parseDateLocal(nascita);
+        if (!d) return nascita;
+        var ms = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
+                  'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+        return d.getDate() + ' ' + ms[d.getMonth()] + ' ' + d.getFullYear();
+    }
+
+    renderContent();
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(function(){});
+    }
+</script>
+<script src="transitions.js"></script>
+</body>
+</html>

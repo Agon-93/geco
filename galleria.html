@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Galleria - Geco</title>
+    <meta name="theme-color" content="#111">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="manifest" href="manifest.json">
+    <script>(function(){try{var c=localStorage.getItem('activeColor');if(!c){var gs=JSON.parse(localStorage.getItem('geckos')||'[]'),id=localStorage.getItem('activeGeckoId')||'',gk=gs.find(function(g){return g.id===id;})||gs[0]||null;c=gk&&gk.colore?gk.colore:null;}if(c)document.documentElement.style.setProperty('--accent',c);}catch(e){}})();</script>
+    <style>
+        :root { --accent: #ff9940; }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+        body {
+            font-family:-apple-system,'Segoe UI',sans-serif;
+            background:#111; color:#f0f0f0; min-height:100vh;
+            padding-top:env(safe-area-inset-top);
+            padding-bottom:calc(70px + env(safe-area-inset-bottom));
+        }
+
+        header {
+            background:#1a1a1a; padding:16px 20px 14px;
+            border-bottom:1px solid #2a2a2a;
+            display:flex; align-items:center; justify-content:space-between;
+            position:sticky; top:0; z-index:10;
+        }
+        .h-left { display:flex; align-items:center; gap:10px; }
+        .h-dot  { width:12px; height:12px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+        .h-info h1 { font-size:17px; font-weight:700; }
+        .h-info p  { font-size:11px; color:#888; margin-top:2px; }
+
+        .btn-add-photo {
+            background:var(--accent); color:#1a1a1a;
+            border:none; border-radius:50%; width:42px; height:42px;
+            font-size:22px; cursor:pointer; display:flex;
+            align-items:center; justify-content:center; flex-shrink:0;
+        }
+
+        /* ── GRID ── */
+        .photo-grid {
+            display:grid; grid-template-columns:repeat(3,1fr); gap:2px;
+            padding:2px;
+        }
+        .photo-thumb {
+            aspect-ratio:1; overflow:hidden; cursor:pointer;
+            background:#1a1a1a; position:relative;
+        }
+        .photo-thumb img {
+            width:100%; height:100%; object-fit:cover;
+            display:block; transition:opacity .15s;
+        }
+        .photo-thumb:active img { opacity:.8; }
+        .photo-date {
+            position:absolute; bottom:0; left:0; right:0;
+            padding:4px 6px; font-size:9px; color:#fff; font-weight:600;
+            background:linear-gradient(transparent, rgba(0,0,0,.6));
+        }
+
+        /* ── EMPTY ── */
+        .empty-wrap {
+            display:flex; flex-direction:column; align-items:center;
+            justify-content:center; padding:60px 30px; text-align:center;
+            min-height:60vh;
+        }
+        .empty-icon { font-size:64px; margin-bottom:16px; opacity:.4; }
+        .empty-title { font-size:18px; font-weight:700; margin-bottom:8px; }
+        .empty-sub   { font-size:14px; color:#666; margin-bottom:24px; }
+        .btn-first-photo {
+            background:var(--accent); color:#1a1a1a;
+            border:none; border-radius:14px; padding:14px 28px;
+            font-size:15px; font-weight:700; cursor:pointer;
+        }
+
+        /* ── VIEWER ── */
+        .viewer-overlay {
+            position:fixed; inset:0; background:#000;
+            z-index:2000; display:none; flex-direction:column;
+        }
+        .viewer-overlay.open { display:flex; }
+        .viewer-top {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:calc(16px + env(safe-area-inset-top)) 16px 12px;
+            background:rgba(0,0,0,.6); flex-shrink:0;
+        }
+        .viewer-back {
+            background:none; border:none; color:#fff;
+            font-size:15px; font-weight:600; cursor:pointer;
+            padding:6px 10px; border-radius:8px;
+        }
+        .viewer-date { font-size:13px; color:#aaa; }
+        .viewer-del  {
+            background:none; border:none; color:#ef4444;
+            font-size:15px; font-weight:600; cursor:pointer;
+            padding:6px 10px;
+        }
+        .viewer-img-wrap {
+            flex:1; display:flex; align-items:center; justify-content:center;
+            overflow:hidden; padding:16px;
+        }
+        .viewer-img-wrap img {
+            max-width:100%; max-height:100%; object-fit:contain;
+            border-radius:8px;
+        }
+        .viewer-bottom {
+            padding:12px 20px calc(16px + env(safe-area-inset-bottom));
+            display:flex; flex-direction:column; align-items:center; gap:10px;
+            flex-shrink:0;
+        }
+        .viewer-counter { font-size:13px; color:#666; }
+        .btn-set-profilo {
+            background:var(--accent); color:#1a1a1a;
+            border:none; border-radius:12px; padding:13px 28px;
+            font-size:14px; font-weight:700; cursor:pointer;
+            transition:opacity .15s;
+        }
+        .btn-set-profilo:active { opacity:.75; }
+
+        .toast {
+            position:fixed; bottom:calc(90px + env(safe-area-inset-bottom));
+            left:50%; transform:translateX(-50%);
+            background:#22c55e; color:#fff;
+            padding:10px 22px; border-radius:30px;
+            font-size:14px; font-weight:600;
+            opacity:0; transition:opacity .3s; pointer-events:none;
+            white-space:nowrap; z-index:3000;
+        }
+        .toast.show { opacity:1; }
+
+        /* ── BOTTOM NAV ── */
+        .bottom-nav {
+            position:fixed; bottom:0; left:0; right:0;
+            background:#1a1a1a; border-top:1px solid #2a2a2a;
+            display:flex; padding-bottom:env(safe-area-inset-bottom); z-index:998;
+        }
+        .bn-item {
+            flex:1; display:flex; flex-direction:column; align-items:center;
+            justify-content:center; padding:8px 0; text-decoration:none;
+            color:#555; transition:color .15s; gap:2px;
+        }
+        .bn-item.active { color:var(--accent); }
+        .bn-icon  { font-size:20px; line-height:1; }
+        .bn-label { font-size:10px; font-weight:600; }
+
+        /* hidden input */
+        #photo-input { display:none; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="h-left">
+        <div class="h-dot"></div>
+        <div class="h-info">
+            <h1 id="h-title">Galleria</h1>
+            <p  id="h-sub">0 foto</p>
+        </div>
+    </div>
+    <button class="btn-add-photo" onclick="document.getElementById('photo-input').click()">＋</button>
+</header>
+
+<input type="file" id="photo-input" accept="image/*" multiple onchange="handlePhotos(this)">
+
+<div id="main-content"></div>
+
+<!-- VIEWER -->
+<div class="viewer-overlay" id="viewer">
+    <div class="viewer-top">
+        <button class="viewer-back" onclick="closeViewer()">← Indietro</button>
+        <span class="viewer-date" id="viewer-date"></span>
+        <button class="viewer-del" onclick="deleteCurrentPhoto()">🗑️ Elimina</button>
+    </div>
+    <div class="viewer-img-wrap">
+        <img id="viewer-img" src="" alt="">
+    </div>
+    <div class="viewer-bottom">
+        <button class="btn-set-profilo" onclick="setAsProfilo()">⭐ Imposta come foto profilo</button>
+        <div class="viewer-counter" id="viewer-counter"></div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<nav class="bottom-nav">
+    <a href="index.html"      class="bn-item"><span class="bn-icon">🏠</span><span class="bn-label">Home</span></a>
+    <a href="calendario.html" class="bn-item"><span class="bn-icon">📅</span><span class="bn-label">Calendario</span></a>
+    <a href="profili.html"    class="bn-item active"><span class="bn-icon">🦎</span><span class="bn-label">Gechi</span></a>
+    <a href="note.html"       class="bn-item"><span class="bn-icon">📝</span><span class="bn-label">Note</span></a>
+    <a href="notifiche.html"  class="bn-item"><span class="bn-icon">🔔</span><span class="bn-label">Notifiche</span></a>
+</nav>
+
+<script>
+    var MESI = ['Jan','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+
+    var geckoId = new URLSearchParams(window.location.search).get('id') || '';
+    var _viewerIdx = 0;
+
+    function getGeckos() { try { return JSON.parse(localStorage.getItem('geckos')||'[]'); } catch(e){ return []; } }
+    function getGecko()  { return getGeckos().find(function(g){ return g.id === geckoId; }) || null; }
+    function getPhotos() { try { return JSON.parse(localStorage.getItem('gallery_'+geckoId)||'[]'); } catch(e){ return []; } }
+    function savePhotos(arr) { localStorage.setItem('gallery_'+geckoId, JSON.stringify(arr)); }
+
+    function formatDate(iso) {
+        var d = new Date(iso);
+        return d.getDate() + ' ' + MESI[d.getMonth()] + ' ' + d.getFullYear();
+    }
+
+    function formatDateShort(iso) {
+        var d = new Date(iso);
+        return d.getDate() + '/' + (d.getMonth()+1) + '/' + String(d.getFullYear()).slice(2);
+    }
+
+    // ── INIT ──
+    function init() {
+        var gecko = getGecko();
+        var photos = getPhotos();
+
+        if (gecko) {
+            document.getElementById('h-title').textContent = gecko.nome + ' — Galleria';
+            if (gecko.colore) {
+                document.documentElement.style.setProperty('--accent', gecko.colore);
+                localStorage.setItem('activeColor', gecko.colore);
+            }
+        }
+        document.getElementById('h-sub').textContent = photos.length + ' foto';
+        renderGrid(photos);
+    }
+
+    function renderGrid(photos) {
+        var content = document.getElementById('main-content');
+        if (photos.length === 0) {
+            content.innerHTML = '<div class="empty-wrap">' +
+                '<div class="empty-icon">📸</div>' +
+                '<div class="empty-title">Nessuna foto ancora</div>' +
+                '<div class="empty-sub">Scatta o carica foto del tuo geco<br>per creare il suo album personale</div>' +
+                '<button class="btn-first-photo" onclick="document.getElementById(\'photo-input\').click()">📷 Aggiungi prima foto</button>' +
+            '</div>';
+            return;
+        }
+
+        // Raggruppa per mese
+        var gruppi = {};
+        photos.forEach(function(p) {
+            var d = new Date(p.date);
+            var key = MESI[d.getMonth()] + ' ' + d.getFullYear();
+            if (!gruppi[key]) gruppi[key] = [];
+            gruppi[key].push(p);
+        });
+
+        var html = '';
+        Object.keys(gruppi).reverse().forEach(function(mese) {
+            html += '<div style="padding:12px 12px 4px;font-size:12px;font-weight:700;color:#888;">' + mese + '</div>';
+            html += '<div class="photo-grid">';
+            gruppi[mese].forEach(function(p, i) {
+                var idx = photos.indexOf(p);
+                html += '<div class="photo-thumb" onclick="openViewer(' + idx + ')">' +
+                    '<img src="' + p.data + '" alt="" loading="lazy">' +
+                    '<div class="photo-date">' + formatDateShort(p.date) + '</div>' +
+                '</div>';
+            });
+            html += '</div>';
+        });
+        content.innerHTML = html;
+    }
+
+    // ── AGGIUNGI FOTO ──
+    function handlePhotos(input) {
+        if (!input.files || !input.files.length) return;
+        var files = Array.from(input.files);
+        var photos = getPhotos();
+        var processed = 0;
+
+        files.forEach(function(file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var img = new Image();
+                img.onload = function() {
+                    var canvas = document.createElement('canvas');
+                    var max = 800;
+                    var w = img.width, h = img.height;
+                    if (w > h) { if (w > max) { h = h*max/w; w = max; } }
+                    else       { if (h > max) { w = w*max/h; h = max; } }
+                    canvas.width = Math.round(w); canvas.height = Math.round(h);
+                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                    var data = canvas.toDataURL('image/jpeg', 0.75);
+                    photos.push({ id:'p_'+Date.now()+'_'+Math.random(), data:data, date:new Date().toISOString() });
+                    processed++;
+                    if (processed === files.length) {
+                        savePhotos(photos);
+                        document.getElementById('h-sub').textContent = photos.length + ' foto';
+                        renderGrid(photos);
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+        input.value = '';
+    }
+
+    // ── VIEWER ──
+    function openViewer(idx) {
+        _viewerIdx = idx;
+        showViewerPhoto();
+        document.getElementById('viewer').classList.add('open');
+    }
+
+    function showViewerPhoto() {
+        var photos = getPhotos();
+        if (!photos[_viewerIdx]) return;
+        document.getElementById('viewer-img').src = photos[_viewerIdx].data;
+        document.getElementById('viewer-date').textContent = formatDate(photos[_viewerIdx].date);
+        document.getElementById('viewer-counter').textContent = (_viewerIdx+1) + ' di ' + photos.length;
+    }
+
+    function closeViewer() {
+        document.getElementById('viewer').classList.remove('open');
+        document.getElementById('viewer-img').src = '';
+    }
+
+    function showToast(msg) {
+        var t = document.getElementById('toast');
+        t.textContent = msg; t.classList.add('show');
+        setTimeout(function(){ t.classList.remove('show'); }, 2500);
+    }
+
+    function setAsProfilo() {
+        var photos = getPhotos();
+        if (!photos[_viewerIdx]) return;
+        try {
+            var geckos = JSON.parse(localStorage.getItem('geckos')||'[]');
+            var idx = geckos.findIndex(function(g){ return g.id === geckoId; });
+            if (idx === -1) return;
+            geckos[idx].foto = photos[_viewerIdx].data;
+            localStorage.setItem('geckos', JSON.stringify(geckos));
+            showToast('✅ Foto profilo aggiornata!');
+        } catch(e) {
+            showToast('Errore nel salvataggio');
+        }
+    }
+
+    function deleteCurrentPhoto() {
+        if (!confirm('Eliminare questa foto?')) return;
+        var photos = getPhotos();
+        photos.splice(_viewerIdx, 1);
+        savePhotos(photos);
+        document.getElementById('h-sub').textContent = photos.length + ' foto';
+        if (photos.length === 0) { closeViewer(); renderGrid(photos); return; }
+        if (_viewerIdx >= photos.length) _viewerIdx = photos.length - 1;
+        showViewerPhoto();
+        renderGrid(photos);
+    }
+
+    // Swipe sinistra/destra nel viewer
+    var _touchStartX = 0;
+    document.getElementById('viewer').addEventListener('touchstart', function(e) {
+        _touchStartX = e.touches[0].clientX;
+    }, { passive:true });
+    document.getElementById('viewer').addEventListener('touchend', function(e) {
+        var dx = e.changedTouches[0].clientX - _touchStartX;
+        if (Math.abs(dx) < 50) return;
+        var photos = getPhotos();
+        if (dx < 0 && _viewerIdx < photos.length-1) { _viewerIdx++; showViewerPhoto(); }
+        if (dx > 0 && _viewerIdx > 0)               { _viewerIdx--; showViewerPhoto(); }
+    }, { passive:true });
+
+    init();
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(function(){});
+    }
+</script>
+<script src="transitions.js"></script>
+</body>
+</html>

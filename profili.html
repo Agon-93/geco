@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>I miei Gechi</title>
+    <meta name="theme-color" content="#111">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Geco">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.svg">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+        body {
+            font-family:-apple-system,'Segoe UI',sans-serif;
+            background:#111; color:#f0f0f0; min-height:100vh;
+            padding-top:env(safe-area-inset-top);
+            padding-bottom:calc(65px + env(safe-area-inset-bottom));
+        }
+
+        header {
+            background:#1a1a1a; padding:16px 20px 14px;
+            border-bottom:1px solid #2a2a2a;
+            display:flex; align-items:center; justify-content:space-between;
+        }
+        .h-left { display:flex; align-items:center; gap:10px; }
+        .h-emoji { font-size:24px; }
+        .h-title { font-size:17px; font-weight:700; }
+        .h-sub   { font-size:11px; color:#888; }
+        .btn-add {
+            background:#ff9940; color:#1a1a1a; border:none;
+            border-radius:10px; padding:8px 16px;
+            font-size:14px; font-weight:700; cursor:pointer;
+        }
+        .btn-add:active { opacity:.75; }
+
+        .page { padding:14px 16px; max-width:500px; margin:0 auto; display:flex; flex-direction:column; gap:10px; }
+
+        /* ══ GECKO CARD ══ */
+        .gecko-card {
+            background:#1a1a1a; border:1px solid #2a2a2a;
+            border-radius:18px; padding:16px;
+            display:flex; flex-direction:column; gap:14px;
+            transition:border-color .15s;
+        }
+        .gecko-card.attivo { border-color:#ff9940; background:#1e1400; }
+
+        .gc-top { display:flex; align-items:center; gap:14px; }
+
+        .gc-foto {
+            width:60px; height:60px; border-radius:50%; flex-shrink:0;
+            background:#2a2a2a; border:2px solid #3a3a3a;
+            display:flex; align-items:center; justify-content:center;
+            font-size:26px; overflow:hidden;
+        }
+        .gc-foto.attivo { border-color:#ff9940; }
+        .gc-foto img { width:100%; height:100%; object-fit:cover; }
+
+        .gc-info { flex:1; min-width:0; }
+        .gc-nome { font-size:17px; font-weight:700; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .gc-badge {
+            font-size:10px; font-weight:800; background:#ff9940; color:#1a1a1a;
+            padding:2px 8px; border-radius:6px; letter-spacing:.04em;
+        }
+        .gc-meta { font-size:12px; color:#888; margin-top:4px; }
+
+        /* fila tasti in basso */
+        .gc-bottom { display:flex; gap:8px; }
+        .gc-btn {
+            flex:1; height:44px; border-radius:12px;
+            background:#2a2a2a; border:1px solid #333;
+            color:#aaa; font-size:15px; font-weight:600;
+            display:flex; align-items:center; justify-content:center;
+            cursor:pointer; transition:.15s; gap:6px;
+        }
+        .gc-btn:active { border-color:#ff9940; color:#ff9940; background:#1e1a14; }
+        .gc-btn.sel { color:#ff9940; border-color:rgba(255,153,64,.35); background:rgba(255,153,64,.08); }
+        .gc-btn.sel:active { background:#ff9940; color:#1a1a1a; }
+        .gc-btn.del:active { border-color:#ef4444; color:#ef4444; background:#1e0808; }
+        .gc-btn.attivo-btn { color:#ff9940; border-color:rgba(255,153,64,.3); pointer-events:none; }
+
+        /* ══ EMPTY ══ */
+        .empty-card {
+            background:#1a1a1a; border:1px dashed #333; border-radius:16px;
+            padding:40px 24px; text-align:center; margin-top:8px;
+        }
+        .empty-card .ec-icon { font-size:60px; margin-bottom:14px; }
+        .empty-card h3 { font-size:18px; font-weight:700; margin-bottom:8px; }
+        .empty-card p  { font-size:14px; color:#666; line-height:1.5; }
+
+        /* ══ MODAL FORM ══ */
+        .modal-overlay {
+            position:fixed; inset:0; background:rgba(0,0,0,.75);
+            z-index:1000; display:none; align-items:flex-end;
+        }
+        .modal-overlay.open { display:flex; }
+        .modal-sheet {
+            background:#1a1a1a; border-radius:20px 20px 0 0;
+            width:100%; padding:0 0 calc(20px + env(safe-area-inset-bottom));
+            max-height:90vh; overflow-y:auto;
+            animation:slideUp .3s ease;
+        }
+        @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+        .modal-handle {
+            text-align:center; padding:12px 0 0;
+        }
+        .modal-handle::after {
+            content:''; display:inline-block;
+            width:36px; height:4px; background:#3a3a3a; border-radius:2px;
+        }
+        .modal-header {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:14px 20px 16px;
+            border-bottom:1px solid #2a2a2a;
+        }
+        .modal-title { font-size:17px; font-weight:700; }
+        .modal-close {
+            background:none; border:none; color:#888;
+            font-size:22px; cursor:pointer; padding:0 4px;
+        }
+        .modal-body { padding:20px; display:flex; flex-direction:column; gap:16px; }
+
+        /* foto upload area */
+        .foto-upload {
+            display:flex; flex-direction:column; align-items:center; gap:12px;
+        }
+        .foto-preview {
+            width:90px; height:90px; border-radius:50%;
+            background:#2a2a2a; border:2px dashed #444;
+            display:flex; align-items:center; justify-content:center;
+            font-size:40px; overflow:hidden; cursor:pointer;
+            position:relative; transition:border-color .15s;
+        }
+        .foto-preview:hover { border-color:#ff9940; }
+        .foto-preview img { width:100%; height:100%; object-fit:cover; }
+        .foto-preview input { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; }
+        .foto-label { font-size:13px; color:#888; }
+
+        /* form fields */
+        .form-group label {
+            display:block; font-size:11px; font-weight:700;
+            color:#888; text-transform:uppercase; letter-spacing:.07em; margin-bottom:7px;
+        }
+        .form-input, .form-select {
+            width:100%; background:#2a2a2a; border:1px solid #333;
+            border-radius:12px; color:#f0f0f0;
+            font-family:-apple-system,'Segoe UI',sans-serif;
+            font-size:15px; padding:13px 16px; outline:none;
+            transition:border-color .15s; -webkit-appearance:none;
+        }
+        .form-input:focus, .form-select:focus { border-color:#ff9940; }
+        .form-select option { background:#2a2a2a; }
+
+        .sesso-row { display:flex; gap:8px; }
+        .sesso-opt {
+            flex:1; padding:12px; border:1px solid #333; border-radius:12px;
+            text-align:center; cursor:pointer; font-size:15px; font-weight:600;
+            color:#666; background:#2a2a2a; transition:.15s;
+        }
+        .sesso-opt.sel-M { border-color:#3b82f6; color:#3b82f6; background:rgba(59,130,246,.1); }
+        .sesso-opt.sel-F { border-color:#ec4899; color:#ec4899; background:rgba(236,72,153,.1); }
+
+        .colore-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:10px; }
+        .colore-opt {
+            width:100%; aspect-ratio:1; border-radius:50%; cursor:pointer;
+            border:3px solid transparent; transition:.15s;
+        }
+        .colore-opt.sel { border-color:#fff; transform:scale(1.18); box-shadow:0 0 0 2px rgba(255,255,255,.3); }
+
+        .btn-salva {
+            width:100%; background:#ff9940; color:#1a1a1a;
+            border:none; border-radius:12px; padding:15px;
+            font-size:16px; font-weight:700; cursor:pointer; margin-top:4px;
+        }
+        .btn-salva:active { opacity:.75; }
+
+        /* ══ PROFILO SHEET ══ */
+        .profile-overlay {
+            position:fixed; inset:0; background:rgba(0,0,0,.75);
+            z-index:1001; display:none; align-items:flex-end;
+        }
+        .profile-overlay.open { display:flex; }
+        .profile-sheet {
+            background:#1a1a1a; border-radius:22px 22px 0 0; width:100%;
+            max-height:88vh; display:flex; flex-direction:column;
+            animation:slideUp .3s ease;
+        }
+        .ps-scrollable {
+            overflow-y:auto; flex:1;
+        }
+        .ps-footer {
+            padding:12px 20px calc(20px + env(safe-area-inset-bottom));
+            border-top:1px solid #2a2a2a; flex-shrink:0;
+            background:#1a1a1a;
+        }
+        .ps-handle { text-align:center; padding:12px 0 0; }
+        .ps-handle::after { content:''; display:inline-block; width:36px; height:4px; background:#3a3a3a; border-radius:2px; }
+        .ps-foto-wrap { text-align:center; padding:20px 20px 0; }
+        .ps-foto {
+            width:90px; height:90px; border-radius:50%; margin:0 auto;
+            background:#2a2a2a; border:3px solid #3a3a3a;
+            display:flex; align-items:center; justify-content:center;
+            font-size:36px; overflow:hidden;
+        }
+        .ps-foto img { width:100%; height:100%; object-fit:cover; }
+        .ps-nome  { font-size:22px; font-weight:800; text-align:center; margin-top:12px; }
+        .ps-sesso { text-align:center; font-size:15px; font-weight:600; margin-top:4px; color:#888; }
+        .ps-rows  { margin:16px 20px 0; border:1px solid #2a2a2a; border-radius:14px; overflow:hidden; }
+        .ps-row   { display:flex; justify-content:space-between; align-items:center; padding:13px 16px; border-bottom:1px solid #222; }
+        .ps-row:last-child { border-bottom:none; }
+        .ps-row-label { font-size:13px; color:#666; }
+        .ps-row-value { font-size:14px; font-weight:600; color:#f0f0f0; text-align:right; max-width:60%; }
+        .ps-actions { display:flex; gap:10px; margin:14px 20px 0; }
+        .ps-btn-edit {
+            flex:1; background:#2a2a2a; border:1px solid #3a3a3a; color:#f0f0f0;
+            border-radius:12px; padding:13px; font-size:14px; font-weight:600;
+            text-align:center; text-decoration:none; cursor:pointer;
+        }
+        .ps-btn-close {
+            flex:1; background:#ff9940; border:none; color:#1a1a1a;
+            border-radius:12px; padding:13px; font-size:14px; font-weight:700; cursor:pointer;
+        }
+
+        /* ══ SEARCH ══ */
+        .search-wrap { padding:12px 16px 0; max-width:500px; margin:0 auto; }
+        .search-box {
+            background:#1a1a1a; border:1px solid #2a2a2a;
+            border-radius:12px; padding:0 14px;
+            display:flex; align-items:center; gap:10px;
+            transition:border-color .15s;
+        }
+        .search-box:focus-within { border-color:#ff9940; }
+        .search-icon { font-size:15px; color:#555; }
+        .search-input {
+            flex:1; background:none; border:none; outline:none;
+            color:#f0f0f0; font-size:15px; padding:13px 0;
+            font-family:-apple-system,'Segoe UI',sans-serif;
+        }
+        .search-input::placeholder { color:#555; }
+        .search-clear {
+            background:none; border:none; color:#555; font-size:18px;
+            cursor:pointer; padding:0; line-height:1; display:none;
+        }
+
+        /* ══ QR ══ */
+        .qr-wrap {
+            background:#fff; border-radius:20px; padding:18px;
+            display:inline-block; box-shadow:0 8px 32px rgba(0,0,0,.5);
+        }
+        #qr-canvas { display:block; }
+        .qr-sub { font-size:13px; color:#666; line-height:1.6; max-width:260px; }
+        .qr-gecko-name { font-size:18px; font-weight:800; margin-bottom:4px; }
+        .btn-qr-save {
+            width:100%; background:#ff9940; color:#1a1a1a;
+            border:none; border-radius:12px; padding:14px;
+            font-size:15px; font-weight:700; cursor:pointer;
+        }
+        .btn-qr-save:active { opacity:.75; }
+
+        /* ══ BACKUP ══ */
+        .backup-card {
+            background:#1a1a1a; border:1px solid #2a2a2a;
+            border-radius:16px; padding:18px;
+        }
+        .backup-title {
+            font-size:11px; font-weight:700; color:#666;
+            text-transform:uppercase; letter-spacing:.07em; margin-bottom:14px;
+        }
+        .backup-btns { display:flex; flex-direction:column; gap:10px; }
+        .backup-btn {
+            width:100%; border-radius:12px; padding:14px;
+            font-size:15px; font-weight:700; cursor:pointer; border:none;
+            display:flex; align-items:center; justify-content:center; gap:8px;
+            transition:opacity .15s;
+        }
+        .backup-btn:active { opacity:.75; }
+        .backup-btn.exp { background:#ff9940; color:#1a1a1a; }
+        .backup-btn.imp { background:#2a2a2a; border:1px solid #3a3a3a; color:#f0f0f0; }
+        .backup-note { font-size:12px; color:#555; text-align:center; margin-top:10px; line-height:1.5; }
+
+        /* ══ BOTTOM NAV ══ */
+        .bottom-nav {
+            position:fixed; bottom:0; left:0; right:0;
+            background:#1a1a1a; border-top:1px solid #2a2a2a;
+            display:flex; padding-bottom:env(safe-area-inset-bottom); z-index:998;
+        }
+        .bn-item {
+            flex:1; display:flex; flex-direction:column; align-items:center;
+            justify-content:center; padding:8px 0; text-decoration:none;
+            color:#555; transition:color .15s; gap:2px;
+        }
+        .bn-item.active { color:#ff9940; }
+        .bn-icon  { font-size:20px; line-height:1; }
+        .bn-label { font-size:10px; font-weight:600; }
+
+        /* ══ TOAST ══ */
+        .toast {
+            position:fixed; bottom:calc(80px + env(safe-area-inset-bottom));
+            left:50%; transform:translateX(-50%);
+            background:#22c55e; color:#fff;
+            padding:10px 22px; border-radius:30px;
+            font-size:14px; font-weight:600;
+            opacity:0; transition:opacity .3s; pointer-events:none; white-space:nowrap; z-index:9999;
+        }
+        .toast.show { opacity:1; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="h-left">
+        <div class="h-emoji">🦎</div>
+        <div>
+            <div class="h-title">I miei Gechi</div>
+            <div class="h-sub" id="h-count">—</div>
+        </div>
+    </div>
+    <button class="btn-add" onclick="openForm(null)">+ Aggiungi</button>
+</header>
+
+<div class="search-wrap">
+    <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" id="search-input" type="text" placeholder="Cerca geco..." oninput="onSearch()">
+        <button class="search-clear" id="search-clear" onclick="clearSearch()">✕</button>
+    </div>
+</div>
+
+<div class="page" id="gecko-list"></div>
+
+<div class="page" style="padding-top:0;">
+    <div class="backup-card">
+        <div class="backup-title">💾 Dati & Backup</div>
+        <div class="backup-btns">
+            <button class="backup-btn exp" onclick="esportaBackup()">📤 Esporta Backup</button>
+            <button class="backup-btn imp" onclick="document.getElementById('backup-input').click()">📥 Importa Backup</button>
+        </div>
+        <div class="backup-note">Gechi, foto, pasti, note e galleria — tutto in un file</div>
+    </div>
+</div>
+<input type="file" id="backup-input" accept=".json" style="display:none" onchange="importaBackup(this)">
+
+<!-- QR MODAL -->
+<div class="modal-overlay" id="qr-modal" onclick="handleQROverlay(event)">
+    <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <div class="modal-title" id="qr-modal-title">QR Code</div>
+            <button class="modal-close" onclick="closeQR()">✕</button>
+        </div>
+        <div class="modal-body" style="align-items:center;text-align:center;gap:18px;padding-bottom:24px;">
+            <div class="qr-gecko-name" id="qr-gecko-name"></div>
+            <div class="qr-wrap"><canvas id="qr-canvas"></canvas></div>
+            <div class="qr-sub">Mostralo o salvalo</div>
+            <button class="btn-qr-save" onclick="salvaQR()">💾 Salva come immagine</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL FORM -->
+<div class="modal-overlay" id="modal" onclick="handleModalClick(event)">
+    <div class="modal-sheet" id="modal-sheet">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <div class="modal-title" id="modal-title">Nuovo Geco</div>
+            <button class="modal-close" onclick="closeForm()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="foto-upload">
+                <div class="foto-preview" id="foto-preview">
+                    <span id="foto-placeholder">🦎</span>
+                    <input type="file" id="foto-input" accept="image/*" onchange="handleFoto(this)">
+                </div>
+                <div class="foto-label">Tocca per aggiungere foto</div>
+            </div>
+
+            <div class="form-group">
+                <label>Nome</label>
+                <input class="form-input" id="f-nome" placeholder="Es: Leo, Stella, Rex..." maxlength="30">
+            </div>
+
+            <div class="form-group">
+                <label>Sesso</label>
+                <div class="sesso-row">
+                    <div class="sesso-opt" id="opt-M" onclick="selSesso('M')">♂ Maschio</div>
+                    <div class="sesso-opt" id="opt-F" onclick="selSesso('F')">♀ Femmina</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Data di nascita</label>
+                <input class="form-input" id="f-nascita" type="date">
+            </div>
+
+            <div class="form-group">
+                <label>Colore tema</label>
+                <div class="colore-grid" id="colore-grid"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Morfologia (opzionale)</label>
+                <input class="form-input" id="f-morfo" placeholder="Es: Normal, Blizzard, Albino...">
+            </div>
+
+            <div class="form-group">
+                <label>Note rapide (opzionale)</label>
+                <input class="form-input" id="f-note" placeholder="Es: Adottato da...">
+            </div>
+
+            <button class="btn-salva" onclick="salvaGeco()">💾 Salva</button>
+        </div>
+    </div>
+</div>
+
+<!-- PROFILO SHEET -->
+<div class="profile-overlay" id="profile-overlay" onclick="handleOverlayClick(event)">
+    <div class="profile-sheet">
+        <div class="ps-scrollable">
+            <div class="ps-handle"></div>
+            <div id="ps-content"></div>
+        </div>
+        <div class="ps-footer" id="ps-footer"></div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<nav class="bottom-nav">
+    <a href="index.html"    class="bn-item"><span class="bn-icon">🏠</span><span class="bn-label">Home</span></a>
+    <a href="calendario.html" class="bn-item"><span class="bn-icon">📅</span><span class="bn-label">Calendario</span></a>
+    <a href="profili.html"  class="bn-item active"><span class="bn-icon">🦎</span><span class="bn-label">Gechi</span></a>
+    <a href="note.html"     class="bn-item"><span class="bn-icon">📝</span><span class="bn-label">Note</span></a>
+    <a href="notifiche.html" class="bn-item"><span class="bn-icon">🔔</span><span class="bn-label">Notifiche</span></a>
+</nav>
+
+<script>
+    function getGeckos()   { try { return JSON.parse(localStorage.getItem('geckos')||'[]'); } catch(e){ return []; } }
+    function saveGeckos(a) { localStorage.setItem('geckos', JSON.stringify(a)); }
+    function getActiveId() { return localStorage.getItem('activeGeckoId')||''; }
+    function setActive(id) { localStorage.setItem('activeGeckoId', id); }
+
+    function showToast(msg) {
+        var t = document.getElementById('toast');
+        t.textContent = msg; t.classList.add('show');
+        setTimeout(function(){ t.classList.remove('show'); }, 2200);
+    }
+
+    function calcEta(nascita) {
+        if (!nascita) return '';
+        var p = nascita.split('-');
+        var dn = new Date(parseInt(p[0],10), parseInt(p[1],10)-1, parseInt(p[2],10));
+        var diff = new Date() - dn;
+        if (diff < 0) return '⚠️ data futura';
+        var giorni = Math.floor(diff / (1000*60*60*24));
+        if (giorni === 0) return '🎂 nato oggi!';
+        if (giorni < 30)  return giorni + ' giorn' + (giorni===1?'o':'i');
+        var mesi = Math.floor(diff / (1000*60*60*24*30.5));
+        if (mesi < 24) return mesi + ' mes' + (mesi===1?'e':'i');
+        var anni = Math.floor(mesi/12), mr = mesi%12;
+        return anni + ' ann' + (anni===1?'o':'i') + (mr>0?' e '+mr+' mesi':'');
+    }
+
+    // ── SEARCH ──
+    function onSearch() {
+        var q = document.getElementById('search-input').value;
+        document.getElementById('search-clear').style.display = q ? 'block' : 'none';
+        renderList();
+    }
+
+    function clearSearch() {
+        document.getElementById('search-input').value = '';
+        document.getElementById('search-clear').style.display = 'none';
+        renderList();
+    }
+
+    // ── RENDER LIST ──
+    function renderList() {
+        var geckos   = getGeckos();
+        var activeId = getActiveId();
+        var list     = document.getElementById('gecko-list');
+        var countEl  = document.getElementById('h-count');
+        var q        = (document.getElementById('search-input') ? document.getElementById('search-input').value.toLowerCase().trim() : '');
+        var filtered = q ? geckos.filter(function(g) {
+            return (g.nome||'').toLowerCase().indexOf(q) !== -1 ||
+                   (g.morfo||'').toLowerCase().indexOf(q) !== -1;
+        }) : geckos;
+
+        countEl.textContent = geckos.length === 0 ? 'Nessun geco' :
+            geckos.length === 1 ? '1 geco salvato' : geckos.length + ' gechi salvati';
+
+        if (geckos.length === 0) {
+            list.innerHTML = '<div class="empty-card">' +
+                '<div class="ec-icon">🦎</div>' +
+                '<h3>Nessun geco ancora!</h3>' +
+                '<p>Tocca "+ Aggiungi" in alto<br>per aggiungere il tuo primo geco</p>' +
+            '</div>';
+            return;
+        }
+
+        if (filtered.length === 0) {
+            list.innerHTML = '<div class="empty-card">' +
+                '<div class="ec-icon">🔍</div>' +
+                '<h3>Nessun risultato</h3>' +
+                '<p>Nessun geco corrisponde a "' + q + '"</p>' +
+            '</div>';
+            return;
+        }
+
+        // Metti l'attivo in cima
+        filtered.sort(function(a,b){ return a.id===activeId ? -1 : b.id===activeId ? 1 : 0; });
+        var geckos = filtered;
+
+        list.innerHTML = geckos.map(function(gecko) {
+            var isAtt = gecko.id === activeId;
+            var fotoHTML = gecko.foto
+                ? '<img src="' + gecko.foto + '" alt="">'
+                : gecko.nome ? gecko.nome[0].toUpperCase() : '🦎';
+            var eta    = calcEta(gecko.nascita);
+            var sesso  = gecko.sesso === 'M'
+                ? '<span style="color:#3b82f6;font-weight:700;">♂</span> Maschio'
+                : gecko.sesso === 'F'
+                ? '<span style="color:#ec4899;font-weight:700;">♀</span> Femmina'
+                : '';
+            var meta   = [sesso, eta, gecko.morfo].filter(Boolean).join(' · ');
+
+            var c   = gecko.colore || '#ff9940';
+            var cBg = isAtt ? 'background:' + c + '18;' : '';
+            return '<div class="gecko-card" style="border-color:' + c + '55;' + cBg + '">' +
+                '<div class="gc-top">' +
+                    '<div class="gc-foto" style="border-color:' + c + '">' + fotoHTML + '</div>' +
+                    '<div class="gc-info">' +
+                        '<div class="gc-nome">' + (gecko.nome||'Senza nome') +
+                            (isAtt ? '<span class="gc-badge" style="background:' + c + ';color:#111;">ATTIVO</span>' : '') +
+                        '</div>' +
+                        '<div class="gc-meta">' + (meta || '') + '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="gc-bottom">' +
+                    (isAtt
+                        ? '<button class="gc-btn attivo-btn" style="color:' + c + ';border-color:' + c + '55;">✓ Geco attivo</button>'
+                        : '<button class="gc-btn sel" style="color:' + c + ';border-color:' + c + '55;background:' + c + '12;" onclick="selezionaGeco(\'' + gecko.id + '\')">Seleziona</button>'
+                    ) +
+                    '<button class="gc-btn" style="flex:0;width:44px;" onclick="openProfile(\'' + gecko.id + '\')">ℹ️</button>' +
+                    '<button class="gc-btn del" style="flex:0;width:44px;" onclick="eliminaGeco(\'' + gecko.id + '\')">🗑️</button>' +
+                '</div>' +
+            '</div>';
+        }).join('');
+    }
+
+    // selezionaGeco definita sopra con gestione colore
+
+    function eliminaGeco(id) {
+        var g = getGeckos().find(function(x){return x.id===id;});
+        if (!confirm('Eliminare ' + (g?g.nome:'questo geco') + '? Tutti i dati di questo geco verranno persi.')) return;
+        var list = getGeckos().filter(function(x){return x.id!==id;});
+        saveGeckos(list);
+        if (getActiveId() === id) {
+            setActive(list.length > 0 ? list[0].id : '');
+        }
+        renderList();
+        showToast('Geco eliminato');
+    }
+
+    // ── FORM ──
+    var COLORI = [
+        '#ff9940','#ff6b35','#ff4757','#ef4444',
+        '#e91e63','#ec4899','#d946ef','#a855f7',
+        '#8b5cf6','#6366f1','#3b82f6','#0ea5e9',
+        '#06b6d4','#14b8a6','#22c55e','#84cc16',
+        '#eab308','#f59e0b','#f97316','#ffffff'
+    ];
+
+    function applyColor(c) {
+        if (!c) c = '#ff9940';
+        document.documentElement.style.setProperty('--accent', c);
+        localStorage.setItem('activeColor', c);
+    }
+
+    function selezionaGeco(id) {
+        setActive(id);
+        var g = getGeckos().find(function(x){return x.id===id;});
+        applyColor(g && g.colore ? g.colore : '#ff9940');
+        renderList();
+        showToast('✅ ' + (g ? g.nome : 'Geco') + ' selezionato!');
+    }
+
+    var _editId   = null;
+    var _sessoSel = '';
+    var _fotoB64  = '';
+    var _coloreSel = '#ff9940';
+
+    function openForm(id) {
+        _editId = id;
+        _sessoSel = ''; _fotoB64 = '';
+
+        var modal = document.getElementById('modal');
+        document.getElementById('modal-title').textContent = id ? 'Modifica Geco' : 'Nuovo Geco';
+        document.getElementById('f-nome').value    = '';
+        document.getElementById('f-nascita').value = '';
+        document.getElementById('f-morfo').value   = '';
+        document.getElementById('f-note').value    = '';
+        document.getElementById('foto-preview').innerHTML = '<span>🦎</span><input type="file" id="foto-input" accept="image/*" onchange="handleFoto(this)">';
+        document.getElementById('opt-M').className = 'sesso-opt';
+        document.getElementById('opt-F').className = 'sesso-opt';
+        _coloreSel = '#ff9940';
+        buildColoreGrid();
+
+        if (id) {
+            var g = getGeckos().find(function(x){return x.id===id;});
+            if (g) {
+                document.getElementById('f-nome').value    = g.nome    || '';
+                document.getElementById('f-nascita').value = g.nascita || '';
+                document.getElementById('f-morfo').value   = g.morfo   || '';
+                document.getElementById('f-note').value    = g.noteRapide || '';
+                _sessoSel  = g.sesso  || '';
+                _fotoB64   = g.foto   || '';
+                _coloreSel = g.colore || '#ff9940';
+                if (g.foto) {
+                    document.getElementById('foto-preview').innerHTML =
+                        '<img src="' + g.foto + '" alt=""><input type="file" id="foto-input" accept="image/*" onchange="handleFoto(this)">';
+                }
+                if (g.sesso) selSesso(g.sesso);
+                buildColoreGrid();
+            }
+        }
+
+        modal.classList.add('open');
+        setTimeout(function(){ document.getElementById('f-nome').focus(); }, 350);
+    }
+
+    function closeForm() {
+        document.getElementById('modal').classList.remove('open');
+    }
+
+    function handleModalClick(e) {
+        if (e.target === document.getElementById('modal')) closeForm();
+    }
+
+    function selSesso(s) {
+        _sessoSel = s;
+        document.getElementById('opt-M').className = 'sesso-opt' + (s==='M' ? ' sel-M' : '');
+        document.getElementById('opt-F').className = 'sesso-opt' + (s==='F' ? ' sel-F' : '');
+    }
+
+    function buildColoreGrid() {
+        var grid = document.getElementById('colore-grid');
+        if (!grid) return;
+        grid.innerHTML = COLORI.map(function(c) {
+            return '<div class="colore-opt' + (c === _coloreSel ? ' sel' : '') + '" ' +
+                'style="background:' + c + ';" onclick="pickColore(\'' + c + '\')" title="' + c + '"></div>';
+        }).join('');
+    }
+
+    function pickColore(c) {
+        _coloreSel = c;
+        buildColoreGrid();
+    }
+
+    function handleFoto(input) {
+        if (!input.files || !input.files[0]) return;
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var img = new Image();
+            img.onload = function() {
+                var canvas = document.createElement('canvas');
+                var max = 240, w = img.width, h = img.height;
+                if (w > h) { if (w > max) { h = h*max/w; w = max; } }
+                else       { if (h > max) { w = w*max/h; h = max; } }
+                canvas.width = Math.round(w); canvas.height = Math.round(h);
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                _fotoB64 = canvas.toDataURL('image/jpeg', 0.72);
+                document.getElementById('foto-preview').innerHTML =
+                    '<img src="' + _fotoB64 + '" alt=""><input type="file" id="foto-input" accept="image/*" onchange="handleFoto(this)">';
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    function salvaGeco() {
+        var nome = document.getElementById('f-nome').value.trim();
+        if (!nome) { document.getElementById('f-nome').focus(); showToast('Inserisci un nome!'); return; }
+
+        var geckos = getGeckos();
+        if (_editId) {
+            var idx = geckos.findIndex(function(x){return x.id===_editId;});
+            if (idx !== -1) {
+                geckos[idx].nome       = nome;
+                geckos[idx].sesso      = _sessoSel;
+                geckos[idx].nascita    = document.getElementById('f-nascita').value;
+                geckos[idx].morfo      = document.getElementById('f-morfo').value.trim();
+                geckos[idx].noteRapide = document.getElementById('f-note').value.trim();
+                geckos[idx].colore     = _coloreSel;
+                if (_fotoB64) geckos[idx].foto = _fotoB64;
+            }
+        } else {
+            var newGeco = {
+                id:         'g_' + Date.now() + '_' + Math.floor(Math.random()*9999),
+                nome:       nome,
+                sesso:      _sessoSel,
+                nascita:    document.getElementById('f-nascita').value,
+                morfo:      document.getElementById('f-morfo').value.trim(),
+                noteRapide: document.getElementById('f-note').value.trim(),
+                foto:       _fotoB64,
+                colore:     _coloreSel
+            };
+            geckos.push(newGeco);
+            if (!getActiveId()) setActive(newGeco.id);
+        }
+
+        saveGeckos(geckos);
+        closeForm();
+        renderList();
+        showToast(_editId ? '✅ Profilo aggiornato!' : '✅ ' + nome + ' aggiunto!');
+    }
+
+    // ── PROFILO SHEET ──
+    function parseDateLocal(nascita) {
+        if (!nascita) return null;
+        var p = nascita.split('-');
+        if (p.length < 3) return null;
+        return new Date(parseInt(p[0],10), parseInt(p[1],10)-1, parseInt(p[2],10));
+    }
+
+    function calcEtaP(nascita) {
+        var d = parseDateLocal(nascita);
+        if (!d) return '—';
+        var diff = new Date() - d;
+        if (diff < 0) return '⚠️ data futura';
+        var giorni = Math.floor(diff / 86400000);
+        if (giorni === 0) return '🎂 nato oggi!';
+        if (giorni < 30)  return giorni + ' giorn' + (giorni===1?'o':'i');
+        var mesi = Math.floor(diff / (86400000*30.5));
+        if (mesi < 24) return mesi + ' mes' + (mesi===1?'e':'i');
+        var anni = Math.floor(mesi/12), mr = mesi%12;
+        return anni + ' ann' + (anni===1?'o':'i') + (mr>0?' e '+mr+' mesi':'');
+    }
+
+    function formatData(nascita) {
+        var d = parseDateLocal(nascita);
+        if (!d) return '—';
+        var ms = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
+                  'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+        return d.getDate() + ' ' + ms[d.getMonth()] + ' ' + d.getFullYear();
+    }
+
+    function openProfile(geckoId) {
+        var gecko = getGeckos().find(function(x){ return x.id === geckoId; });
+        if (!gecko) return;
+
+        var fotoHTML = gecko.foto
+            ? '<img src="' + gecko.foto + '" alt="">'
+            : '<span style="font-size:36px;">' + (gecko.nome ? gecko.nome[0].toUpperCase() : '🦎') + '</span>';
+
+        var sessoLabel = gecko.sesso === 'M'
+            ? '<span style="color:#3b82f6;font-weight:800;">♂</span> Maschio'
+            : gecko.sesso === 'F'
+            ? '<span style="color:#ec4899;font-weight:800;">♀</span> Femmina'
+            : '—';
+
+        var oggi = new Date();
+        var isBday = gecko.nascita && (function(){
+            var p = gecko.nascita.split('-');
+            return p.length===3 && parseInt(p[2],10)===oggi.getDate() && (parseInt(p[1],10)-1)===oggi.getMonth();
+        })();
+
+        var coloreGecko = gecko.colore || '#ff9940';
+
+        document.getElementById('ps-content').innerHTML =
+            '<div class="ps-foto-wrap">' +
+                '<div class="ps-foto" style="border-color:' + coloreGecko + '">' + fotoHTML + '</div>' +
+                '<div class="ps-nome">' + gecko.nome + '</div>' +
+                '<div class="ps-sesso">' + sessoLabel + '</div>' +
+                (isBday ? '<div style="text-align:center;font-size:13px;color:' + coloreGecko + ';font-weight:700;margin-top:6px;">🎂 Oggi è il suo compleanno!</div>' : '') +
+            '</div>' +
+            '<div class="ps-rows">' +
+                '<div class="ps-row"><span class="ps-row-label">Età</span><span class="ps-row-value">' + calcEtaP(gecko.nascita) + '</span></div>' +
+                '<div class="ps-row"><span class="ps-row-label">Data di nascita</span><span class="ps-row-value">' + formatData(gecko.nascita) + '</span></div>' +
+                '<div class="ps-row"><span class="ps-row-label">Morfologia</span><span class="ps-row-value">' + (gecko.morfo||'—') + '</span></div>' +
+                '<div class="ps-row"><span class="ps-row-label">Note</span><span class="ps-row-value">' + (gecko.noteRapide||'—') + '</span></div>' +
+            '</div>' +
+            '<div style="margin:14px 20px 0;display:flex;flex-direction:column;gap:10px;">' +
+                '<a href="galleria.html?id=' + gecko.id + '" style="display:block;text-align:center;background:' + coloreGecko + '15;border:1px solid ' + coloreGecko + '44;color:' + coloreGecko + ';border-radius:12px;padding:14px;font-size:15px;font-weight:700;text-decoration:none;">📸 Galleria Foto</a>' +
+                '<a href="riproduzione.html?id=' + gecko.id + '" style="display:block;text-align:center;background:' + coloreGecko + '15;border:1px solid ' + coloreGecko + '44;color:' + coloreGecko + ';border-radius:12px;padding:14px;font-size:15px;font-weight:700;text-decoration:none;">🥚 Diario Riproduzione</a>' +
+            '</div>';
+
+        document.getElementById('ps-footer').innerHTML =
+            '<div style="padding:0 0 10px;">' +
+                '<button style="width:100%;border-radius:12px;padding:13px;background:' + coloreGecko + '18;border:1px solid ' + coloreGecko + '44;color:' + coloreGecko + ';font-size:15px;font-weight:700;cursor:pointer;" onclick="closeProfile();openQR(\'' + gecko.id + '\')">📱 Genera QR Code</button>' +
+            '</div>' +
+            '<div class="ps-actions">' +
+                '<button class="ps-btn-edit" onclick="closeProfile();openForm(\'' + gecko.id + '\')">✏️ Modifica</button>' +
+                '<button class="ps-btn-close" onclick="closeProfile()">Chiudi</button>' +
+            '</div>';
+
+        document.getElementById('profile-overlay').classList.add('open');
+    }
+
+    function closeProfile() {
+        document.getElementById('profile-overlay').classList.remove('open');
+    }
+
+    function handleOverlayClick(e) {
+        if (e.target === document.getElementById('profile-overlay')) closeProfile();
+    }
+
+    // ── QR CODE ──
+    var _qrGeckoId = null;
+
+    function openQR(geckoId) {
+        _qrGeckoId = geckoId;
+        var gecko = getGeckos().find(function(x){ return x.id === geckoId; });
+        if (!gecko) return;
+        document.getElementById('qr-modal-title').textContent = '📱 QR Code — ' + gecko.nome;
+        document.getElementById('qr-gecko-name').textContent = gecko.nome;
+        document.getElementById('qr-modal').classList.add('open');
+        if (!window.qrcode) {
+            var s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';
+            s.onload = function() { renderQR(gecko); };
+            s.onerror = function() { alert('Connessione necessaria per caricare il generatore QR la prima volta'); };
+            document.head.appendChild(s);
+        } else {
+            renderQR(gecko);
+        }
+    }
+
+    function renderQR(gecko) {
+        var MESI = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
+                    'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+        var sesso = gecko.sesso === 'M' ? 'Maschio' : gecko.sesso === 'F' ? 'Femmina' : '';
+        var nascitaStr = '';
+        var eta = '';
+        if (gecko.nascita) {
+            var p = gecko.nascita.split('-');
+            nascitaStr = parseInt(p[2]) + ' ' + MESI[parseInt(p[1])-1] + ' ' + p[0];
+            var mesi = Math.floor((new Date() - new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]))) / (86400000*30.5));
+            if (mesi < 24) eta = mesi + ' mesi';
+            else { var anni = Math.floor(mesi/12); eta = anni + ' ann' + (anni===1?'o':'i'); }
+        }
+        var meta = [sesso, gecko.morfo, eta].filter(Boolean).join(' · ');
+        var lines = ['🦎 ' + gecko.nome];
+        if (meta) lines.push(meta);
+        if (nascitaStr) lines.push('Nato il ' + nascitaStr);
+        if (gecko.noteRapide) lines.push(gecko.noteRapide);
+        var text = lines.join('\n');
+        try {
+            var qr = qrcode(0, 'M');
+            qr.addData(text);
+            qr.make();
+            var canvas = document.getElementById('qr-canvas');
+            var cells  = qr.getModuleCount();
+            var scale  = Math.max(4, Math.floor(220 / cells));
+            var pad    = 6;
+            var size   = cells * scale + pad * 2;
+            canvas.width  = size; canvas.height = size;
+            canvas.style.width = size + 'px'; canvas.style.height = size + 'px';
+            var ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, size, size);
+            ctx.fillStyle = '#111111';
+            for (var r = 0; r < cells; r++) {
+                for (var c = 0; c < cells; c++) {
+                    if (qr.isDark(r, c)) ctx.fillRect(c*scale+pad, r*scale+pad, scale, scale);
+                }
+            }
+        } catch(e) { alert('Errore generazione QR: ' + e.message); }
+    }
+
+    function salvaQR() {
+        var canvas = document.getElementById('qr-canvas');
+        var gecko  = getGeckos().find(function(x){ return x.id === _qrGeckoId; });
+        var nome   = gecko ? gecko.nome.toLowerCase().replace(/\s+/g,'-') : 'geco';
+        var a = document.createElement('a');
+        a.href = canvas.toDataURL('image/png'); a.download = 'qr-' + nome + '.png'; a.click();
+    }
+
+    function closeQR() { document.getElementById('qr-modal').classList.remove('open'); }
+    function handleQROverlay(e) { if (e.target === document.getElementById('qr-modal')) closeQR(); }
+
+    // ── BACKUP ──
+    function esportaBackup() {
+        var geckos = getGeckos();
+        var backup = { version: 1, exportedAt: new Date().toISOString(), appName: 'Geco Leopardino', data: {} };
+        backup.data.geckos        = geckos;
+        backup.data.activeGeckoId = localStorage.getItem('activeGeckoId') || '';
+        backup.data.activeColor   = localStorage.getItem('activeColor')   || '';
+        backup.data.gecoNotes     = localStorage.getItem('gecoNotes')     || '';
+        backup.data.notifTime     = localStorage.getItem('notifTime')     || '';
+        backup.data.notifEnabled  = localStorage.getItem('notifEnabled')  || '';
+        backup.data.nextNotifISO  = localStorage.getItem('nextNotifISO')  || '';
+        backup.data.nextNotifAlim = localStorage.getItem('nextNotifAlim') || '';
+        backup.data.repro   = {};
+        backup.data.gallery = {};
+        backup.data.feed    = {};
+        for (var i = 0; i < localStorage.length; i++) {
+            var k = localStorage.key(i);
+            if (k.indexOf('repro_')   === 0) backup.data.repro[k]   = localStorage.getItem(k);
+            else if (k.indexOf('gallery_') === 0) backup.data.gallery[k] = localStorage.getItem(k);
+            else if (k.indexOf('feed_')    === 0) backup.data.feed[k]    = localStorage.getItem(k);
+        }
+        var oggi = new Date();
+        var dateStr = oggi.getFullYear() + '-' +
+            String(oggi.getMonth()+1).padStart(2,'0') + '-' +
+            String(oggi.getDate()).padStart(2,'0');
+        var blob = new Blob([JSON.stringify(backup)], { type: 'application/json' });
+        var url  = URL.createObjectURL(blob);
+        var a    = document.createElement('a');
+        a.href = url; a.download = 'geco-backup-' + dateStr + '.json'; a.click();
+        URL.revokeObjectURL(url);
+        showToast('✅ Backup esportato!');
+    }
+
+    function importaBackup(input) {
+        if (!input.files || !input.files[0]) return;
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                var backup = JSON.parse(e.target.result);
+                if (!backup.version || !backup.data) throw new Error('file non riconosciuto');
+                var d = backup.data;
+                var dataStr = backup.exportedAt ? backup.exportedAt.split('T')[0] : '?';
+                if (!confirm('Ripristinare il backup del ' + dataStr + '?\n\nI dati attuali verranno sostituiti.')) return;
+
+                // Rimuovi chiavi dinamiche
+                var toRemove = [];
+                for (var i = 0; i < localStorage.length; i++) {
+                    var k = localStorage.key(i);
+                    if (k.indexOf('feed_')===0 || k.indexOf('repro_')===0 || k.indexOf('gallery_')===0) toRemove.push(k);
+                }
+                toRemove.forEach(function(k){ localStorage.removeItem(k); });
+
+                if (d.geckos)        localStorage.setItem('geckos',        JSON.stringify(d.geckos));
+                if (d.activeGeckoId) localStorage.setItem('activeGeckoId', d.activeGeckoId);
+                if (d.activeColor)   localStorage.setItem('activeColor',   d.activeColor);
+                if (d.gecoNotes)     localStorage.setItem('gecoNotes',     d.gecoNotes);
+                if (d.notifTime)     localStorage.setItem('notifTime',     d.notifTime);
+                if (d.notifEnabled)  localStorage.setItem('notifEnabled',  d.notifEnabled);
+                if (d.nextNotifISO)  localStorage.setItem('nextNotifISO',  d.nextNotifISO);
+                if (d.nextNotifAlim) localStorage.setItem('nextNotifAlim', d.nextNotifAlim);
+                Object.keys(d.repro   || {}).forEach(function(k){ localStorage.setItem(k, d.repro[k]); });
+                Object.keys(d.gallery || {}).forEach(function(k){ localStorage.setItem(k, d.gallery[k]); });
+                Object.keys(d.feed    || {}).forEach(function(k){ localStorage.setItem(k, d.feed[k]); });
+
+                showToast('✅ Backup ripristinato!');
+                setTimeout(function(){ renderList(); }, 300);
+            } catch(err) {
+                alert('File non valido: ' + err.message);
+            }
+        };
+        reader.readAsText(input.files[0]);
+        input.value = '';
+    }
+
+    // ── INIT ──
+    renderList();
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(function(){});
+    }
+</script>
+<script src="transitions.js"></script>
+</body>
+</html>

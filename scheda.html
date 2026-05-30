@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Scheda Geco</title>
+    <meta name="theme-color" content="#111">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        body {
+            font-family:-apple-system,'Segoe UI',sans-serif;
+            background:#111; color:#f0f0f0; min-height:100vh;
+            padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+        }
+
+        .card {
+            background:#1a1a1a; border-radius:24px; width:calc(100% - 32px);
+            max-width:380px; overflow:hidden;
+            box-shadow:0 20px 60px rgba(0,0,0,.6);
+        }
+
+        .card-top {
+            padding:32px 24px 24px; text-align:center;
+            position:relative;
+        }
+        .card-top::before {
+            content:''; position:absolute; inset:0;
+            background:radial-gradient(circle at 50% 0%, var(--accent-faint,rgba(255,153,64,.15)), transparent 70%);
+        }
+        .card-foto {
+            width:100px; height:100px; border-radius:50%; margin:0 auto 16px;
+            background:#2a2a2a; border:4px solid var(--accent,#ff9940);
+            display:flex; align-items:center; justify-content:center;
+            font-size:44px; overflow:hidden; position:relative; z-index:1;
+        }
+        .card-foto img { width:100%; height:100%; object-fit:cover; }
+        .card-nome { font-size:28px; font-weight:900; position:relative; z-index:1; }
+        .card-sesso {
+            font-size:14px; font-weight:600; margin-top:4px; color:#888;
+            position:relative; z-index:1;
+        }
+        .card-badge {
+            display:inline-block; margin-top:8px;
+            background:var(--accent,#ff9940); color:#1a1a1a;
+            font-size:12px; font-weight:800; padding:4px 14px; border-radius:20px;
+            position:relative; z-index:1;
+        }
+
+        .card-rows { border-top:1px solid #2a2a2a; }
+        .card-row {
+            display:flex; justify-content:space-between; align-items:center;
+            padding:14px 22px; border-bottom:1px solid #222;
+        }
+        .card-row:last-child { border-bottom:none; }
+        .cr-label { font-size:13px; color:#666; }
+        .cr-value { font-size:14px; font-weight:700; text-align:right; max-width:60%; }
+
+        .card-footer {
+            background:#141414; padding:18px 22px;
+            display:flex; flex-direction:column; gap:10px;
+        }
+        .btn-back {
+            display:block; text-align:center; background:var(--accent,#ff9940);
+            color:#1a1a1a; border:none; border-radius:12px; padding:14px;
+            font-size:15px; font-weight:700; cursor:pointer; text-decoration:none;
+        }
+        .btn-back:active { opacity:.75; }
+        .card-branding {
+            text-align:center; font-size:11px; color:#444; font-weight:600; letter-spacing:.05em;
+        }
+
+        .not-found {
+            text-align:center; padding:40px 20px;
+        }
+        .not-found .icon { font-size:60px; margin-bottom:16px; }
+        .not-found h2 { font-size:20px; font-weight:700; margin-bottom:8px; }
+        .not-found p { font-size:14px; color:#666; }
+    </style>
+</head>
+<body>
+
+<div class="card" id="card">
+    <div class="not-found">
+        <div class="icon">🔍</div>
+        <h2>Caricamento...</h2>
+        <p>Un momento</p>
+    </div>
+</div>
+
+<script>
+    var MESI = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
+                'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+
+    function getGeckos() { try { return JSON.parse(localStorage.getItem('geckos')||'[]'); } catch(e){ return []; } }
+
+    function calcEta(nascita) {
+        if (!nascita) return '—';
+        var p = nascita.split('-');
+        var dn = new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));
+        var mesi = Math.floor((new Date() - dn) / (86400000*30.5));
+        if (mesi < 1) return '< 1 mese';
+        if (mesi < 24) return mesi + ' mes' + (mesi===1?'e':'i');
+        var anni = Math.floor(mesi/12), mr = mesi%12;
+        return anni + ' ann' + (anni===1?'o':'i') + (mr>0?' e '+mr+' mesi':'');
+    }
+
+    function formatData(nascita) {
+        if (!nascita) return '—';
+        var p = nascita.split('-');
+        return parseInt(p[2]) + ' ' + MESI[parseInt(p[1])-1] + ' ' + p[0];
+    }
+
+    function render(gecko) {
+        var colore = gecko.colore || '#ff9940';
+        document.documentElement.style.setProperty('--accent', colore);
+        document.documentElement.style.setProperty('--accent-faint', colore + '22');
+
+        var fotoHTML = gecko.foto
+            ? '<img src="' + gecko.foto + '" alt="">'
+            : '<span>' + (gecko.nome ? gecko.nome[0].toUpperCase() : '🦎') + '</span>';
+
+        var sessoLabel = gecko.sesso === 'M'
+            ? '<span style="color:#3b82f6;font-weight:800;">♂</span> Maschio'
+            : gecko.sesso === 'F'
+            ? '<span style="color:#ec4899;font-weight:800;">♀</span> Femmina'
+            : '';
+
+        document.getElementById('card').innerHTML =
+            '<div class="card-top">' +
+                '<div class="card-foto">' + fotoHTML + '</div>' +
+                '<div class="card-nome">' + gecko.nome + '</div>' +
+                (sessoLabel ? '<div class="card-sesso">' + sessoLabel + '</div>' : '') +
+                (gecko.morfo ? '<div class="card-badge">' + gecko.morfo + '</div>' : '') +
+            '</div>' +
+            '<div class="card-rows">' +
+                '<div class="card-row"><span class="cr-label">Età</span><span class="cr-value">' + calcEta(gecko.nascita) + '</span></div>' +
+                '<div class="card-row"><span class="cr-label">Data di nascita</span><span class="cr-value">' + formatData(gecko.nascita) + '</span></div>' +
+                (gecko.noteRapide ? '<div class="card-row"><span class="cr-label">Note</span><span class="cr-value">' + gecko.noteRapide + '</span></div>' : '') +
+            '</div>' +
+            '<div class="card-footer">' +
+                '<a href="profili.html" class="btn-back">🦎 Apri app</a>' +
+                '<div class="card-branding">GECO LEOPARDINO</div>' +
+            '</div>';
+    }
+
+    function renderNotFound() {
+        document.getElementById('card').innerHTML =
+            '<div class="not-found">' +
+                '<div class="icon">🦎</div>' +
+                '<h2>Geco non trovato</h2>' +
+                '<p>Questo QR appartiene a un altro dispositivo</p>' +
+                '<br><a href="profili.html" style="color:#ff9940;font-weight:700;text-decoration:none;">Apri l\'app →</a>' +
+            '</div>';
+    }
+
+    var params = new URLSearchParams(window.location.search);
+    var id     = params.get('id');
+
+    if (id) {
+        var gecko = getGeckos().find(function(g){ return g.id === id; });
+        if (gecko) render(gecko);
+        else renderNotFound();
+    } else {
+        renderNotFound();
+    }
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(function(){});
+    }
+</script>
+<script src="transitions.js"></script>
+</body>
+</html>

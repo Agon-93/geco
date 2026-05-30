@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Calendario - Geco</title>
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Geco">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.svg">
+    <script>(function(){try{var c=localStorage.getItem('activeColor');if(!c){var gs=JSON.parse(localStorage.getItem('geckos')||'[]'),id=localStorage.getItem('activeGeckoId')||'',gk=gs.find(function(g){return g.id===id;})||gs[0]||null;c=gk&&gk.colore?gk.colore:null;}if(c)document.documentElement.style.setProperty('--accent',c);}catch(e){}})();</script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: -apple-system, 'Segoe UI', sans-serif;
+            background: #111;
+            color: #f0f0f0;
+            min-height: 100vh;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: calc(70px + env(safe-area-inset-bottom));
+        }
+
+        /* ── HEADER ── */
+        header {
+            background: #1a1a1a;
+            padding: 18px 20px 14px;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex; align-items: center; gap: 12px;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header-emoji { font-size: 26px; }
+        .header-text h1 { font-size: 17px; font-weight: 700; }
+        .header-text p  { font-size: 11px; color: #888; }
+
+        .page { padding: 14px 16px; max-width: 500px; margin: 0 auto; }
+
+        /* ── MONTH SELECTOR ── */
+        .month-bar {
+            display: flex; align-items: center; gap: 8px;
+            margin-bottom: 14px;
+        }
+        .month-btn {
+            background: #2a2a2a; border: 1px solid #333;
+            color: #f0f0f0; border-radius: 10px;
+            width: 42px; height: 42px; font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; flex-shrink: 0; transition: background .15s;
+        }
+        .month-btn:active { background: #ff9940; color: #1a1a1a; }
+        .month-name {
+            flex: 1; text-align: center; font-size: 18px;
+            font-weight: 700; color: #ff9940;
+        }
+        .btn-oggi {
+            background: rgba(255,153,64,.15); border: 1px solid rgba(255,153,64,.4);
+            color: #ff9940; border-radius: 10px;
+            padding: 0 14px; height: 42px; font-size: 13px; font-weight: 600;
+            cursor: pointer; white-space: nowrap; transition: background .15s;
+        }
+        .btn-oggi:active { background: #ff9940; color: #1a1a1a; }
+
+        /* ── PROGRESS ── */
+        .progress-box {
+            background: #1a1a1a; border: 1px solid #2a2a2a;
+            border-radius: 14px; padding: 14px 16px; margin-bottom: 14px;
+        }
+        .prog-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .prog-label { font-size: 13px; color: #888; }
+        .prog-pct   { font-size: 15px; font-weight: 700; color: #ff9940; }
+        .prog-bar   { height: 8px; background: #2a2a2a; border-radius: 4px; overflow: hidden; }
+        .prog-fill  { height: 100%; background: linear-gradient(90deg,#ff9940,#ffb347); border-radius: 4px; transition: width .5s ease; }
+        .prog-detail{ font-size: 11px; color: #555; margin-top: 5px; }
+
+        /* ── LIST GIORNI ── */
+        .giorni-list { display: flex; flex-direction: column; gap: 6px; }
+
+        .giorno-row {
+            background: #1a1a1a; border: 1px solid #2a2a2a;
+            border-radius: 12px; padding: 12px 14px;
+            display: flex; align-items: center; gap: 12px;
+            transition: border-color .15s;
+        }
+        .giorno-row.oggi-row {
+            border-color: #ff9940;
+            background: #1e1400;
+        }
+        .giorno-row.digiuno-row { opacity: .55; }
+
+        .gr-num {
+            font-size: 13px; font-weight: 700; color: #555;
+            min-width: 28px; text-align: center; flex-shrink: 0;
+        }
+        .oggi-row .gr-num { color: #ff9940; }
+
+        .gr-badge {
+            font-size: 10px; font-weight: 800; letter-spacing: .04em;
+            background: #ff9940; color: #1a1a1a;
+            padding: 2px 7px; border-radius: 6px; flex-shrink: 0;
+        }
+
+        .gr-content { flex: 1; min-width: 0; }
+        .gr-alim    { font-size: 14px; font-weight: 600; color: #f0f0f0; }
+        .gr-sub     { font-size: 11px; color: #666; margin-top: 1px; }
+        .digiuno-row .gr-alim { color: #555; }
+
+        .gr-img {
+            width: 36px; height: 36px; border-radius: 8px;
+            object-fit: cover; flex-shrink: 0;
+        }
+
+        .gr-check {
+            width: 28px; height: 28px; flex-shrink: 0;
+            accent-color: #ff9940; cursor: pointer;
+        }
+
+        /* ── BOTTOM NAV ── */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #1a1a1a; border-top: 1px solid #2a2a2a;
+            display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 999;
+        }
+        .bn-item {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 10px 0; text-decoration: none; color: #555;
+            transition: color .15s; gap: 3px;
+        }
+        .bn-item.active { color: #ff9940; }
+        .bn-icon  { font-size: 22px; line-height: 1; }
+        .bn-label { font-size: 10px; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-emoji">📅</div>
+    <div class="header-text">
+        <h1>Calendario Alimentare</h1>
+        <p>Subadulto · 6 mesi – 1 anno</p>
+    </div>
+</header>
+
+<div class="page">
+    <div class="month-bar">
+        <button class="month-btn" onclick="prevM()">‹</button>
+        <div class="month-name" id="monthName">—</div>
+        <button class="month-btn" onclick="nextM()">›</button>
+        <button class="btn-oggi" onclick="goToOggi()">📍 Oggi</button>
+    </div>
+
+    <div class="progress-box">
+        <div class="prog-row">
+            <span class="prog-label">✅ Pasti completati</span>
+            <span class="prog-pct" id="prog-pct">0%</span>
+        </div>
+        <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+        <div class="prog-detail" id="prog-detail">—</div>
+    </div>
+
+    <div class="giorni-list" id="giorni-list"></div>
+</div>
+
+<nav class="bottom-nav">
+    <a href="index.html"      class="bn-item"><span class="bn-icon">🏠</span><span class="bn-label">Home</span></a>
+    <a href="calendario.html" class="bn-item active"><span class="bn-icon">📅</span><span class="bn-label">Calendario</span></a>
+    <a href="profili.html"    class="bn-item"><span class="bn-icon">🦎</span><span class="bn-label">Gechi</span></a>
+    <a href="note.html"       class="bn-item"><span class="bn-icon">📝</span><span class="bn-label">Note</span></a>
+    <a href="notifiche.html"  class="bn-item"><span class="bn-icon">🔔</span><span class="bn-label">Notifiche</span></a>
+</nav>
+
+<script>
+    const MESI = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
+                  'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+
+    const PATTERN = [
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
+        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO',
+        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
+        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO',
+        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3','DIGIUNO'
+    ];
+
+    const oggi = new Date();
+    let mese = oggi.getMonth();
+
+    function getDays(m) { return new Date(oggi.getFullYear(), m + 1, 0).getDate(); }
+    function getGecko() { try { var gs=JSON.parse(localStorage.getItem('geckos')||'[]'),id=localStorage.getItem('activeGeckoId')||''; return gs.find(function(g){return g.id===id;})||gs[0]||null; } catch(e){ return null; } }
+    function feedKey(gid, m, d) { return gid ? 'feed_'+gid+'_'+m+'_'+d : m+'_'+d; }
+
+    function updateProgress() {
+        const gecko  = getGecko();
+        const nome   = MESI[mese];
+        const giorni = getDays(mese);
+        let completati = 0, totale = 0;
+        for (let i = 1; i <= giorni; i++) {
+            if ((PATTERN[i-1]||'DIGIUNO') !== 'DIGIUNO') {
+                totale++;
+                if (localStorage.getItem(feedKey(gecko&&gecko.id, nome, i)) === 'true') completati++;
+            }
+        }
+        const pct = totale > 0 ? Math.round(completati / totale * 100) : 0;
+        document.getElementById('prog-pct').textContent    = pct + '%';
+        document.getElementById('prog-fill').style.width   = pct + '%';
+        const geckoNome = gecko ? gecko.nome + ' — ' : '';
+        document.getElementById('prog-detail').textContent = geckoNome + completati + ' / ' + totale + ' pasti completati questo mese';
+    }
+
+    function buildList() {
+        const gecko  = getGecko();
+        const nome   = MESI[mese];
+        const giorni = getDays(mese);
+        const isMeseOggi = mese === oggi.getMonth();
+        const gg = oggi.getDate();
+        let html = '';
+
+        for (let i = 1; i <= giorni; i++) {
+            const alim    = PATTERN[i-1] || 'DIGIUNO';
+            const isDig   = alim === 'DIGIUNO';
+            const isD3    = alim.includes('D3');
+            const isToday = isMeseOggi && i === gg;
+            const fatto   = !isDig && localStorage.getItem(feedKey(gecko&&gecko.id, nome, i)) === 'true';
+
+            const rowClass = isDig ? 'giorno-row digiuno-row' : isToday ? 'giorno-row oggi-row' : 'giorno-row';
+            const badge    = isToday ? '<span class="gr-badge">OGGI</span>' : '';
+
+            let inner = '';
+            if (isDig) {
+                inner = `<div class="gr-content"><div class="gr-alim">Digiuno</div></div>`;
+            } else {
+                const img    = isD3 ? 'calcio-d3.jpg' : 'calcio-puro.jpg';
+                const subTxt = isD3 ? 'Calcio + Vitamina D3' : 'Calcio Puro';
+                inner = `
+                    <div class="gr-content">
+                        <div class="gr-alim" style="${fatto ? 'opacity:.45;text-decoration:line-through' : ''}">
+                            5-7 Insetti
+                        </div>
+                        <div class="gr-sub">${subTxt}</div>
+                    </div>
+                    <img src="${img}" class="gr-img" alt="${subTxt}">
+                    <input type="checkbox" class="gr-check" data-g="${i}" ${fatto ? 'checked' : ''}>`;
+            }
+
+            html += `<div class="${rowClass}" id="gr-${i}">
+                <div class="gr-num">${i}</div>
+                ${badge}
+                ${inner}
+            </div>`;
+        }
+
+        document.getElementById('giorni-list').innerHTML = html;
+        document.getElementById('monthName').textContent = nome;
+
+        if (isMeseOggi) {
+            setTimeout(function() {
+                var el = document.getElementById('gr-' + gg);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+    }
+
+    document.addEventListener('change', function(e) {
+        if (!e.target.dataset.g) return;
+        const gecko = getGecko();
+        const g   = e.target.dataset.g;
+        const key = feedKey(gecko&&gecko.id, MESI[mese], g);
+        if (e.target.checked) localStorage.setItem(key, 'true');
+        else                   localStorage.removeItem(key);
+        // strikethrough
+        var row = document.getElementById('gr-' + g);
+        if (row) {
+            var alimEl = row.querySelector('.gr-alim');
+            if (alimEl) alimEl.style.cssText = e.target.checked
+                ? 'opacity:.45;text-decoration:line-through' : '';
+        }
+        updateProgress();
+    });
+
+    function prevM() { mese = (mese - 1 + 12) % 12; buildList(); updateProgress(); }
+    function nextM() { mese = (mese + 1) % 12;       buildList(); updateProgress(); }
+    function goToOggi() { mese = oggi.getMonth(); buildList(); updateProgress(); }
+
+    buildList();
+    updateProgress();
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(function(){});
+    }
+</script>
+<script src="transitions.js"></script>
+</body>
+</html>
