@@ -177,9 +177,26 @@
             transition:border-color .2s; cursor:pointer;
         }
         .gsi-foto img { width:100%; height:100%; object-fit:cover; }
-        .gsi-foto.fatto   { border-color:#22c55e; }
         .gsi-foto.digiuno { opacity:.4; }
         .gsi-foto:active  { transform:scale(.9); }
+
+        @keyframes pulseGreen {
+            0%   { box-shadow: 0 0 0 0 rgba(34,197,94,.7); }
+            70%  { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+            100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+        }
+        @keyframes pulseAccent {
+            0%   { box-shadow: 0 0 0 0 rgba(255,153,64,.8); }
+            70%  { box-shadow: 0 0 0 8px rgba(255,153,64,0); }
+            100% { box-shadow: 0 0 0 0 rgba(255,153,64,0); }
+        }
+        .gsi-foto.pulse-green  {
+            border-color:#22c55e;
+            animation: pulseGreen 2s ease infinite;
+        }
+        .gsi-foto.pulse-accent {
+            animation: pulseAccent 1.4s ease infinite;
+        }
         .gsi-overlay {
             position:absolute; inset:0; border-radius:50%;
             background:rgba(34,197,94,.25);
@@ -479,9 +496,8 @@
             var fotoHTML = gecko.foto
                 ? '<img src="' + gecko.foto + '" alt="">'
                 : '<span style="font-size:22px;color:' + gc + '">' + (gecko.nome ? gecko.nome[0].toUpperCase() : '🦎') + '</span>';
-            var borderColor = isDig ? '#333' : fatto ? '#22c55e' : gc;
-            var fotoStyle   = 'border-color:' + borderColor + ';' + (fatto ? 'background:' + gc + '18;' : isDig ? '' : 'background:' + gc + '0d;');
-            var fotoClass   = 'gsi-foto' + (isDig ? ' digiuno' : '');
+            var fotoStyle = isDig ? '' : fatto ? 'background:' + gc + '18;' : 'background:' + gc + '0d;border-color:' + gc + ';';
+            var fotoClass = 'gsi-foto' + (isDig ? ' digiuno' : fatto ? ' pulse-green' : ' pulse-accent');
             var overlay     = fatto ? '<div class="gsi-overlay" style="background:rgba(34,197,94,.25)">✅</div>' : '';
             var stato       = isDig
                 ? '<div class="gsi-stato rest">Riposo</div>'
