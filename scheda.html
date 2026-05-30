@@ -72,6 +72,29 @@
             text-align:center; font-size:11px; color:#444; font-weight:600; letter-spacing:.05em;
         }
 
+        .btn-stampa {
+            display:block; width:100%; text-align:center;
+            background:#2a2a2a; border:1px solid #3a3a3a;
+            color:#f0f0f0; border-radius:12px; padding:13px;
+            font-size:15px; font-weight:700; cursor:pointer; margin-bottom:10px;
+        }
+        .btn-stampa:active { opacity:.75; }
+
+        @media print {
+            body { background:#fff; padding:0; }
+            .card { box-shadow:none; border:1px solid #ddd; }
+            .card-top { background:#fff !important; }
+            .card-top::before { display:none; }
+            .card-nome { color:#111; }
+            .card-sesso, .cr-label { color:#555; }
+            .cr-value { color:#111; }
+            .card-rows { border-color:#ddd; }
+            .card-row { border-color:#eee; }
+            .card-footer { background:#f9f9f9; }
+            .btn-stampa, .btn-back { display:none; }
+            .card-branding { color:#aaa; }
+        }
+
         .not-found {
             text-align:center; padding:40px 20px;
         }
@@ -138,9 +161,11 @@
             '<div class="card-rows">' +
                 '<div class="card-row"><span class="cr-label">Età</span><span class="cr-value">' + calcEta(gecko.nascita) + '</span></div>' +
                 '<div class="card-row"><span class="cr-label">Data di nascita</span><span class="cr-value">' + formatData(gecko.nascita) + '</span></div>' +
+                (gecko.morfo ? '<div class="card-row"><span class="cr-label">Morfologia</span><span class="cr-value">' + gecko.morfo + '</span></div>' : '') +
                 (gecko.noteRapide ? '<div class="card-row"><span class="cr-label">Note</span><span class="cr-value">' + gecko.noteRapide + '</span></div>' : '') +
             '</div>' +
             '<div class="card-footer">' +
+                '<button class="btn-stampa" onclick="window.print()">🖨️ Stampa / Salva</button>' +
                 '<a href="profili.html" class="btn-back">🦎 Apri app</a>' +
                 '<div class="card-branding">GECO LEOPARDINO</div>' +
             '</div>';
