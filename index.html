@@ -181,21 +181,19 @@
         .gsi-foto:active  { transform:scale(.9); }
 
         @keyframes pulseGreen {
-            0%   { box-shadow: 0 0 0 0 rgba(34,197,94,.7); }
-            70%  { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
-            100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+            0%, 100% { box-shadow: 0 0 0 2px rgba(34,197,94,.5); }
+            50%       { box-shadow: 0 0 0 6px rgba(34,197,94,.15); }
         }
         @keyframes pulseAccent {
-            0%   { box-shadow: 0 0 0 0 rgba(255,153,64,.8); }
-            70%  { box-shadow: 0 0 0 8px rgba(255,153,64,0); }
-            100% { box-shadow: 0 0 0 0 rgba(255,153,64,0); }
+            0%, 100% { box-shadow: 0 0 0 2px rgba(255,153,64,.6); }
+            50%       { box-shadow: 0 0 0 6px rgba(255,153,64,.15); }
         }
         .gsi-foto.pulse-green  {
             border-color:#22c55e;
-            animation: pulseGreen 2s ease infinite;
+            animation: pulseGreen 2.5s ease-in-out infinite;
         }
         .gsi-foto.pulse-accent {
-            animation: pulseAccent 1.4s ease infinite;
+            animation: pulseAccent 2s ease-in-out infinite;
         }
         .gsi-overlay {
             position:absolute; inset:0; border-radius:50%;
@@ -330,14 +328,11 @@
                   'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
     const GS   = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
     const PATTERN = [
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO',
-        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO',
-        'DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3','DIGIUNO'
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
+        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO'
     ];
 
     function getGeckos()   { try { return JSON.parse(localStorage.getItem('geckos')||'[]'); } catch(e){ return []; } }
