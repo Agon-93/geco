@@ -236,13 +236,19 @@
                 'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
     var GS   = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
 
-    var PATTERN = [
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO'
+    // Ciclo 7 giorni — parte dal 30 Maggio 2026 (Calcio Puro)
+    var CYCLE = [
+        'INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO + D3'
     ];
+    var REF = new Date(2026, 4, 30); // 30 maggio 2026 = posizione 0
+
+    function getAlim(y, m, d) {
+        var diff = Math.round((new Date(y, m, d) - REF) / 86400000);
+        return CYCLE[((diff % 7) + 7) % 7];
+    }
 
     var METEO_ICONS = {
         0:'☀️', 1:'🌤️', 2:'⛅', 3:'☁️',
@@ -304,7 +310,7 @@
         var giorni = getDays(mese, anno);
         var comp = 0, tot = 0;
         for (var i = 1; i <= giorni; i++) {
-            if ((PATTERN[i-1]||'DIGIUNO') !== 'DIGIUNO') {
+            if (getAlim(anno, mese, i) !== 'DIGIUNO') {
                 tot++;
                 if (gecko && localStorage.getItem(feedKey(gecko.id, nome, i)) === 'true') comp++;
             }
@@ -344,7 +350,7 @@
         }
 
         for (var i = 1; i <= giorni; i++) {
-            var alim   = PATTERN[i-1] || 'DIGIUNO';
+            var alim   = getAlim(anno, mese, i);
             var isDig  = alim === 'DIGIUNO';
             var isToday  = isCurMese && i === gg;
             var isPastDay = isPastMese || (isCurMese && i < gg);

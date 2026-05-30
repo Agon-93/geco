@@ -469,19 +469,23 @@
 </nav>
 
 <script>
-    var PATTERN = [
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO'
+    var CYCLE = [
+        'INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO + D3'
     ];
+    var REF = new Date(2026, 4, 30);
+    function getAlim(y, mo, d) {
+        var diff = Math.round((new Date(y, mo, d) - REF) / 86400000);
+        return CYCLE[((diff % 7) + 7) % 7];
+    }
     var _oggi   = new Date();
     var _g      = _oggi.getDate();
     var _MESI   = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
                    'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
     var _m      = _MESI[_oggi.getMonth()];
-    var _isDig  = (PATTERN[_g - 1] || 'DIGIUNO') === 'DIGIUNO';
+    var _isDig  = getAlim(_oggi.getFullYear(), _oggi.getMonth(), _g) === 'DIGIUNO';
 
     function getGeckos()   { try { return JSON.parse(localStorage.getItem('geckos')||'[]'); } catch(e){ return []; } }
     function saveGeckos(a) { localStorage.setItem('geckos', JSON.stringify(a)); }

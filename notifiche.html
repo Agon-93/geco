@@ -260,13 +260,17 @@
                   'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
     const GIORNI = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
 
-    const PATTERN = [
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO'
+    var CYCLE = [
+        'INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO + D3'
     ];
+    var REF = new Date(2026, 4, 30);
+    function getAlim(y, mo, d) {
+        var diff = Math.round((new Date(y, mo, d) - REF) / 86400000);
+        return CYCLE[((diff % 7) + 7) % 7];
+    }
 
     // ── UTILS ──
     function showToast(msg, isError) {
@@ -281,8 +285,7 @@
 
     // ── PATTERN ──
     function getPatternForDate(date) {
-        var day = date.getDate();
-        return PATTERN[day - 1] || 'DIGIUNO';
+        return getAlim(date.getFullYear(), date.getMonth(), date.getDate());
     }
 
     // Trova il prossimo giorno di pasto a partire da `fromDate`

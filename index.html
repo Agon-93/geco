@@ -327,13 +327,17 @@
     const MESI = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
                   'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
     const GS   = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
-    const PATTERN = [
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3',
-        'INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO'
+    var CYCLE = [
+        'INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO + D3'
     ];
+    var REF = new Date(2026, 4, 30);
+    function getAlim(y, mo, d) {
+        var diff = Math.round((new Date(y, mo, d) - REF) / 86400000);
+        return CYCLE[((diff % 7) + 7) % 7];
+    }
 
     function getGeckos()   { try { return JSON.parse(localStorage.getItem('geckos')||'[]'); } catch(e){ return []; } }
     function getActiveId() { return localStorage.getItem('activeGeckoId')||''; }
@@ -363,7 +367,7 @@
     var oggi = new Date();
     var g    = oggi.getDate();
     var m    = oggi.getMonth();
-    var alim = PATTERN[g - 1] || 'DIGIUNO';
+    var alim = getAlim(oggi.getFullYear(), oggi.getMonth(), g);
     var isDig = alim === 'DIGIUNO';
 
     document.getElementById('date-chip').textContent = GS[oggi.getDay()] + ', ' + g + ' ' + MESI[m] + ' ' + oggi.getFullYear();
@@ -514,7 +518,7 @@
         var completati = 0, totale = 0;
         if (geckoAttivo) {
             for (var i = 1; i <= giorni; i++) {
-                if ((PATTERN[i-1]||'DIGIUNO') !== 'DIGIUNO') {
+                if (getAlim(oggi.getFullYear(), m, i) !== 'DIGIUNO') {
                     totale++;
                     if (localStorage.getItem(feedKey(geckoAttivo.id, MESI[m], i)) === 'true') completati++;
                 }
