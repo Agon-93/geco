@@ -247,7 +247,7 @@
 
     function getAlim(y, m, d) {
         var diff = Math.round((new Date(y, m, d) - REF) / 86400000);
-        return CYCLE[((diff % 7) + 7) % 7];
+        return CYCLE[((diff % 8) + 8) % 8];
     }
 
     var METEO_ICONS = {

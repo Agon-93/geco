@@ -269,7 +269,7 @@
     var REF = new Date(2026, 4, 30);
     function getAlim(y, mo, d) {
         var diff = Math.round((new Date(y, mo, d) - REF) / 86400000);
-        return CYCLE[((diff % 7) + 7) % 7];
+        return CYCLE[((diff % 8) + 8) % 8];
     }
 
     // ── UTILS ──
