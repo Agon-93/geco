@@ -398,7 +398,7 @@
     function toggleGiorno(g) {
         var gecko = getGecko();
         if (!gecko) return;
-        var alim = PATTERN[g-1] || 'DIGIUNO';
+        var alim = getAlim(anno, mese, g);
         if (alim === 'DIGIUNO') return;
         var key = feedKey(gecko.id, MESI[mese], g);
         if (localStorage.getItem(key) === 'true') localStorage.removeItem(key);
