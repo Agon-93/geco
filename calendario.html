@@ -87,7 +87,17 @@
             border-color: #ff9940;
             background: #1e1400;
         }
-        .giorno-row.digiuno-row { opacity: .55; }
+        .giorno-row.fatto-row {
+            border-color: rgba(34,197,94,.45);
+            background: rgba(34,197,94,.06);
+        }
+        .giorno-row.saltato-row {
+            border-color: rgba(239,68,68,.35);
+            background: rgba(239,68,68,.05);
+        }
+        .fatto-row .gr-num   { color: #22c55e; }
+        .saltato-row .gr-num { color: #ef4444; }
+        .giorno-row.digiuno-row { opacity: .45; }
 
         .gr-num {
             font-size: 13px; font-weight: 700; color: #555;
@@ -215,7 +225,8 @@
         const gecko  = getGecko();
         const nome   = MESI[mese];
         const giorni = getDays(mese);
-        const isMeseOggi = mese === oggi.getMonth();
+        const isCurMese   = mese === oggi.getMonth();
+        const isPastMese  = mese < oggi.getMonth();
         const gg = oggi.getDate();
         let html = '';
 
@@ -223,11 +234,17 @@
             const alim    = PATTERN[i-1] || 'DIGIUNO';
             const isDig   = alim === 'DIGIUNO';
             const isD3    = alim.includes('D3');
-            const isToday = isMeseOggi && i === gg;
+            const isToday = isCurMese && i === gg;
+            const isPast  = isPastMese || (isCurMese && i < gg);
             const fatto   = !isDig && localStorage.getItem(feedKey(gecko&&gecko.id, nome, i)) === 'true';
 
-            const rowClass = isDig ? 'giorno-row digiuno-row' : isToday ? 'giorno-row oggi-row' : 'giorno-row';
-            const badge    = isToday ? '<span class="gr-badge">OGGI</span>' : '';
+            let rowClass = 'giorno-row';
+            if (isToday)              rowClass += ' oggi-row';
+            else if (isDig && isPast) rowClass += ' digiuno-row';
+            else if (!isDig && isPast && fatto)  rowClass += ' fatto-row';
+            else if (!isDig && isPast && !fatto) rowClass += ' saltato-row';
+
+            const badge = isToday ? '<span class="gr-badge">OGGI</span>' : '';
 
             let inner = '';
             if (isDig) {
