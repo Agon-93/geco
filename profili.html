@@ -223,6 +223,18 @@
             border-radius:12px; padding:13px; font-size:14px; font-weight:700; cursor:pointer;
         }
 
+        /* ══ CORNICE STATO ══ */
+        @keyframes pulseGreen {
+            0%, 100% { box-shadow: 0 0 0 2px rgba(34,197,94,.5); }
+            50%       { box-shadow: 0 0 0 7px rgba(34,197,94,.12); }
+        }
+        @keyframes pulseAccent {
+            0%, 100% { box-shadow: 0 0 0 2px rgba(255,153,64,.6); }
+            50%       { box-shadow: 0 0 0 7px rgba(255,153,64,.12); }
+        }
+        .gc-foto.pulse-green  { border-color:#22c55e !important; animation: pulseGreen 2.5s ease-in-out infinite; }
+        .gc-foto.pulse-accent { animation: pulseAccent 2s ease-in-out infinite; }
+
         /* ══ TEMI ══ */
         .tema-sabbia  { background-image: radial-gradient(circle, rgba(255,255,255,.22) 1.5px, transparent 1.5px) !important; background-size:10px 10px !important; }
         .tema-scaglie { background-image: repeating-linear-gradient(60deg, rgba(255,255,255,.15) 0px, rgba(255,255,255,.15) 1px, transparent 1px, transparent 12px), repeating-linear-gradient(-60deg, rgba(255,255,255,.15) 0px, rgba(255,255,255,.15) 1px, transparent 1px, transparent 12px) !important; }
@@ -457,6 +469,19 @@
 </nav>
 
 <script>
+    var PATTERN = [
+        'INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI',
+        'INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI',
+        'DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI',
+        'DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO','INSETTI','DIGIUNO'
+    ];
+    var _oggi   = new Date();
+    var _g      = _oggi.getDate();
+    var _MESI   = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
+                   'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+    var _m      = _MESI[_oggi.getMonth()];
+    var _isDig  = (PATTERN[_g - 1] || 'DIGIUNO') === 'DIGIUNO';
+
     function getGeckos()   { try { return JSON.parse(localStorage.getItem('geckos')||'[]'); } catch(e){ return []; } }
     function saveGeckos(a) { localStorage.setItem('geckos', JSON.stringify(a)); }
     function getActiveId() { return localStorage.getItem('activeGeckoId')||''; }
@@ -546,12 +571,15 @@
                 : '';
             var meta   = [sesso, eta, gecko.morfo].filter(Boolean).join(' · ');
 
-            var c        = gecko.colore || '#ff9940';
+            var c         = gecko.colore || '#ff9940';
             var temaClass = gecko.tema && gecko.tema !== 'default' ? ' tema-' + gecko.tema : '';
-            var cBg = isAtt ? 'background-color:' + c + '18;' : '';
+            var cBg       = isAtt ? 'background-color:' + c + '18;' : '';
+            var fattoOggi = !_isDig && localStorage.getItem('feed_' + gecko.id + '_' + _m + '_' + _g) === 'true';
+            var fotoClass = _isDig ? '' : fattoOggi ? ' pulse-green' : ' pulse-accent';
+            var fotoBorder = fattoOggi ? '#22c55e' : c;
             return '<div class="gecko-card' + temaClass + '" style="border-color:' + c + '55;' + cBg + '">' +
                 '<div class="gc-top">' +
-                    '<div class="gc-foto" style="border-color:' + c + '">' + fotoHTML + '</div>' +
+                    '<div class="gc-foto' + fotoClass + '" style="border-color:' + fotoBorder + '">' + fotoHTML + '</div>' +
                     '<div class="gc-info">' +
                         '<div class="gc-nome">' + (gecko.nome||'Senza nome') +
                             (isAtt ? '<span class="gc-badge" style="background:' + c + ';color:#111;">ATTIVO</span>' : '') +
