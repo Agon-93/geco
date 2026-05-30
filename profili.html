@@ -224,10 +224,10 @@
         }
 
         /* ══ TEMI ══ */
-        .tema-sabbia  { background-image: radial-gradient(circle, rgba(255,255,255,.07) 1px, transparent 1px); background-size:10px 10px; }
-        .tema-scaglie { background-image: repeating-linear-gradient(60deg, rgba(255,255,255,.04) 0px, rgba(255,255,255,.04) 1px, transparent 1px, transparent 12px), repeating-linear-gradient(-60deg, rgba(255,255,255,.04) 0px, rgba(255,255,255,.04) 1px, transparent 1px, transparent 12px); }
-        .tema-notte   { background-image: radial-gradient(circle, rgba(255,255,255,.12) 1px, transparent 1px), radial-gradient(circle, rgba(255,255,255,.06) 1px, transparent 1px); background-size:8px 8px, 22px 22px; background-position:0 0, 4px 4px; }
-        .tema-righe   { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.04) 0, rgba(255,255,255,.04) 1px, transparent 0, transparent 50%); background-size:8px 8px; }
+        .tema-sabbia  { background-image: radial-gradient(circle, rgba(255,255,255,.22) 1.5px, transparent 1.5px) !important; background-size:10px 10px !important; }
+        .tema-scaglie { background-image: repeating-linear-gradient(60deg, rgba(255,255,255,.15) 0px, rgba(255,255,255,.15) 1px, transparent 1px, transparent 12px), repeating-linear-gradient(-60deg, rgba(255,255,255,.15) 0px, rgba(255,255,255,.15) 1px, transparent 1px, transparent 12px) !important; }
+        .tema-notte   { background-image: radial-gradient(circle, rgba(255,255,255,.35) 1px, transparent 1px), radial-gradient(circle, rgba(255,255,255,.15) 2px, transparent 2px) !important; background-size:8px 8px, 22px 22px !important; background-position:0 0, 4px 4px !important; }
+        .tema-righe   { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.12) 0, rgba(255,255,255,.12) 1px, transparent 0, transparent 50%) !important; background-size:8px 8px !important; }
 
         .tema-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
         .tema-opt {
@@ -548,7 +548,7 @@
 
             var c        = gecko.colore || '#ff9940';
             var temaClass = gecko.tema && gecko.tema !== 'default' ? ' tema-' + gecko.tema : '';
-            var cBg = isAtt ? 'background:' + c + '18;' : '';
+            var cBg = isAtt ? 'background-color:' + c + '18;' : '';
             return '<div class="gecko-card' + temaClass + '" style="border-color:' + c + '55;' + cBg + '">' +
                 '<div class="gc-top">' +
                     '<div class="gc-foto" style="border-color:' + c + '">' + fotoHTML + '</div>' +
