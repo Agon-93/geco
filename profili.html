@@ -797,6 +797,9 @@
         }
 
         saveGeckos(geckos);
+        if (!_editId || _editId === getActiveId()) {
+            applyColor(_coloreSel);
+        }
         closeForm();
         renderList();
         showToast(_editId ? '✅ Profilo aggiornato!' : '✅ ' + nome + ' aggiunto!');
