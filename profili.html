@@ -21,14 +21,20 @@
         }
 
         header {
-            background:#1a1a1a; padding:16px 20px 14px;
-            border-bottom:1px solid #2a2a2a;
+            background:linear-gradient(180deg,#1e1a12,#1a1a1a);
+            padding:16px 20px 14px;
+            border-bottom:1px solid rgba(255,153,64,.2);
             display:flex; align-items:center; justify-content:space-between;
         }
-        .h-left { display:flex; align-items:center; gap:10px; }
-        .h-emoji { font-size:24px; }
-        .h-title { font-size:17px; font-weight:700; }
-        .h-sub   { font-size:11px; color:#888; }
+        .h-left { display:flex; align-items:center; gap:12px; }
+        .h-emoji {
+            font-size:22px; width:40px; height:40px;
+            background:rgba(255,153,64,.12); border:1px solid rgba(255,153,64,.2);
+            border-radius:11px; display:flex; align-items:center; justify-content:center;
+            flex-shrink:0;
+        }
+        .h-title { font-size:18px; font-weight:800; }
+        .h-sub   { font-size:11px; color:#888; margin-top:1px; }
         .btn-add {
             background:#ff9940; color:#1a1a1a; border:none;
             border-radius:10px; padding:8px 16px;
@@ -43,9 +49,13 @@
             background:#1a1a1a; border:1px solid #2a2a2a;
             border-radius:18px; padding:16px;
             display:flex; flex-direction:column; gap:14px;
-            transition:border-color .15s;
+            transition:border-color .15s, background .15s;
         }
-        .gecko-card.attivo { border-color:#ff9940; background:#1e1400; }
+        .gecko-card.attivo {
+            border-color:rgba(255,153,64,.5);
+            background:linear-gradient(135deg,#1e1400,#181200);
+            box-shadow:0 0 0 1px rgba(255,153,64,.1);
+        }
 
         .gc-top { display:flex; align-items:center; gap:14px; }
 
@@ -59,12 +69,16 @@
         .gc-foto img { width:100%; height:100%; object-fit:cover; }
 
         .gc-info { flex:1; min-width:0; }
-        .gc-nome { font-size:17px; font-weight:700; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .gc-nome { font-size:18px; font-weight:800; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
         .gc-badge {
             font-size:10px; font-weight:800; background:#ff9940; color:#1a1a1a;
             padding:2px 8px; border-radius:6px; letter-spacing:.04em;
         }
-        .gc-meta { font-size:12px; color:#888; margin-top:4px; }
+        .gc-meta { font-size:12px; color:#666; margin-top:5px; display:flex; gap:6px; flex-wrap:wrap; }
+        .gc-chip {
+            background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08);
+            border-radius:6px; padding:2px 8px; font-size:11px; color:#999;
+        }
 
         /* fila tasti in basso */
         .gc-bottom { display:flex; gap:8px; }

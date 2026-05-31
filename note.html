@@ -25,14 +25,19 @@
 
         /* ── HEADER ── */
         header {
-            background: #1a1a1a;
-            padding: 18px 20px 14px;
-            border-bottom: 1px solid #2a2a2a;
+            background: linear-gradient(180deg,#1a1e16,#1a1a1a);
+            padding: 16px 20px 14px;
+            border-bottom: 1px solid rgba(255,153,64,.18);
             display: flex; align-items: center; gap: 12px;
             flex-shrink: 0;
         }
-        .header-emoji { font-size: 26px; }
-        .header-text h1 { font-size: 17px; font-weight: 700; }
+        .header-emoji {
+            font-size:22px; width:40px; height:40px;
+            background:rgba(255,153,64,.10); border:1px solid rgba(255,153,64,.18);
+            border-radius:11px; display:flex; align-items:center; justify-content:center;
+            flex-shrink:0;
+        }
+        .header-text h1 { font-size: 18px; font-weight: 800; }
         .header-text p  { font-size: 11px; color: #888; }
 
         /* ── TABS ── */
