@@ -359,17 +359,6 @@
 
 <div class="page" id="gecko-list"></div>
 
-<div class="page" style="padding-top:0;">
-    <div class="backup-card">
-        <div class="backup-title">💾 Dati & Backup</div>
-        <div class="backup-btns">
-            <button class="backup-btn exp" onclick="esportaBackup()">📤 Esporta Backup</button>
-            <button class="backup-btn imp" onclick="document.getElementById('backup-input').click()">📥 Importa Backup</button>
-        </div>
-        <div class="backup-note">Gechi, foto, pasti, note e galleria — tutto in un file</div>
-    </div>
-</div>
-<input type="file" id="backup-input" accept=".json" style="display:none" onchange="importaBackup(this)">
 
 <!-- QR MODAL -->
 <div class="modal-overlay" id="qr-modal" onclick="handleQROverlay(event)">
