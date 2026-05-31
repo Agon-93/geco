@@ -26,7 +26,8 @@
         'body.has-wp .tc-info p{color:rgba(255,255,255,0.80)!important;}'+
         'body.has-wp .tc-label{color:rgba(255,255,255,0.90)!important;}'+
         'body.has-wp .pc-label{color:rgba(255,255,255,0.75)!important;}'+
-        'body.has-wp .pc-sub{color:rgba(255,255,255,0.60)!important;}'+
+        'body.has-wp .pc-sub{color:rgba(255,255,255,0.75)!important;}'+
+        'body.has-wp .pc-num-total{color:rgba(255,255,255,0.60)!important;}'+
         'body.has-wp .pc-num{color:#fff!important;}'+
         'body.has-wp .gecko-scroll-title{color:rgba(255,255,255,0.75)!important;}'+
         'body.has-wp .gsi-nome{color:rgba(255,255,255,0.90)!important;}'+
@@ -36,6 +37,9 @@
         'body.has-wp .h-info p{color:rgba(255,255,255,0.75)!important;}'+
         'body.has-wp .h-info h1{color:#fff!important;}'+
         'body.has-wp .tc-info h2{color:#fff!important;}'+
+        'body.has-wp .tc-rest-title{color:#fff!important;}'+
+        'body.has-wp .tc-rest-sub{color:rgba(255,255,255,0.75)!important;}'+
+        'body.has-wp .tc-feed-sub{color:rgba(255,255,255,0.80)!important;}'+
         'body.has-wp .gsi-foto{background:rgba(255,255,255,0.12)!important;border-color:rgba(255,255,255,0.28)!important;}'+
         'body.has-wp .gsi-foto span{color:#fff!important;text-shadow:0 1px 4px rgba(0,0,0,0.6)!important;}'+
         '#splash{z-index:9999;}#profile-overlay,.modal-overlay{z-index:1000;}';
@@ -127,6 +131,9 @@
         .card-feed { background:#1e1400; border-color:rgba(255,153,64,.25); }
         .card-done { background:#0d1e10; border-color:rgba(34,197,94,.25); }
         .card-rest { background:#1a1a1a; }
+        .tc-rest-title { font-size:15px; font-weight:700; color:#555; }
+        .tc-rest-sub   { font-size:12px; color:#444; margin-top:2px; }
+        .tc-feed-sub   { font-size:12px; color:#aaa; margin-top:2px; }
 
         /* ══ PROGRESS ══ */
         .progress-card {
@@ -145,7 +152,8 @@
         .pc-info { flex:1; }
         .pc-label { font-size:12px; color:#888; margin-bottom:4px; }
         .pc-num   { font-size:24px; font-weight:800; color:#f0f0f0; line-height:1; }
-        .pc-sub   { font-size:12px; color:#555; margin-top:3px; }
+        .pc-sub       { font-size:12px; color:#555; margin-top:3px; }
+        .pc-num-total { font-size:14px; color:#555; font-weight:400; }
 
         /* ══ QUICK LINKS ══ */
         .quick-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
@@ -511,13 +519,13 @@
         var bannerHTML = isDig
             ? '<div class="today-card card-rest" style="display:flex;align-items:center;gap:14px;padding:16px 18px;">' +
                 '<div class="tc-icon" style="width:48px;height:48px;font-size:26px;">😴</div>' +
-                '<div><div style="font-size:15px;font-weight:700;color:#555;">Giorno di digiuno</div>' +
-                '<div style="font-size:12px;color:#444;margin-top:2px;">Nessuna alimentazione oggi</div></div>' +
+                '<div><div class="tc-rest-title">Giorno di digiuno</div>' +
+                '<div class="tc-rest-sub">Nessuna alimentazione oggi</div></div>' +
               '</div>'
             : '<div class="today-card card-feed" style="display:flex;align-items:center;gap:14px;padding:14px 18px;">' +
                 '<img src="' + img + '" class="tc-img" style="width:48px;height:48px;" alt="">' +
                 '<div><div style="font-size:15px;font-weight:700;color:#ff9940;">🍽️ Giorno di pasto — Giorno ' + g + '</div>' +
-                '<div style="font-size:12px;color:#aaa;margin-top:2px;">5-7 insetti + ' + tipo + '</div></div>' +
+                '<div class="tc-feed-sub">5-7 insetti + ' + tipo + '</div></div>' +
               '</div>';
 
         // Gecko cerchi scroll
@@ -569,7 +577,7 @@
               '</div>' +
               '<div class="pc-info">' +
                 '<div class="pc-label">📊 ' + MESI[m] + ' — ' + geckoAttivo.nome + '</div>' +
-                '<div class="pc-num">' + completati + '<span style="font-size:14px;color:#555;font-weight:400;"> / ' + totale + '</span></div>' +
+                '<div class="pc-num">' + completati + '<span class="pc-num-total"> / ' + totale + '</span></div>' +
                 '<div class="pc-sub">pasti completati</div>' +
               '</div>'
             : '';

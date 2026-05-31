@@ -1,4 +1,4 @@
-const CACHE = 'geco-v29';
+const CACHE = 'geco-v30';
 const ASSETS = [
     './index.html', './calendario.html', './note.html',
     './notifiche.html', './profili.html', './riproduzione.html',
