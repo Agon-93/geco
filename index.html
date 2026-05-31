@@ -37,9 +37,12 @@
         'body.has-wp .h-info p{color:rgba(255,255,255,0.75)!important;}'+
         'body.has-wp .h-info h1{color:#fff!important;}'+
         'body.has-wp .tc-info h2{color:#fff!important;}'+
-        'body.has-wp .tc-rest-title{color:#fff!important;}'+
-        'body.has-wp .tc-rest-sub{color:rgba(255,255,255,0.75)!important;}'+
-        'body.has-wp .tc-feed-sub{color:rgba(255,255,255,0.80)!important;}'+
+        'body.has-wp .tc-rest-title{color:#aaaae8!important;}'+
+        'body.has-wp .tc-rest-sub{color:rgba(255,255,255,0.55)!important;}'+
+        'body.has-wp .tc-next-label{color:rgba(255,255,255,0.50)!important;}'+
+        'body.has-wp .tc-next-val{color:rgba(200,200,255,0.90)!important;}'+
+        'body.has-wp .tc-feed-tipo{color:rgba(255,255,255,0.75)!important;}'+
+        'body.has-wp .tc-feed-sub{color:rgba(255,255,255,0.75)!important;}'+
         'body.has-wp .gsi-foto{background:rgba(255,255,255,0.12)!important;border-color:rgba(255,255,255,0.28)!important;}'+
         'body.has-wp .gsi-foto span{color:#fff!important;text-shadow:0 1px 4px rgba(0,0,0,0.6)!important;}'+
         '#splash{z-index:9999;}#profile-overlay,.modal-overlay{z-index:1000;}';
@@ -128,11 +131,29 @@
         .tc-btn    { width:100%; margin-top:14px; background:#ff9940; color:#1a1a1a; border:none; border-radius:12px; padding:14px; font-size:15px; font-weight:700; cursor:pointer; transition:opacity .15s; }
         .tc-btn:active { opacity:.75; }
         .tc-btn.undo { background:#2a2a2a; color:#ff9940; font-size:14px; }
-        .card-feed { background:#1e1400; border-color:rgba(255,153,64,.25); }
+        .card-feed { background:linear-gradient(135deg,#1e1000,#1a1200); border-color:rgba(255,153,64,.3); }
         .card-done { background:#0d1e10; border-color:rgba(34,197,94,.25); }
-        .card-rest { background:#1a1a1a; }
-        .tc-rest-title { font-size:15px; font-weight:700; color:#555; }
-        .tc-rest-sub   { font-size:12px; color:#444; margin-top:2px; }
+        .card-rest { background:linear-gradient(135deg,#0e0e1a,#141420); border-color:rgba(120,120,200,.25); }
+
+        /* today card nuova */
+        .tc-top    { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+        .tc-pill   { font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; padding:4px 10px; border-radius:20px; }
+        .tc-pill-rest { background:rgba(120,120,200,.18); color:#9090d0; border:1px solid rgba(120,120,200,.25); }
+        .tc-pill-d3   { background:rgba(245,158,11,.15); color:#f59e0b; border:1px solid rgba(245,158,11,.3); }
+        .tc-pill-puro { background:rgba(34,197,94,.15); color:#22c55e; border:1px solid rgba(34,197,94,.3); }
+        .tc-moon   { font-size:32px; line-height:1; }
+        .tc-rest-title { font-size:18px; font-weight:800; color:#8888cc; }
+        .tc-rest-sub   { font-size:12px; color:#555; margin-top:3px; }
+        .tc-next   { margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,.06); display:flex; align-items:center; gap:8px; }
+        .tc-next-label { font-size:12px; color:#555; }
+        .tc-next-val   { font-size:12px; font-weight:700; color:#8888cc; }
+        .tc-feed-body  { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+        .tc-feed-left  { flex:1; }
+        .tc-feed-title { font-size:18px; font-weight:800; color:#ff9940; margin-bottom:4px; }
+        .tc-feed-tipo  { font-size:13px; color:#aaa; }
+        .tc-feed-insects { margin-top:8px; display:flex; align-items:center; gap:6px; }
+        .tc-feed-ins-badge { background:rgba(255,153,64,.12); border:1px solid rgba(255,153,64,.25); border-radius:8px; padding:5px 10px; font-size:12px; font-weight:700; color:#ff9940; }
+        .tc-feed-img   { width:72px; height:72px; border-radius:14px; object-fit:cover; flex-shrink:0; border:1px solid rgba(255,255,255,.08); }
         .tc-feed-sub   { font-size:12px; color:#aaa; margin-top:2px; }
 
         /* ══ PROGRESS ══ */
@@ -516,16 +537,44 @@
         var img   = isD3 ? 'calcio-d3.jpg' : 'calcio-puro.jpg';
         var tipo  = isD3 ? 'Calcio + Vitamina D3' : 'Calcio Puro';
 
+        // Countdown prossimo pasto (usato nel card riposo)
+        var daysUntilNext = 0, nextAlim = '';
+        for (var di = 1; di <= 8; di++) {
+            var nd = new Date(oggi); nd.setDate(nd.getDate() + di);
+            var na = getAlim(nd.getFullYear(), nd.getMonth(), nd.getDate());
+            if (na !== 'DIGIUNO') { daysUntilNext = di; nextAlim = na; break; }
+        }
+        var nextLabel = daysUntilNext === 1 ? 'domani' : 'tra ' + daysUntilNext + ' giorni';
+        var nextTipoLabel = nextAlim.includes('D3') ? 'Calcio + D3 🟡' : 'Calcio Puro 🟢';
+
         var bannerHTML = isDig
-            ? '<div class="today-card card-rest" style="display:flex;align-items:center;gap:14px;padding:16px 18px;">' +
-                '<div class="tc-icon" style="width:48px;height:48px;font-size:26px;">😴</div>' +
-                '<div><div class="tc-rest-title">Giorno di digiuno</div>' +
-                '<div class="tc-rest-sub">Nessuna alimentazione oggi</div></div>' +
+            ? '<div class="today-card card-rest" style="padding:18px 20px;">' +
+                '<div class="tc-top">' +
+                  '<span class="tc-pill tc-pill-rest">Riposo</span>' +
+                  '<span class="tc-moon">🌙</span>' +
+                '</div>' +
+                '<div class="tc-rest-title">Nessun pasto oggi</div>' +
+                '<div class="tc-rest-sub">Il tuo geco si riposa</div>' +
+                '<div class="tc-next">' +
+                  '<span class="tc-next-label">Prossimo pasto</span>' +
+                  '<span class="tc-next-val">' + nextLabel + ' · ' + nextTipoLabel + '</span>' +
+                '</div>' +
               '</div>'
-            : '<div class="today-card card-feed" style="display:flex;align-items:center;gap:14px;padding:14px 18px;">' +
-                '<img src="' + img + '" class="tc-img" style="width:48px;height:48px;" alt="">' +
-                '<div><div style="font-size:15px;font-weight:700;color:#ff9940;">🍽️ Giorno di pasto — Giorno ' + g + '</div>' +
-                '<div class="tc-feed-sub">5-7 insetti + ' + tipo + '</div></div>' +
+            : '<div class="today-card card-feed" style="padding:18px 20px;">' +
+                '<div class="tc-top">' +
+                  '<span class="tc-pill ' + (isD3 ? 'tc-pill-d3' : 'tc-pill-puro') + '">' + (isD3 ? 'Calcio + D3 🟡' : 'Calcio Puro 🟢') + '</span>' +
+                  '<span style="font-size:11px;color:#666;font-weight:600;">Giorno ' + g + '</span>' +
+                '</div>' +
+                '<div class="tc-feed-body">' +
+                  '<div class="tc-feed-left">' +
+                    '<div class="tc-feed-title">🍽️ Giorno di pasto</div>' +
+                    '<div class="tc-feed-tipo">5-7 insetti + ' + tipo + '</div>' +
+                    '<div class="tc-feed-insects">' +
+                      '<span class="tc-feed-ins-badge">🦗 5-7 insetti</span>' +
+                    '</div>' +
+                  '</div>' +
+                  '<img src="' + img + '" class="tc-feed-img" alt="">' +
+                '</div>' +
               '</div>';
 
         // Gecko cerchi scroll
