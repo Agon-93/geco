@@ -572,12 +572,14 @@
                 ? '<img src="' + gecko.foto + '" alt="">'
                 : gecko.nome ? gecko.nome[0].toUpperCase() : '🦎';
             var eta    = calcEta(gecko.nascita);
-            var sesso  = gecko.sesso === 'M'
-                ? '<span style="color:#3b82f6;font-weight:700;">♂</span> Maschio'
+            var sessoChip = gecko.sesso === 'M'
+                ? '<span class="gc-chip" style="color:#3b82f6;border-color:rgba(59,130,246,.25);background:rgba(59,130,246,.08);">♂ Maschio</span>'
                 : gecko.sesso === 'F'
-                ? '<span style="color:#ec4899;font-weight:700;">♀</span> Femmina'
+                ? '<span class="gc-chip" style="color:#ec4899;border-color:rgba(236,72,153,.25);background:rgba(236,72,153,.08);">♀ Femmina</span>'
                 : '';
-            var meta   = [sesso, eta, gecko.morfo].filter(Boolean).join(' · ');
+            var etaChip   = eta          ? '<span class="gc-chip">🎂 ' + eta + '</span>'          : '';
+            var morfoChip = gecko.morfo  ? '<span class="gc-chip">🦎 ' + gecko.morfo + '</span>'  : '';
+            var meta      = [sessoChip, etaChip, morfoChip].filter(Boolean).join('');
 
             var c         = gecko.colore || '#ff9940';
             var temaClass = gecko.tema && gecko.tema !== 'default' ? ' tema-' + gecko.tema : '';

@@ -60,43 +60,49 @@
         .note-wrap {
             flex: 1; display: flex; flex-direction: column;
             padding: 14px 16px;
-            padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            padding-bottom: calc(90px + env(safe-area-inset-bottom));
         }
-        .note-label { font-size: 11px; color: #555; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
+        .note-label { font-size: 11px; color: #555; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 10px; }
         textarea {
             flex: 1; width: 100%; min-height: 300px;
             background: #1a1a1a; border: 1px solid #2a2a2a;
-            border-radius: 14px; color: #f0f0f0;
+            border-radius: 16px; color: #f0f0f0;
             font-family: -apple-system, 'Segoe UI', sans-serif;
-            font-size: 15px; line-height: 1.6; padding: 16px;
-            resize: none; outline: none; transition: border-color .15s;
+            font-size: 16px; line-height: 1.75; padding: 18px;
+            resize: none; outline: none; transition: border-color .2s;
+            caret-color: #ff9940;
         }
-        textarea:focus { border-color: #ff9940; }
+        textarea:focus { border-color: rgba(255,153,64,.5); box-shadow: 0 0 0 3px rgba(255,153,64,.06); }
+        textarea::placeholder { color: #3a3a3a; }
 
         .status-bar {
-            font-size: 12px; color: #555; margin-top: 8px;
-            display: flex; justify-content: space-between;
+            font-size: 12px; margin-top: 10px;
+            display: flex; justify-content: space-between; align-items: center;
         }
+        #save-status { color: #555; font-weight: 600; transition: color .2s; }
+        #save-status.saved   { color: #22c55e; }
+        #save-status.unsaved { color: #f59e0b; }
+        #word-count { font-size: 11px; color: #444; }
 
         .action-bar-fixed {
             position: fixed; bottom: calc(60px + env(safe-area-inset-bottom));
-            left: 0; right: 0; background: #1a1a1a;
-            border-top: 1px solid #2a2a2a;
-            padding: 10px 16px;
+            left: 0; right: 0;
+            background: linear-gradient(180deg,transparent,#111 30%);
+            padding: 20px 16px 12px;
             display: flex; gap: 10px;
         }
         .btn-save {
             flex: 1; background: #ff9940; color: #1a1a1a;
-            border: none; border-radius: 12px; padding: 13px;
+            border: none; border-radius: 12px; padding: 14px;
             font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity .15s;
         }
         .btn-save:active { opacity: .75; }
         .btn-clear {
-            background: #2a2a2a; color: #888;
-            border: none; border-radius: 12px; padding: 13px 18px;
-            font-size: 15px; cursor: pointer; transition: background .15s;
+            background: #1e1e1e; color: #666; border: 1px solid #2a2a2a;
+            border-radius: 12px; padding: 14px 18px;
+            font-size: 15px; cursor: pointer; transition: .15s;
         }
-        .btn-clear:active { background: #ef4444; color: #fff; }
+        .btn-clear:active { background: #ef4444; color: #fff; border-color: #ef4444; }
 
         /* ── SUGGERIMENTI ── */
         .tips-wrap { padding: 14px 16px; padding-bottom: calc(70px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; }
@@ -165,7 +171,7 @@ Es: 20/05 — Ha fatto la muta, tutto ok
 Es: 25/05 — Ha rifiutato i grilli, provo le tarme"></textarea>
         <div class="status-bar">
             <span id="save-status">—</span>
-            <span id="char-count">0 caratteri</span>
+            <span id="word-count">0 parole</span>
         </div>
     </div>
     <div class="action-bar-fixed">
@@ -241,8 +247,11 @@ Es: 25/05 — Ha rifiutato i grilli, provo le tarme"></textarea>
     var charCount   = document.getElementById('char-count');
     var autoSaveTimer;
 
+    var wordCount = document.getElementById('word-count');
+
     function updateCount() {
-        charCount.textContent = textarea.value.length + ' caratteri';
+        var words = textarea.value.trim() === '' ? 0 : textarea.value.trim().split(/\s+/).length;
+        wordCount.textContent = words + (words === 1 ? ' parola' : ' parole');
     }
 
     function showToast() {
@@ -254,7 +263,8 @@ Es: 25/05 — Ha rifiutato i grilli, provo le tarme"></textarea>
     function saveNotes() {
         localStorage.setItem('gecoNotes', textarea.value);
         var now = new Date();
-        saveStatus.textContent = 'Salvato alle ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+        saveStatus.className = 'saved';
+        saveStatus.textContent = '✓ Salvato alle ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
         showToast();
     }
 
@@ -274,12 +284,14 @@ Es: 25/05 — Ha rifiutato i grilli, provo le tarme"></textarea>
     // Autosalvataggio dopo 2 secondi di pausa
     textarea.addEventListener('input', function() {
         updateCount();
-        saveStatus.textContent = 'Non salvato...';
+        saveStatus.className = 'unsaved';
+        saveStatus.textContent = '● Non salvato';
         clearTimeout(autoSaveTimer);
         autoSaveTimer = setTimeout(function() {
             localStorage.setItem('gecoNotes', textarea.value);
             var now = new Date();
-            saveStatus.textContent = 'Salvato alle ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+            saveStatus.className = 'saved';
+            saveStatus.textContent = '✓ Salvato alle ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
         }, 2000);
     });
 
