@@ -25,59 +25,126 @@
             border-bottom:1px solid #2a2a2a;
             display:flex; align-items:center; gap:12px;
         }
-        .h-icon  { font-size:24px; }
+        .h-icon { font-size:24px; }
         .h-text h1 { font-size:17px; font-weight:700; }
         .h-text p  { font-size:11px; color:#888; }
 
-        .page { padding:16px; max-width:500px; margin:0 auto; display:flex; flex-direction:column; gap:10px; }
+        .page { padding:16px; max-width:500px; margin:0 auto; display:flex; flex-direction:column; gap:8px; }
 
-        /* ── SECTION ── */
         .section-title {
             font-size:11px; font-weight:700; color:#555;
             text-transform:uppercase; letter-spacing:.07em;
-            padding:0 4px; margin-top:6px;
+            padding:8px 4px 2px;
         }
 
-        /* ── CARD ── */
-        .card {
-            background:#1a1a1a; border:1px solid #2a2a2a;
-            border-radius:16px; overflow:hidden;
-        }
+        /* ── ROWS ── */
+        .card { background:#1a1a1a; border:1px solid #2a2a2a; border-radius:16px; overflow:hidden; }
 
         .row {
             display:flex; align-items:center; gap:14px;
-            padding:15px 18px; border-bottom:1px solid #222;
-            cursor:pointer; transition:background .12s;
+            padding:14px 18px; border-bottom:1px solid #1e1e1e;
+            transition:background .12s;
         }
         .row:last-child { border-bottom:none; }
-        .row:active { background:#222; }
-        .row.no-tap { cursor:default; }
-        .row.no-tap:active { background:transparent; }
+        .row.tap { cursor:pointer; }
+        .row.tap:active { background:#222; }
+        a.row { text-decoration:none; color:inherit; cursor:pointer; }
+        a.row:active { background:#222; }
 
-        .row-icon { font-size:22px; flex-shrink:0; width:36px; height:36px;
-            background:#2a2a2a; border-radius:10px;
-            display:flex; align-items:center; justify-content:center; }
-        .row-body { flex:1; min-width:0; }
-        .row-title { font-size:15px; font-weight:600; }
-        .row-sub   { font-size:12px; color:#666; margin-top:2px; }
-        .row-arrow { color:#444; font-size:18px; flex-shrink:0; }
-        .row-badge {
-            font-size:11px; font-weight:700; padding:3px 10px;
-            border-radius:20px; flex-shrink:0;
+        .row-icon {
+            font-size:18px; flex-shrink:0; width:34px; height:34px;
+            background:#2a2a2a; border-radius:9px;
+            display:flex; align-items:center; justify-content:center;
         }
+        .row-body { flex:1; min-width:0; }
+        .row-title { font-size:14px; font-weight:600; }
+        .row-sub   { font-size:12px; color:#666; margin-top:2px; }
+        .row-right { color:#444; font-size:17px; flex-shrink:0; }
 
-        /* ── PERICOLO ── */
         .row.danger .row-title { color:#ef4444; }
         .row.danger .row-icon  { background:rgba(239,68,68,.12); }
 
-        /* ── APP INFO ── */
-        .app-info {
-            text-align:center; padding:24px 20px;
-            display:flex; flex-direction:column; align-items:center; gap:8px;
+        /* ── NOTIFICHE ── */
+        .notif-section { padding:16px 18px; border-bottom:1px solid #1e1e1e; }
+        .notif-section:last-child { border-bottom:none; }
+        .notif-label { font-size:11px; font-weight:700; color:#555; text-transform:uppercase; letter-spacing:.06em; margin-bottom:12px; }
+
+        .perm-row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+        .perm-info h3 { font-size:14px; font-weight:700; }
+        .perm-info p  { font-size:12px; color:#666; margin-top:2px; }
+        .perm-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+        .dot-green  { background:#22c55e; box-shadow:0 0 6px rgba(34,197,94,.5); }
+        .dot-red    { background:#ef4444; box-shadow:0 0 6px rgba(239,68,68,.5); }
+        .dot-yellow { background:#f59e0b; box-shadow:0 0 6px rgba(245,158,11,.5); }
+
+        .btn-enable {
+            width:100%; margin-top:12px; background:var(--accent); color:#1a1a1a;
+            border:none; border-radius:12px; padding:13px;
+            font-size:15px; font-weight:700; cursor:pointer;
         }
-        .app-logo { font-size:52px; }
-        .app-name  { font-size:18px; font-weight:800; }
-        .app-ver   { font-size:12px; color:#555; }
+        .btn-enable:active { opacity:.75; }
+        .btn-enable:disabled { background:#2a2a2a; color:#555; cursor:default; }
+
+        .toggle-row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+        .toggle-label h3 { font-size:14px; font-weight:600; }
+        .toggle-label p  { font-size:12px; color:#666; margin-top:2px; }
+        .toggle {
+            width:48px; height:28px; border-radius:14px;
+            background:#2a2a2a; border:1px solid #3a3a3a;
+            cursor:pointer; position:relative; transition:background .25s; flex-shrink:0;
+        }
+        .toggle.on { background:var(--accent); border-color:var(--accent); }
+        .toggle::after {
+            content:''; position:absolute; width:22px; height:22px; border-radius:50%;
+            background:#666; top:2px; left:2px; transition:transform .25s, background .25s;
+        }
+        .toggle.on::after { transform:translateX(20px); background:#fff; }
+
+        .time-row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+        .time-info h3 { font-size:14px; font-weight:600; }
+        .time-info p  { font-size:12px; color:#666; margin-top:2px; }
+        input[type="time"] {
+            background:#2a2a2a; border:1px solid #3a3a3a; color:var(--accent);
+            border-radius:10px; padding:8px 12px; font-size:17px; font-weight:700;
+            font-family:-apple-system,monospace; outline:none; cursor:pointer;
+        }
+        input[type="time"]:focus { border-color:var(--accent); }
+        .btn-save {
+            width:100%; margin-top:12px; background:#2a2a2a; color:#f0f0f0;
+            border:1px solid #3a3a3a; border-radius:12px; padding:12px;
+            font-size:14px; font-weight:600; cursor:pointer;
+        }
+        .btn-save:active { background:var(--accent); color:#1a1a1a; border-color:var(--accent); }
+
+        .next-box {
+            background:#1e1a14; border:1px solid rgba(255,153,64,.2);
+            border-radius:12px; padding:14px 16px; margin-top:12px;
+        }
+        .next-box.muted { background:#181818; border-color:#222; }
+        .next-lbl { font-size:11px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
+        .next-lbl.m { color:#444; }
+        .next-time { font-size:24px; font-weight:800; color:var(--accent); }
+        .next-time.m { color:#444; font-size:16px; }
+        .next-day  { font-size:12px; color:#666; margin-top:2px; }
+        .next-alim { font-size:13px; color:#ccc; font-weight:600; margin-top:6px; }
+        .btn-test {
+            width:100%; margin-top:10px; background:none;
+            border:1px solid #2a2a2a; color:#666; border-radius:12px;
+            padding:11px; font-size:13px; font-weight:600; cursor:pointer;
+        }
+        .btn-test:active { border-color:var(--accent); color:var(--accent); }
+
+        /* ── APP INFO ── */
+        .app-info { text-align:center; padding:20px 16px; }
+        .app-logo { font-size:44px; margin-bottom:8px; }
+        .app-name { font-size:17px; font-weight:800; }
+        .app-ver  { font-size:12px; color:#555; margin-top:4px; }
+
+        /* ── BADGE ── */
+        .badge {
+            font-size:11px; font-weight:700; padding:3px 10px;
+            border-radius:20px; flex-shrink:0;
+        }
 
         /* ── TOAST ── */
         .toast {
@@ -113,83 +180,106 @@
     <div class="h-icon">⚙️</div>
     <div class="h-text">
         <h1>Impostazioni</h1>
-        <p>Gestione app e dati</p>
+        <p>Notifiche, backup e preferenze</p>
     </div>
 </header>
 
 <div class="page">
 
-    <!-- APP INFO -->
+    <!-- NOTIFICHE -->
+    <div class="section-title">Notifiche</div>
     <div class="card">
-        <div class="app-info">
-            <div class="app-logo">🦎</div>
-            <div class="app-name">Geco Leopardino</div>
-            <div class="app-ver">Versione 2.0 — agon-93.github.io/geco</div>
+        <div class="notif-section">
+            <div class="notif-label">Permesso</div>
+            <div class="perm-row">
+                <div class="perm-info">
+                    <h3 id="perm-title">Verifica...</h3>
+                    <p id="perm-sub"></p>
+                </div>
+                <div class="perm-dot dot-yellow" id="perm-dot"></div>
+            </div>
+            <button class="btn-enable" id="btn-enable" onclick="requestPermission()">🔔 Attiva Notifiche</button>
+        </div>
+        <div class="notif-section">
+            <div class="notif-label">Promemoria pasto</div>
+            <div class="toggle-row">
+                <div class="toggle-label">
+                    <h3>Notifica giornaliera</h3>
+                    <p>Solo nei giorni di alimentazione</p>
+                </div>
+                <div class="toggle" id="toggle-notif" onclick="toggleNotif()"></div>
+            </div>
+        </div>
+        <div class="notif-section">
+            <div class="notif-label">Orario</div>
+            <div class="time-row">
+                <div class="time-info">
+                    <h3>Quando vuoi la notifica?</h3>
+                    <p>Arriva solo nei giorni di pasto</p>
+                </div>
+                <input type="time" id="notif-time" value="08:30">
+            </div>
+            <button class="btn-save" onclick="saveTime()">Salva orario</button>
+            <div id="next-box"></div>
+            <button class="btn-test" onclick="testNotif()">🔔 Invia notifica di prova</button>
         </div>
     </div>
 
-    <!-- DATI -->
+    <!-- BACKUP -->
     <div class="section-title">Dati & Backup</div>
     <div class="card">
-        <div class="row" onclick="esportaBackup()">
+        <div class="row tap" onclick="esportaBackup()">
             <div class="row-icon">📤</div>
             <div class="row-body">
                 <div class="row-title">Esporta Backup</div>
                 <div class="row-sub">Salva gechi, pasti, note e galleria</div>
             </div>
-            <div class="row-arrow">›</div>
+            <div class="row-right">›</div>
         </div>
-        <div class="row" onclick="document.getElementById('backup-input').click()">
+        <div class="row tap" onclick="document.getElementById('backup-input').click()">
             <div class="row-icon">📥</div>
             <div class="row-body">
                 <div class="row-title">Importa Backup</div>
                 <div class="row-sub">Ripristina da un file .json</div>
             </div>
-            <div class="row-arrow">›</div>
+            <div class="row-right">›</div>
         </div>
     </div>
 
-    <!-- NAVIGAZIONE -->
+    <!-- APP -->
     <div class="section-title">App</div>
     <div class="card">
-        <a href="notifiche.html" class="row" style="text-decoration:none;color:inherit;">
-            <div class="row-icon">🔔</div>
-            <div class="row-body">
-                <div class="row-title">Notifiche</div>
-                <div class="row-sub">Orario e impostazioni avvisi</div>
-            </div>
-            <div class="row-arrow">›</div>
-        </a>
-        <a href="profili.html" class="row" style="text-decoration:none;color:inherit;">
-            <div class="row-icon">🦎</div>
-            <div class="row-body">
-                <div class="row-title">I miei Gechi</div>
-                <div class="row-sub">Gestisci profili e schede</div>
-            </div>
-            <div class="row-arrow">›</div>
-        </a>
-        <div class="row no-tap">
+        <div class="row">
             <div class="row-icon">🌐</div>
             <div class="row-body">
-                <div class="row-title">Sito web</div>
-                <div class="row-sub">agon-93.github.io/geco</div>
+                <div class="row-title">Versione</div>
+                <div class="row-sub">Geco Leopardino 2.0</div>
             </div>
-            <span class="row-badge" style="background:rgba(34,197,94,.15);color:#22c55e;">Online</span>
+            <span class="badge" style="background:rgba(34,197,94,.15);color:#22c55e;">Online</span>
+        </div>
+        <div class="row">
+            <div class="row-icon">💾</div>
+            <div class="row-body">
+                <div class="row-title">Dati salvati</div>
+                <div class="row-sub" id="storage-info">Calcolo...</div>
+            </div>
         </div>
     </div>
 
     <!-- PERICOLO -->
     <div class="section-title">Zona Pericolo</div>
     <div class="card">
-        <div class="row danger" onclick="resetTuttiDati()">
+        <div class="row tap danger" onclick="resetTuttiDati()">
             <div class="row-icon">🗑️</div>
             <div class="row-body">
                 <div class="row-title">Elimina tutti i dati</div>
                 <div class="row-sub">Cancella gechi, pasti, note e galleria</div>
             </div>
-            <div class="row-arrow">›</div>
+            <div class="row-right">›</div>
         </div>
     </div>
+
+    <div style="height:8px;"></div>
 
 </div>
 
@@ -197,93 +287,245 @@
 <div class="toast" id="toast"></div>
 
 <nav class="bottom-nav">
-    <a href="index.html"      class="bn-item"><span class="bn-icon">🏠</span><span class="bn-label">Home</span></a>
-    <a href="calendario.html" class="bn-item"><span class="bn-icon">📅</span><span class="bn-label">Calendario</span></a>
-    <a href="profili.html"    class="bn-item"><span class="bn-icon">🦎</span><span class="bn-label">Gechi</span></a>
-    <a href="note.html"       class="bn-item"><span class="bn-icon">📝</span><span class="bn-label">Note</span></a>
-    <a href="notifiche.html"  class="bn-item"><span class="bn-icon">🔔</span><span class="bn-label">Notifiche</span></a>
+    <a href="index.html"         class="bn-item"><span class="bn-icon">🏠</span><span class="bn-label">Home</span></a>
+    <a href="calendario.html"    class="bn-item"><span class="bn-icon">📅</span><span class="bn-label">Calendario</span></a>
+    <a href="profili.html"       class="bn-item"><span class="bn-icon">🦎</span><span class="bn-label">Gechi</span></a>
+    <a href="note.html"          class="bn-item"><span class="bn-icon">📝</span><span class="bn-label">Note</span></a>
+    <a href="impostazioni.html"  class="bn-item active"><span class="bn-icon">⚙️</span><span class="bn-label">Impostazioni</span></a>
 </nav>
 
 <script>
-    function getGeckos() { try { return JSON.parse(localStorage.getItem('geckos')||'[]'); } catch(e){ return []; } }
+    var CYCLE = [
+        'INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO PURO','DIGIUNO',
+        'INSETTI + CALCIO + D3','DIGIUNO'
+    ];
+    var REF = new Date(2026, 4, 30);
+    function getAlim(y, mo, d) {
+        var diff = Math.round((new Date(y, mo, d) - REF) / 86400000);
+        return CYCLE[((diff % 8) + 8) % 8];
+    }
+
+    var MESI   = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+    var GIORNI = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
 
     function showToast(msg, err) {
         var t = document.getElementById('toast');
         t.textContent = msg;
-        t.className = 'toast' + (err ? ' err' : '') + ' show';
-        setTimeout(function(){ t.className = 'toast' + (err ? ' err' : ''); }, 2400);
+        t.className = 'toast' + (err?' err':'') + ' show';
+        setTimeout(function(){ t.className = 'toast'+(err?' err':''); }, 2400);
+    }
+
+    function getGeckos() { try { return JSON.parse(localStorage.getItem('geckos')||'[]'); } catch(e){ return []; } }
+    function getTime()   { return localStorage.getItem('notifTime') || '08:30'; }
+    function isEnabled() { return localStorage.getItem('notifEnabled') === '1'; }
+
+    // ── STORAGE INFO ──
+    function aggiornaStorageInfo() {
+        var geckos = getGeckos();
+        var feedCount = 0;
+        for (var i = 0; i < localStorage.length; i++) {
+            if (localStorage.key(i).indexOf('feed_') === 0) feedCount++;
+        }
+        document.getElementById('storage-info').textContent =
+            geckos.length + ' gec' + (geckos.length===1?'o':'hi') + ' · ' + feedCount + ' pasti registrati';
+    }
+
+    // ── NOTIFICHE ──
+    function getPatternForDate(date) {
+        return getAlim(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+
+    function nextFeedingDate(fromDate) {
+        var d = new Date(fromDate);
+        for (var i = 0; i < 60; i++) {
+            if (getPatternForDate(d) !== 'DIGIUNO') return d;
+            d.setDate(d.getDate() + 1);
+        }
+        return null;
+    }
+
+    function scheduleNotification() {
+        if (Notification.permission !== 'granted') return;
+        if (!isEnabled()) return;
+        var tp = getTime().split(':');
+        var h = parseInt(tp[0]), m2 = parseInt(tp[1]);
+        var now = new Date(), target = new Date();
+        target.setHours(h, m2, 0, 0);
+        if (now >= target) target.setDate(target.getDate() + 1);
+        var feedDay = nextFeedingDate(target);
+        if (!feedDay) return;
+        feedDay.setHours(h, m2, 0, 0);
+        var delay = feedDay - now;
+        if (delay < 0) return;
+        var alim = getPatternForDate(feedDay);
+        var isD3 = alim.includes('D3');
+        var body = '🍽️ 5-7 insetti + ' + (isD3 ? 'Calcio con D3 🟡' : 'Calcio Puro 🟢');
+        navigator.serviceWorker.ready.then(function(reg) {
+            if (reg.active) reg.active.postMessage({ type:'SCHEDULE_NOTIFICATION', title:'🦎 Pasto del geco!', body:body, delay:delay });
+        });
+        localStorage.setItem('nextNotifISO', feedDay.toISOString());
+        localStorage.setItem('nextNotifAlim', alim);
+        renderNextBox();
+    }
+
+    function cancelNotification() {
+        navigator.serviceWorker.ready.then(function(reg) {
+            if (reg.active) reg.active.postMessage({ type:'CANCEL_NOTIFICATION' });
+        });
+        localStorage.removeItem('nextNotifISO');
+        localStorage.removeItem('nextNotifAlim');
+        renderNextBox();
+    }
+
+    function updatePermUI() {
+        var perm = Notification.permission;
+        var title = document.getElementById('perm-title');
+        var sub   = document.getElementById('perm-sub');
+        var dot   = document.getElementById('perm-dot');
+        var btn   = document.getElementById('btn-enable');
+        if (perm === 'granted') {
+            title.textContent = 'Notifiche attive';
+            sub.textContent   = 'Il browser può ricevere notifiche';
+            dot.className     = 'perm-dot dot-green';
+            btn.textContent   = '✅ Permesso concesso';
+            btn.disabled      = true;
+        } else if (perm === 'denied') {
+            title.textContent = 'Notifiche bloccate';
+            sub.textContent   = 'Abilita nelle impostazioni del browser';
+            dot.className     = 'perm-dot dot-red';
+            btn.disabled      = false;
+        } else {
+            title.textContent = 'Permesso non concesso';
+            sub.textContent   = 'Tocca per abilitare le notifiche';
+            dot.className     = 'perm-dot dot-yellow';
+            btn.disabled      = false;
+        }
+    }
+
+    function requestPermission() {
+        if (!('Notification' in window)) { showToast('Browser non supportato', true); return; }
+        Notification.requestPermission().then(function(r) {
+            updatePermUI();
+            if (r === 'granted') { showToast('✅ Notifiche attivate!'); if (isEnabled()) scheduleNotification(); }
+            else showToast('Notifiche non concesse', true);
+        });
+    }
+
+    function updateToggleUI() {
+        document.getElementById('toggle-notif').className = 'toggle' + (isEnabled() ? ' on' : '');
+    }
+
+    function toggleNotif() {
+        if (Notification.permission !== 'granted') { showToast('Prima attiva il permesso', true); return; }
+        if (isEnabled()) { localStorage.removeItem('notifEnabled'); cancelNotification(); showToast('Promemoria disattivato'); }
+        else { localStorage.setItem('notifEnabled','1'); scheduleNotification(); showToast('✅ Promemoria attivato!'); }
+        updateToggleUI();
+    }
+
+    function saveTime() {
+        var t = document.getElementById('notif-time').value;
+        if (!t) return;
+        localStorage.setItem('notifTime', t);
+        if (isEnabled() && Notification.permission === 'granted') scheduleNotification();
+        showToast('✅ Orario salvato: ' + t);
+    }
+
+    function renderNextBox() {
+        var box  = document.getElementById('next-box');
+        var iso  = localStorage.getItem('nextNotifISO');
+        var alim = localStorage.getItem('nextNotifAlim') || '';
+        if (!iso || !isEnabled() || Notification.permission !== 'granted') {
+            box.innerHTML = '<div class="next-box muted" style="margin-top:12px;"><div class="next-lbl m">Prossima notifica</div><div class="next-time m">—</div><div class="next-day">Nessun promemoria attivo</div></div>';
+            return;
+        }
+        var d = new Date(iso);
+        var time = d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0');
+        var dayLabel = GIORNI[d.getDay()] + ' ' + d.getDate() + ' ' + MESI[d.getMonth()];
+        var isD3 = alim.includes('D3');
+        box.innerHTML = '<div class="next-box" style="margin-top:12px;"><div class="next-lbl">Prossima notifica</div><div class="next-time">' + time + '</div><div class="next-day">' + dayLabel + '</div><div class="next-alim">🍽️ ' + (isD3 ? 'Insetti + Calcio D3 🟡' : 'Insetti + Calcio Puro 🟢') + '</div></div>';
+    }
+
+    function testNotif() {
+        if (Notification.permission !== 'granted') { showToast('Prima attiva le notifiche', true); return; }
+        navigator.serviceWorker.ready.then(function(reg) {
+            if (reg.active) { reg.active.postMessage({ type:'SCHEDULE_NOTIFICATION', title:'🦎 Test — Pasto del geco!', body:'🍽️ Notifica di prova', delay:3000 }); showToast('Notifica in arrivo tra 3 secondi...'); }
+        });
     }
 
     // ── BACKUP ──
     function esportaBackup() {
         var geckos = getGeckos();
         var backup = { version:1, exportedAt:new Date().toISOString(), appName:'Geco Leopardino', data:{} };
-        backup.data.geckos        = geckos;
-        backup.data.activeGeckoId = localStorage.getItem('activeGeckoId') || '';
-        backup.data.activeColor   = localStorage.getItem('activeColor')   || '';
-        backup.data.gecoNotes     = localStorage.getItem('gecoNotes')     || '';
-        backup.data.notifTime     = localStorage.getItem('notifTime')     || '';
-        backup.data.notifEnabled  = localStorage.getItem('notifEnabled')  || '';
-        backup.data.repro   = {}; backup.data.gallery = {}; backup.data.feed = {};
-        for (var i = 0; i < localStorage.length; i++) {
-            var k = localStorage.key(i);
-            if (k.indexOf('repro_')   === 0) backup.data.repro[k]   = localStorage.getItem(k);
-            else if (k.indexOf('gallery_') === 0) backup.data.gallery[k] = localStorage.getItem(k);
-            else if (k.indexOf('feed_')    === 0) backup.data.feed[k]    = localStorage.getItem(k);
+        backup.data.geckos = geckos;
+        backup.data.activeGeckoId = localStorage.getItem('activeGeckoId')||'';
+        backup.data.activeColor   = localStorage.getItem('activeColor')||'';
+        backup.data.gecoNotes     = localStorage.getItem('gecoNotes')||'';
+        backup.data.notifTime     = localStorage.getItem('notifTime')||'';
+        backup.data.notifEnabled  = localStorage.getItem('notifEnabled')||'';
+        backup.data.repro={}; backup.data.gallery={}; backup.data.feed={};
+        for (var i=0; i<localStorage.length; i++) {
+            var k=localStorage.key(i);
+            if (k.indexOf('repro_')===0)   backup.data.repro[k]=localStorage.getItem(k);
+            else if (k.indexOf('gallery_')===0) backup.data.gallery[k]=localStorage.getItem(k);
+            else if (k.indexOf('feed_')===0)    backup.data.feed[k]=localStorage.getItem(k);
         }
-        var oggi = new Date();
-        var dateStr = oggi.getFullYear() + '-' + String(oggi.getMonth()+1).padStart(2,'0') + '-' + String(oggi.getDate()).padStart(2,'0');
-        var blob = new Blob([JSON.stringify(backup)], { type:'application/json' });
-        var url  = URL.createObjectURL(blob);
-        var a    = document.createElement('a');
-        a.href = url; a.download = 'geco-backup-' + dateStr + '.json'; a.click();
-        URL.revokeObjectURL(url);
+        var oggi=new Date(), ds=oggi.getFullYear()+'-'+String(oggi.getMonth()+1).padStart(2,'0')+'-'+String(oggi.getDate()).padStart(2,'0');
+        var blob=new Blob([JSON.stringify(backup)],{type:'application/json'});
+        var url=URL.createObjectURL(blob), a=document.createElement('a');
+        a.href=url; a.download='geco-backup-'+ds+'.json'; a.click(); URL.revokeObjectURL(url);
         showToast('✅ Backup esportato!');
     }
 
     function importaBackup(input) {
-        if (!input.files || !input.files[0]) return;
-        var reader = new FileReader();
-        reader.onload = function(e) {
+        if (!input.files||!input.files[0]) return;
+        var reader=new FileReader();
+        reader.onload=function(e){
             try {
-                var backup = JSON.parse(e.target.result);
-                if (!backup.version || !backup.data) throw new Error('file non riconosciuto');
-                var d = backup.data;
-                var dataStr = backup.exportedAt ? backup.exportedAt.split('T')[0] : '?';
-                if (!confirm('Ripristinare il backup del ' + dataStr + '?\n\nI dati attuali verranno sostituiti.')) return;
-                var toRemove = [];
-                for (var i = 0; i < localStorage.length; i++) {
-                    var k = localStorage.key(i);
-                    if (k.indexOf('feed_')===0 || k.indexOf('repro_')===0 || k.indexOf('gallery_')===0) toRemove.push(k);
-                }
-                toRemove.forEach(function(k){ localStorage.removeItem(k); });
-                if (d.geckos)        localStorage.setItem('geckos',        JSON.stringify(d.geckos));
-                if (d.activeGeckoId) localStorage.setItem('activeGeckoId', d.activeGeckoId);
-                if (d.activeColor)   localStorage.setItem('activeColor',   d.activeColor);
-                if (d.gecoNotes)     localStorage.setItem('gecoNotes',     d.gecoNotes);
-                if (d.notifTime)     localStorage.setItem('notifTime',     d.notifTime);
-                if (d.notifEnabled)  localStorage.setItem('notifEnabled',  d.notifEnabled);
-                Object.keys(d.repro   ||{}).forEach(function(k){ localStorage.setItem(k, d.repro[k]); });
-                Object.keys(d.gallery ||{}).forEach(function(k){ localStorage.setItem(k, d.gallery[k]); });
-                Object.keys(d.feed    ||{}).forEach(function(k){ localStorage.setItem(k, d.feed[k]); });
+                var backup=JSON.parse(e.target.result);
+                if (!backup.version||!backup.data) throw new Error('file non valido');
+                var d=backup.data, ds=backup.exportedAt?backup.exportedAt.split('T')[0]:'?';
+                if (!confirm('Ripristinare backup del '+ds+'?\nI dati attuali saranno sostituiti.')) return;
+                var toRemove=[];
+                for (var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k.indexOf('feed_')===0||k.indexOf('repro_')===0||k.indexOf('gallery_')===0)toRemove.push(k);}
+                toRemove.forEach(function(k){localStorage.removeItem(k);});
+                if(d.geckos)        localStorage.setItem('geckos',JSON.stringify(d.geckos));
+                if(d.activeGeckoId) localStorage.setItem('activeGeckoId',d.activeGeckoId);
+                if(d.activeColor)   localStorage.setItem('activeColor',d.activeColor);
+                if(d.gecoNotes)     localStorage.setItem('gecoNotes',d.gecoNotes);
+                if(d.notifTime)     localStorage.setItem('notifTime',d.notifTime);
+                if(d.notifEnabled)  localStorage.setItem('notifEnabled',d.notifEnabled);
+                Object.keys(d.repro||{}).forEach(function(k){localStorage.setItem(k,d.repro[k]);});
+                Object.keys(d.gallery||{}).forEach(function(k){localStorage.setItem(k,d.gallery[k]);});
+                Object.keys(d.feed||{}).forEach(function(k){localStorage.setItem(k,d.feed[k]);});
                 showToast('✅ Backup ripristinato!');
-            } catch(err) { showToast('File non valido', true); }
+                setTimeout(function(){aggiornaStorageInfo();},300);
+            } catch(err){ showToast('File non valido',true); }
         };
         reader.readAsText(input.files[0]);
-        input.value = '';
+        input.value='';
     }
 
-    // ── RESET ──
     function resetTuttiDati() {
-        if (!confirm('ATTENZIONE: Eliminare TUTTI i dati?\n\nGechi, pasti, note, galleria — tutto cancellato. Questa azione non si può annullare.')) return;
-        if (!confirm('Sei sicuro? Considera prima di fare un Backup.')) return;
+        if (!confirm('ATTENZIONE: eliminare TUTTI i dati?\n\nGechi, pasti, note, galleria — tutto cancellato.')) return;
+        if (!confirm('Sei sicuro? Fai prima un backup!')) return;
         localStorage.clear();
         showToast('✅ Dati eliminati');
-        setTimeout(function(){ window.location.href = 'index.html'; }, 1500);
+        setTimeout(function(){ window.location.href='index.html'; },1500);
     }
 
+    // ── INIT ──
+    document.getElementById('notif-time').value = getTime();
+    updatePermUI();
+    updateToggleUI();
+    renderNextBox();
+    aggiornaStorageInfo();
+
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js').catch(function(){});
+        navigator.serviceWorker.register('./sw.js').then(function() {
+            if (Notification.permission==='granted' && isEnabled()) scheduleNotification();
+        }).catch(function(){});
     }
 </script>
 <script src="transitions.js"></script>
