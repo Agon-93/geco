@@ -625,6 +625,23 @@
         return d.getDate() + ' ' + ms[d.getMonth()] + ' ' + d.getFullYear();
     }
 
+    // ── SFONDO ──
+    (function() {
+        var wp  = localStorage.getItem('homeWallpaper');
+        var ov  = parseInt(localStorage.getItem('homeOverlay') || '60');
+        if (!wp) return;
+        document.body.style.backgroundImage = 'url(' + wp + ')';
+        document.body.style.backgroundSize  = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundAttachment = 'fixed';
+        var overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,' + (ov/100) + ');z-index:0;pointer-events:none;';
+        document.body.insertBefore(overlay, document.body.firstChild);
+        document.querySelectorAll('header,.page,.bottom-nav').forEach(function(el){
+            el.style.position = 'relative'; el.style.zIndex = '1';
+        });
+    })();
+
     renderContent();
 
     if ('serviceWorker' in navigator) {
