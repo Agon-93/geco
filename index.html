@@ -11,7 +11,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
     <script>(function(){try{var c=localStorage.getItem('activeColor');if(!c){var gs=JSON.parse(localStorage.getItem('geckos')||'[]'),id=localStorage.getItem('activeGeckoId')||'',gk=gs.find(function(g){return g.id===id;})||gs[0]||null;c=gk&&gk.colore?gk.colore:null;}if(c)document.documentElement.style.setProperty('--accent',c);}catch(e){}})();
-(function(){try{var wp=localStorage.getItem('homeWallpaper');var ov=parseInt(localStorage.getItem('homeOverlay')||'30');if(!wp)return;var img=new Image();img.onload=function(){
+(function(){try{var wp=localStorage.getItem('homeWallpaper');var ov=20;if(!wp)return;var img=new Image();img.onload=function(){
     document.body.classList.add('has-wp');
     var s=document.createElement('style');
     s.textContent=

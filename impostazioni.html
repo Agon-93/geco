@@ -252,11 +252,6 @@
         <div class="notif-section">
             <div class="notif-label">Seleziona sfondo</div>
             <div id="sfondo-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"></div>
-            <div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;">
-                <span style="font-size:12px;color:#666;">Oscurità overlay</span>
-                <input type="range" id="overlay-range" min="0" max="90" step="5" value="40"
-                    style="width:140px;accent-color:var(--accent);" oninput="salvaOverlay(this.value)">
-            </div>
         </div>
     </div>
 
@@ -556,12 +551,6 @@
     function buildSfondoGrid() {
         var grid = document.getElementById('sfondo-grid');
         var sel  = localStorage.getItem('homeWallpaper') || '';
-        // Auto-correggi overlay se troppo scuro (valore vecchio salvato)
-        var ovVal = parseInt(localStorage.getItem('homeOverlay') || '30');
-        if (ovVal > 50) {
-            ovVal = 30;
-            localStorage.setItem('homeOverlay', '30');
-        }
         var html = '<div class="sfondo-opt sfondo-none' + (sel==='' ? ' sel' : '') + '" onclick="selSfondo(\'\')">' +
             '<span>⬛</span><div class="check">✓</div></div>';
         SFONDI.forEach(function(s) {
@@ -571,7 +560,6 @@
                 '<div class="check">✓</div></div>';
         });
         grid.innerHTML = html;
-        document.getElementById('overlay-range').value = ovVal;
     }
 
     function selSfondo(path) {
@@ -582,10 +570,6 @@
         }
         buildSfondoGrid();
         showToast(path ? '✅ Sfondo selezionato!' : '✅ Sfondo rimosso');
-    }
-
-    function salvaOverlay(val) {
-        localStorage.setItem('homeOverlay', val);
     }
 
     // ── INIT ──
