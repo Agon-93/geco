@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Impostazioni - Geco</title>
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="manifest" href="manifest.json">
+    <script>(function(){try{var c=localStorage.getItem('activeColor');if(!c){var gs=JSON.parse(localStorage.getItem('geckos')||'[]'),id=localStorage.getItem('activeGeckoId')||'',gk=gs.find(function(g){return g.id===id;})||gs[0]||null;c=gk&&gk.colore?gk.colore:null;}if(c)document.documentElement.style.setProperty('--accent',c);}catch(e){}})();</script>
+    <style>
+        :root { --accent: #ff9940; }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+        body {
+            font-family:-apple-system,'Segoe UI',sans-serif;
+            background:#111; color:#f0f0f0; min-height:100vh;
+            padding-top:env(safe-area-inset-top);
+            padding-bottom:calc(70px + env(safe-area-inset-bottom));
+        }
+
+        header {
+            background:#1a1a1a; padding:16px 20px 14px;
+            border-bottom:1px solid #2a2a2a;
+            display:flex; align-items:center; gap:12px;
+        }
+        .h-icon  { font-size:24px; }
+        .h-text h1 { font-size:17px; font-weight:700; }
+        .h-text p  { font-size:11px; color:#888; }
+
+        .page { padding:16px; max-width:500px; margin:0 auto; display:flex; flex-direction:column; gap:10px; }
+
+        /* ── SECTION ── */
+        .section-title {
+            font-size:11px; font-weight:700; color:#555;
+            text-transform:uppercase; letter-spacing:.07em;
+            padding:0 4px; margin-top:6px;
+        }
+
+        /* ── CARD ── */
+        .card {
+            background:#1a1a1a; border:1px solid #2a2a2a;
+            border-radius:16px; overflow:hidden;
+        }
+
+        .row {
+            display:flex; align-items:center; gap:14px;
+            padding:15px 18px; border-bottom:1px solid #222;
+            cursor:pointer; transition:background .12s;
+        }
+        .row:last-child { border-bottom:none; }
+        .row:active { background:#222; }
+        .row.no-tap { cursor:default; }
+        .row.no-tap:active { background:transparent; }
+
+        .row-icon { font-size:22px; flex-shrink:0; width:36px; height:36px;
+            background:#2a2a2a; border-radius:10px;
+            display:flex; align-items:center; justify-content:center; }
+        .row-body { flex:1; min-width:0; }
+        .row-title { font-size:15px; font-weight:600; }
+        .row-sub   { font-size:12px; color:#666; margin-top:2px; }
+        .row-arrow { color:#444; font-size:18px; flex-shrink:0; }
+        .row-badge {
+            font-size:11px; font-weight:700; padding:3px 10px;
+            border-radius:20px; flex-shrink:0;
+        }
+
+        /* ── PERICOLO ── */
+        .row.danger .row-title { color:#ef4444; }
+        .row.danger .row-icon  { background:rgba(239,68,68,.12); }
+
+        /* ── APP INFO ── */
+        .app-info {
+            text-align:center; padding:24px 20px;
+            display:flex; flex-direction:column; align-items:center; gap:8px;
+        }
+        .app-logo { font-size:52px; }
+        .app-name  { font-size:18px; font-weight:800; }
+        .app-ver   { font-size:12px; color:#555; }
+
+        /* ── TOAST ── */
+        .toast {
+            position:fixed; bottom:calc(80px + env(safe-area-inset-bottom));
+            left:50%; transform:translateX(-50%);
+            background:#22c55e; color:#fff;
+            padding:10px 22px; border-radius:30px;
+            font-size:14px; font-weight:600;
+            opacity:0; transition:opacity .3s; pointer-events:none; white-space:nowrap; z-index:9999;
+        }
+        .toast.show { opacity:1; }
+        .toast.err  { background:#ef4444; }
+
+        /* ── BOTTOM NAV ── */
+        .bottom-nav {
+            position:fixed; bottom:0; left:0; right:0;
+            background:#1a1a1a; border-top:1px solid #2a2a2a;
+            display:flex; padding-bottom:env(safe-area-inset-bottom); z-index:998;
+        }
+        .bn-item {
+            flex:1; display:flex; flex-direction:column; align-items:center;
+            justify-content:center; padding:8px 0; text-decoration:none;
+            color:#555; transition:color .15s; gap:2px;
+        }
+        .bn-item.active { color:var(--accent); }
+        .bn-icon  { font-size:20px; line-height:1; }
+        .bn-label { font-size:10px; font-weight:600; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="h-icon">⚙️</div>
+    <div class="h-text">
+        <h1>Impostazioni</h1>
+        <p>Gestione app e dati</p>
+    </div>
+</header>
+
+<div class="page">
+
+    <!-- APP INFO -->
+    <div class="card">
+        <div class="app-info">
+            <div class="app-logo">🦎</div>
+            <div class="app-name">Geco Leopardino</div>
+            <div class="app-ver">Versione 2.0 — agon-93.github.io/geco</div>
+        </div>
+    </div>
+
+    <!-- DATI -->
+    <div class="section-title">Dati & Backup</div>
+    <div class="card">
+        <div class="row" onclick="esportaBackup()">
+            <div class="row-icon">📤</div>
+            <div class="row-body">
+                <div class="row-title">Esporta Backup</div>
+                <div class="row-sub">Salva gechi, pasti, note e galleria</div>
+            </div>
+            <div class="row-arrow">›</div>
+        </div>
+        <div class="row" onclick="document.getElementById('backup-input').click()">
+            <div class="row-icon">📥</div>
+            <div class="row-body">
+                <div class="row-title">Importa Backup</div>
+                <div class="row-sub">Ripristina da un file .json</div>
+            </div>
+            <div class="row-arrow">›</div>
+        </div>
+    </div>
+
+    <!-- NAVIGAZIONE -->
+    <div class="section-title">App</div>
+    <div class="card">
+        <a href="notifiche.html" class="row" style="text-decoration:none;color:inherit;">
+            <div class="row-icon">🔔</div>
+            <div class="row-body">
+                <div class="row-title">Notifiche</div>
+                <div class="row-sub">Orario e impostazioni avvisi</div>
+            </div>
+            <div class="row-arrow">›</div>
+        </a>
+        <a href="profili.html" class="row" style="text-decoration:none;color:inherit;">
+            <div class="row-icon">🦎</div>
+            <div class="row-body">
+                <div class="row-title">I miei Gechi</div>
+                <div class="row-sub">Gestisci profili e schede</div>
+            </div>
+            <div class="row-arrow">›</div>
+        </a>
+        <div class="row no-tap">
+            <div class="row-icon">🌐</div>
+            <div class="row-body">
+                <div class="row-title">Sito web</div>
+                <div class="row-sub">agon-93.github.io/geco</div>
+            </div>
+            <span class="row-badge" style="background:rgba(34,197,94,.15);color:#22c55e;">Online</span>
+        </div>
+    </div>
+
+    <!-- PERICOLO -->
+    <div class="section-title">Zona Pericolo</div>
+    <div class="card">
+        <div class="row danger" onclick="resetTuttiDati()">
+            <div class="row-icon">🗑️</div>
+            <div class="row-body">
+                <div class="row-title">Elimina tutti i dati</div>
+                <div class="row-sub">Cancella gechi, pasti, note e galleria</div>
+            </div>
+            <div class="row-arrow">›</div>
+        </div>
+    </div>
+
+</div>
+
+<input type="file" id="backup-input" accept=".json" style="display:none" onchange="importaBackup(this)">
+<div class="toast" id="toast"></div>
+
+<nav class="bottom-nav">
+    <a href="index.html"      class="bn-item"><span class="bn-icon">🏠</span><span class="bn-label">Home</span></a>
+    <a href="calendario.html" class="bn-item"><span class="bn-icon">📅</span><span class="bn-label">Calendario</span></a>
+    <a href="profili.html"    class="bn-item"><span class="bn-icon">🦎</span><span class="bn-label">Gechi</span></a>
+    <a href="note.html"       class="bn-item"><span class="bn-icon">📝</span><span class="bn-label">Note</span></a>
+    <a href="notifiche.html"  class="bn-item"><span class="bn-icon">🔔</span><span class="bn-label">Notifiche</span></a>
+</nav>
+
+<script>
+    function getGeckos() { try { return JSON.parse(localStorage.getItem('geckos')||'[]'); } catch(e){ return []; } }
+
+    function showToast(msg, err) {
+        var t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = 'toast' + (err ? ' err' : '') + ' show';
+        setTimeout(function(){ t.className = 'toast' + (err ? ' err' : ''); }, 2400);
+    }
+
+    // ── BACKUP ──
+    function esportaBackup() {
+        var geckos = getGeckos();
+        var backup = { version:1, exportedAt:new Date().toISOString(), appName:'Geco Leopardino', data:{} };
+        backup.data.geckos        = geckos;
+        backup.data.activeGeckoId = localStorage.getItem('activeGeckoId') || '';
+        backup.data.activeColor   = localStorage.getItem('activeColor')   || '';
+        backup.data.gecoNotes     = localStorage.getItem('gecoNotes')     || '';
+        backup.data.notifTime     = localStorage.getItem('notifTime')     || '';
+        backup.data.notifEnabled  = localStorage.getItem('notifEnabled')  || '';
+        backup.data.repro   = {}; backup.data.gallery = {}; backup.data.feed = {};
+        for (var i = 0; i < localStorage.length; i++) {
+            var k = localStorage.key(i);
+            if (k.indexOf('repro_')   === 0) backup.data.repro[k]   = localStorage.getItem(k);
+            else if (k.indexOf('gallery_') === 0) backup.data.gallery[k] = localStorage.getItem(k);
+            else if (k.indexOf('feed_')    === 0) backup.data.feed[k]    = localStorage.getItem(k);
+        }
+        var oggi = new Date();
+        var dateStr = oggi.getFullYear() + '-' + String(oggi.getMonth()+1).padStart(2,'0') + '-' + String(oggi.getDate()).padStart(2,'0');
+        var blob = new Blob([JSON.stringify(backup)], { type:'application/json' });
+        var url  = URL.createObjectURL(blob);
+        var a    = document.createElement('a');
+        a.href = url; a.download = 'geco-backup-' + dateStr + '.json'; a.click();
+        URL.revokeObjectURL(url);
+        showToast('✅ Backup esportato!');
+    }
+
+    function importaBackup(input) {
+        if (!input.files || !input.files[0]) return;
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                var backup = JSON.parse(e.target.result);
+                if (!backup.version || !backup.data) throw new Error('file non riconosciuto');
+                var d = backup.data;
+                var dataStr = backup.exportedAt ? backup.exportedAt.split('T')[0] : '?';
+                if (!confirm('Ripristinare il backup del ' + dataStr + '?\n\nI dati attuali verranno sostituiti.')) return;
+                var toRemove = [];
+                for (var i = 0; i < localStorage.length; i++) {
+                    var k = localStorage.key(i);
+                    if (k.indexOf('feed_')===0 || k.indexOf('repro_')===0 || k.indexOf('gallery_')===0) toRemove.push(k);
+                }
+                toRemove.forEach(function(k){ localStorage.removeItem(k); });
+                if (d.geckos)        localStorage.setItem('geckos',        JSON.stringify(d.geckos));
+                if (d.activeGeckoId) localStorage.setItem('activeGeckoId', d.activeGeckoId);
+                if (d.activeColor)   localStorage.setItem('activeColor',   d.activeColor);
+                if (d.gecoNotes)     localStorage.setItem('gecoNotes',     d.gecoNotes);
+                if (d.notifTime)     localStorage.setItem('notifTime',     d.notifTime);
+                if (d.notifEnabled)  localStorage.setItem('notifEnabled',  d.notifEnabled);
+                Object.keys(d.repro   ||{}).forEach(function(k){ localStorage.setItem(k, d.repro[k]); });
+                Object.keys(d.gallery ||{}).forEach(function(k){ localStorage.setItem(k, d.gallery[k]); });
+                Object.keys(d.feed    ||{}).forEach(function(k){ localStorage.setItem(k, d.feed[k]); });
+                showToast('✅ Backup ripristinato!');
+            } catch(err) { showToast('File non valido', true); }
+        };
+        reader.readAsText(input.files[0]);
+        input.value = '';
+    }
+
+    // ── RESET ──
+    function resetTuttiDati() {
+        if (!confirm('ATTENZIONE: Eliminare TUTTI i dati?\n\nGechi, pasti, note, galleria — tutto cancellato. Questa azione non si può annullare.')) return;
+        if (!confirm('Sei sicuro? Considera prima di fare un Backup.')) return;
+        localStorage.clear();
+        showToast('✅ Dati eliminati');
+        setTimeout(function(){ window.location.href = 'index.html'; }, 1500);
+    }
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(function(){});
+    }
+</script>
+<script src="transitions.js"></script>
+</body>
+</html>

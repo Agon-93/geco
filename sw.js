@@ -1,9 +1,9 @@
-const CACHE = 'geco-v21';
+const CACHE = 'geco-v22';
 const ASSETS = [
     './index.html', './calendario.html', './note.html',
     './notifiche.html', './profili.html', './riproduzione.html',
-    './galleria.html', './scheda.html', './transitions.js',
-    './manifest.json', './icon.svg'
+    './galleria.html', './scheda.html', './impostazioni.html',
+    './transitions.js', './manifest.json', './icon.svg'
 ];
 
 // Installa — non blocca se mancano file opzionali
