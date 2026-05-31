@@ -627,19 +627,18 @@
 
     // ── SFONDO ──
     (function() {
-        var wp  = localStorage.getItem('homeWallpaper');
-        var ov  = parseInt(localStorage.getItem('homeOverlay') || '60');
+        var wp = localStorage.getItem('homeWallpaper');
+        var ov = parseInt(localStorage.getItem('homeOverlay') || '60');
         if (!wp) return;
-        document.body.style.backgroundImage = 'url(' + wp + ')';
-        document.body.style.backgroundSize  = 'cover';
-        document.body.style.backgroundPosition = 'center';
-        document.body.style.backgroundAttachment = 'fixed';
-        var overlay = document.createElement('div');
-        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,' + (ov/100) + ');z-index:0;pointer-events:none;';
-        document.body.insertBefore(overlay, document.body.firstChild);
-        document.querySelectorAll('header,.page,.bottom-nav').forEach(function(el){
-            el.style.position = 'relative'; el.style.zIndex = '1';
-        });
+        var s = document.createElement('style');
+        s.textContent =
+            'body{background-image:url("' + wp + '");background-size:cover;background-position:center;background-attachment:fixed;}' +
+            '#sfondo-overlay{position:fixed;inset:0;background:rgba(0,0,0,' + (ov/100).toFixed(2) + ');z-index:0;pointer-events:none;}' +
+            'header,#splash,.page,.bottom-nav,#profile-overlay,.modal-overlay{position:relative;z-index:1;}';
+        document.head.appendChild(s);
+        var ov2 = document.createElement('div');
+        ov2.id = 'sfondo-overlay';
+        document.body.appendChild(ov2);
     })();
 
     renderContent();
