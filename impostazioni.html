@@ -303,21 +303,56 @@
     </div>
 
     <!-- CONDIVISIONE -->
-    <div class="section-title">Monitoraggio</div>
+    <div class="section-title">Cloud & Condivisione</div>
     <div class="card">
+
+        <!-- Il tuo codice -->
         <div class="row">
-            <div class="row-icon">👁</div>
+            <div class="row-icon">🔑</div>
             <div class="row-body">
-                <div class="row-title">Co-gestione con un amico</div>
-                <div class="row-sub">L'amico può segnare i pasti e vedere tutto in tempo reale</div>
+                <div class="row-title">Il tuo codice personale</div>
+                <div class="row-sub">Salvalo — ti serve per ripristinare su un nuovo telefono</div>
             </div>
         </div>
-        <div style="padding:0 18px 16px;display:flex;flex-direction:column;gap:10px;">
+        <div style="padding:0 18px 14px;display:flex;flex-direction:column;gap:8px;">
+            <div style="background:#161616;border:1px solid #2a2a2a;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;">
+                <span style="font-size:13px;color:#ff9940;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:monospace;" id="codice-display">Caricamento...</span>
+                <button onclick="copiaCodice()" style="background:#2a2a2a;color:#f0f0f0;border:1px solid #3a3a3a;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;">📋 Copia</button>
+            </div>
+        </div>
+
+        <!-- Link co-gestione -->
+        <div style="border-top:1px solid #1e1e1e;"></div>
+        <div class="row">
+            <div class="row-icon">🤝</div>
+            <div class="row-body">
+                <div class="row-title">Co-gestione con un amico</div>
+                <div class="row-sub">L'amico può segnare i pasti in tempo reale</div>
+            </div>
+        </div>
+        <div style="padding:0 18px 14px;display:flex;flex-direction:column;gap:8px;">
             <div style="background:#161616;border:1px solid #2a2a2a;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;">
                 <span style="font-size:12px;color:#555;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="monitor-url">Caricamento...</span>
                 <button onclick="copiaLinkMonitor()" style="background:var(--accent);color:#111;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;">📋 Copia</button>
             </div>
-            <div style="font-size:11px;color:#555;line-height:1.5;">Chi apre il link può segnare i pasti e modificare i dati insieme a te — tutto sincronizzato in tempo reale.</div>
+        </div>
+
+        <!-- Ripristino -->
+        <div style="border-top:1px solid #1e1e1e;"></div>
+        <div class="row">
+            <div class="row-icon">♻️</div>
+            <div class="row-body">
+                <div class="row-title">Ripristina su nuovo telefono</div>
+                <div class="row-sub">Inserisci il tuo codice per recuperare tutti i dati</div>
+            </div>
+        </div>
+        <div style="padding:0 18px 16px;display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;gap:8px;">
+                <input type="text" id="ripristino-input" placeholder="Incolla il tuo codice qui..."
+                    style="flex:1;background:#161616;border:1px solid #2a2a2a;border-radius:12px;color:#f0f0f0;padding:11px 14px;font-size:14px;font-family:monospace;outline:none;">
+                <button onclick="eseguiRipristino()" style="background:var(--accent);color:#111;border:none;border-radius:12px;padding:11px 16px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;">Ripristina</button>
+            </div>
+            <div style="font-size:11px;color:#555;">⚠️ Sovrascrive i dati attuali del telefono con quelli del cloud.</div>
         </div>
     </div>
 
@@ -611,19 +646,41 @@
         }).catch(function(){});
     }
 
+    function copiaCodice() {
+        var c = syncCodice();
+        navigator.clipboard.writeText(c).then(function() {
+            showToast('✅ Codice copiato!');
+        }).catch(function() { showToast(c); });
+    }
+
     function copiaLinkMonitor() {
         var url = supaMonitorLink();
         navigator.clipboard.writeText(url).then(function() {
             showToast('✅ Link copiato!');
-        }).catch(function() { showToast('Link: ' + url); });
+        }).catch(function() { showToast(url); });
+    }
+
+    function eseguiRipristino() {
+        var codice = document.getElementById('ripristino-input').value.trim();
+        if (!codice) { showToast('Inserisci il codice!', true); return; }
+        if (!confirm('Ripristinare i dati dal cloud?\nI dati attuali sul telefono verranno sostituiti.')) return;
+        showToast('Ripristino in corso...');
+        supaRipristina(codice,
+            function(n) {
+                showToast('✅ Ripristinati ' + n + ' gechi!');
+                setTimeout(function() { location.href = 'index.html'; }, 1500);
+            },
+            function(err) { showToast(err, true); }
+        );
     }
 
     setTimeout(function() {
-        var el = document.getElementById('monitor-url');
-        if (el) el.textContent = supaMonitorLink();
+        var urlEl    = document.getElementById('monitor-url');
+        var codiceEl = document.getElementById('codice-display');
+        if (urlEl)    urlEl.textContent    = supaMonitorLink();
+        if (codiceEl) codiceEl.textContent = syncCodice();
     }, 300);
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="supabase-sync.js"></script>
 <script src="transitions.js"></script>
 </body>

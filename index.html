@@ -10,7 +10,6 @@
     <meta name="apple-mobile-web-app-title" content="Geco">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script src="supabase-sync.js"></script>
     <script>(function(){try{var c=localStorage.getItem('activeColor');if(!c){var gs=JSON.parse(localStorage.getItem('geckos')||'[]'),id=localStorage.getItem('activeGeckoId')||'',gk=gs.find(function(g){return g.id===id;})||gs[0]||null;c=gk&&gk.colore?gk.colore:null;}if(c)document.documentElement.style.setProperty('--accent',c);}catch(e){}})();
 (function(){try{var wp=localStorage.getItem('homeWallpaper');var ov=20;if(!wp)return;var img=new Image();img.onload=function(){
@@ -752,46 +751,29 @@
 
     // ── MONITOR MODE LOAD ──
     function loadMonitorData(codice) {
-        var sb = supaClient();
-        if (!sb) { setTimeout(function(){ loadMonitorData(codice); }, 500); return; }
-
-        Promise.all([
-            sb.from('sync_data').select('*').eq('codice', codice).single(),
-            sb.from('sync_pasti').select('*').eq('codice', codice)
-        ]).then(function(results) {
-            var dataRes  = results[0];
-            var pastiRes = results[1];
-
-            if (dataRes.data) {
-                _monitorGeckos = dataRes.data.geckos || [];
-            }
-            if (pastiRes.data) {
-                _monitorPasti = {};
-                pastiRes.data.forEach(function(p) {
-                    _monitorPasti['feed_' + p.chiave] = p.fatto;
-                });
-            }
+        supaLeggi(codice, function(data, pasti) {
+            if (data) _monitorGeckos = data.geckos || [];
+            _monitorPasti = {};
+            pasti.forEach(function(p) {
+                _monitorPasti['feed_' + p.chiave] = p.fatto;
+            });
             renderContent();
 
-            setSyncCodice(_monitorCodice);
+            setSyncCodice(codice);
 
-            // Banner co-gestione
             if (!document.getElementById('cogest-banner')) {
                 var banner = document.createElement('div');
                 banner.id  = 'cogest-banner';
                 var nome   = _monitorGeckos.length > 0 ? _monitorGeckos[0].nome : 'geco';
-                banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:rgba(34,197,94,.85);color:#fff;text-align:center;padding:8px;font-size:13px;font-weight:700;z-index:9998;backdrop-filter:blur(8px);';
-                banner.textContent   = '🤝 Co-gestione attiva — dati condivisi con ' + nome;
+                banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:rgba(34,197,94,.85);color:#fff;text-align:center;padding:8px;font-size:13px;font-weight:700;z-index:9998;';
+                banner.textContent   = '🤝 Co-gestione attiva con ' + nome;
                 document.body.appendChild(banner);
                 document.body.style.paddingTop = '36px';
             }
-        });
 
-        // Realtime subscription
-        sb.channel('monitor-' + codice)
-            .on('postgres_changes', { event:'*', schema:'public', table:'sync_data',  filter:'codice=eq.'+codice }, function() { loadMonitorData(codice); })
-            .on('postgres_changes', { event:'*', schema:'public', table:'sync_pasti', filter:'codice=eq.'+codice }, function() { loadMonitorData(codice); })
-            .subscribe();
+            // Poll ogni 10 secondi per aggiornamenti
+            setTimeout(function() { loadMonitorData(codice); }, 10000);
+        });
     }
 
     if (_monitorMode) {
