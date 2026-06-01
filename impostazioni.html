@@ -644,12 +644,6 @@
     renderNextBox();
     aggiornaStorageInfo();
 
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js').then(function() {
-            if (Notification.permission==='granted' && isEnabled()) scheduleNotification();
-        }).catch(function(){});
-    }
-
     function copiaCodice() {
         var c = syncCodice();
         navigator.clipboard.writeText(c).then(function() {
@@ -685,18 +679,27 @@
         );
     }
 
-    setTimeout(function() {
-        var urlEl    = document.getElementById('monitor-url');
-        var codiceEl = document.getElementById('codice-display');
-        if (urlEl)    urlEl.textContent    = supaMonitorLink();
-        if (codiceEl) codiceEl.textContent = syncCodice();
-        // Mostra bottone "Esci" solo se in co-gestione
-        if (localStorage.getItem('coGestioneCodice')) {
-            var wrap = document.getElementById('exit-cogest-wrap');
-            if (wrap) wrap.style.display = 'block';
+    authGuard(function() {
+        authRenderWidget();
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').then(function() {
+                if (Notification.permission==='granted' && isEnabled()) scheduleNotification();
+            }).catch(function(){});
         }
-    }, 300);
+        // Popola UI dopo che syncCodice è caricato dal profilo
+        setTimeout(function() {
+            var urlEl    = document.getElementById('monitor-url');
+            var codiceEl = document.getElementById('codice-display');
+            if (urlEl)    urlEl.textContent    = 'https://agon-93.github.io/geco/join.html';
+            if (codiceEl) codiceEl.textContent = syncCodice();
+            if (localStorage.getItem('coGestioneCodice')) {
+                var wrap = document.getElementById('exit-cogest-wrap');
+                if (wrap) wrap.style.display = 'block';
+            }
+        }, 600);
+    });
 </script>
+<script src="auth.js"></script>
 <script src="supabase-sync.js"></script>
 <script src="transitions.js"></script>
 </body>

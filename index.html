@@ -10,6 +10,7 @@
     <meta name="apple-mobile-web-app-title" content="Geco">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
+    <script src="auth.js"></script>
     <script src="supabase-sync.js"></script>
     <script>(function(){try{var c=localStorage.getItem('activeColor');if(!c){var gs=JSON.parse(localStorage.getItem('geckos')||'[]'),id=localStorage.getItem('activeGeckoId')||'',gk=gs.find(function(g){return g.id===id;})||gs[0]||null;c=gk&&gk.colore?gk.colore:null;}if(c)document.documentElement.style.setProperty('--accent',c);}catch(e){}})();
 (function(){try{var wp=localStorage.getItem('homeWallpaper');var ov=20;if(!wp)return;var img=new Image();img.onload=function(){
@@ -733,12 +734,6 @@
     }
 
 
-    renderContent();
-
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js').catch(function(){});
-    }
-
     // ── MONITOR MODE LOAD ──
     function loadMonitorData(codice) {
         supaLeggi(codice, function(data, pasti) {
@@ -800,31 +795,37 @@
         });
     }
 
-    if (_monitorMode) {
-        loadMonitorData(_monitorCodice);
-    } else {
-        supaSync();
-        // Polling per aggiornamenti fatti dall'amico in co-gestione
-        setInterval(function() {
-            supaLeggi(syncCodice(), function(data, pasti) {
-                if (!pasti || pasti.length === 0) return;
-                var ids = getGeckos().map(function(gk){ return gk.id; });
-                var changed = false;
-                pasti.forEach(function(p) {
-                    var belongs = ids.some(function(id){ return p.chiave.indexOf(id) === 0; });
-                    if (!belongs) return;
-                    var key = 'feed_' + p.chiave;
-                    var current = localStorage.getItem(key) === 'true';
-                    if (p.fatto !== current) {
-                        if (p.fatto) localStorage.setItem(key, 'true');
-                        else localStorage.removeItem(key);
-                        changed = true;
-                    }
+    authGuard(function() {
+        renderContent();
+        authRenderWidget();
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').catch(function(){});
+        }
+        if (_monitorMode) {
+            loadMonitorData(_monitorCodice);
+        } else {
+            supaSync();
+            setInterval(function() {
+                supaLeggi(syncCodice(), function(data, pasti) {
+                    if (!pasti || pasti.length === 0) return;
+                    var ids = getGeckos().map(function(gk){ return gk.id; });
+                    var changed = false;
+                    pasti.forEach(function(p) {
+                        var belongs = ids.some(function(id){ return p.chiave.indexOf(id) === 0; });
+                        if (!belongs) return;
+                        var key = 'feed_' + p.chiave;
+                        var current = localStorage.getItem(key) === 'true';
+                        if (p.fatto !== current) {
+                            if (p.fatto) localStorage.setItem(key, 'true');
+                            else localStorage.removeItem(key);
+                            changed = true;
+                        }
+                    });
+                    if (changed) renderContent();
                 });
-                if (changed) renderContent();
-            });
-        }, 10000);
-    }
+            }, 10000);
+        }
+    });
 </script>
 <script src="transitions.js"></script>
 </body>

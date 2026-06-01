@@ -437,14 +437,17 @@
         }, 100);
     }
 
-    caricaMeteo();
-    buildGrid();
-    aggiornaProgress();
-
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js').catch(function(){});
-    }
+    authGuard(function() {
+        authRenderWidget();
+        caricaMeteo();
+        buildGrid();
+        aggiornaProgress();
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').catch(function(){});
+        }
+    });
 </script>
+<script src="auth.js"></script>
 <script src="supabase-sync.js"></script>
 <script>
     (function() {

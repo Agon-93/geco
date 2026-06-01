@@ -296,10 +296,14 @@ Es: 25/05 — Ha rifiutato i grilli, provo le tarme"></textarea>
         }, 2000);
     });
 
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js').catch(function(){});
-    }
+    authGuard(function() {
+        authRenderWidget();
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').catch(function(){});
+        }
+    });
 </script>
+<script src="auth.js"></script>
 <script src="supabase-sync.js"></script>
 <script src="transitions.js"></script>
 </body>

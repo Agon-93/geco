@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Accedi — Geco Leopardino</title>
+    <meta name="theme-color" content="#111">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        body {
+            font-family:-apple-system,'Segoe UI',sans-serif;
+            background:#111; color:#f0f0f0; min-height:100vh;
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            padding:24px 20px calc(24px + env(safe-area-inset-bottom));
+        }
+        .card {
+            width:100%; max-width:400px;
+            background:#1a1a1a; border:1px solid #2a2a2a;
+            border-radius:24px; padding:32px 28px;
+        }
+        .logo { text-align:center; margin-bottom:28px; }
+        .logo .emoji { font-size:56px; display:block; margin-bottom:12px; animation:bounce .6s cubic-bezier(.34,1.56,.64,1) both; }
+        .logo h1 { font-size:22px; font-weight:800; }
+        .logo p  { font-size:13px; color:#666; margin-top:4px; }
+        @keyframes bounce { from{transform:scale(.3);opacity:0} to{transform:scale(1);opacity:1} }
+
+        .form-group { margin-bottom:14px; }
+        label { display:block; font-size:12px; font-weight:700; color:#888; margin-bottom:6px; text-transform:uppercase; letter-spacing:.05em; }
+        .input-wrap { position:relative; }
+        input[type="email"], input[type="password"], input[type="text"] {
+            width:100%; background:#111; border:1px solid #2a2a2a; border-radius:12px;
+            color:#f0f0f0; padding:13px 16px; font-size:15px; outline:none;
+            transition:border-color .2s; -webkit-appearance:none;
+        }
+        input:focus { border-color:#ff9940; }
+        input::placeholder { color:#444; }
+        .toggle-pw {
+            position:absolute; right:14px; top:50%; transform:translateY(-50%);
+            background:none; border:none; color:#555; cursor:pointer; font-size:16px; padding:4px;
+        }
+
+        .btn-primary {
+            width:100%; background:#ff9940; color:#111; border:none;
+            border-radius:14px; padding:15px; font-size:16px; font-weight:800;
+            cursor:pointer; margin-top:8px; transition:opacity .15s;
+        }
+        .btn-primary:active { opacity:.8; }
+        .btn-primary:disabled { background:#2a2a2a; color:#555; cursor:default; }
+
+        .error-box {
+            background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.3);
+            border-radius:12px; padding:12px 14px; font-size:13px; color:#ef4444;
+            margin-bottom:14px; display:none;
+        }
+        .success-box {
+            background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.3);
+            border-radius:12px; padding:12px 14px; font-size:13px; color:#22c55e;
+            margin-bottom:14px; display:none;
+        }
+
+        .divider { text-align:center; color:#444; font-size:13px; margin:18px 0; }
+        .link-row { text-align:center; font-size:14px; color:#666; margin-top:16px; }
+        .link-row a { color:#ff9940; font-weight:700; text-decoration:none; }
+
+        .spinner {
+            display:inline-block; width:18px; height:18px;
+            border:2px solid rgba(0,0,0,.2); border-top-color:#111;
+            border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle;
+        }
+        @keyframes spin { to{transform:rotate(360deg)} }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="logo">
+        <span class="emoji">🦎</span>
+        <h1>Geco Leopardino</h1>
+        <p>Accedi al tuo account</p>
+    </div>
+
+    <div class="error-box"   id="error-box"></div>
+    <div class="success-box" id="success-box"></div>
+
+    <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="tuaemail@esempio.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+            <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+            <button class="toggle-pw" type="button" onclick="togglePw()" id="pw-eye">👁</button>
+        </div>
+    </div>
+
+    <button class="btn-primary" id="btn-login" onclick="doLogin()">Accedi</button>
+
+    <div class="divider">oppure</div>
+
+    <div class="link-row">
+        Non hai un account? <a href="register.html">Registrati</a>
+    </div>
+    <div class="link-row" style="margin-top:10px;">
+        Sei un amico? <a href="join.html">Entra con codice</a>
+    </div>
+</div>
+
+<script src="auth.js"></script>
+<script>
+    function showError(msg) {
+        var e = document.getElementById('error-box');
+        e.textContent = msg; e.style.display = 'block';
+        document.getElementById('success-box').style.display = 'none';
+    }
+    function showSuccess(msg) {
+        var s = document.getElementById('success-box');
+        s.textContent = msg; s.style.display = 'block';
+        document.getElementById('error-box').style.display = 'none';
+    }
+    function setLoading(on) {
+        var btn = document.getElementById('btn-login');
+        btn.disabled = on;
+        btn.innerHTML = on ? '<span class="spinner"></span>' : 'Accedi';
+    }
+    function togglePw() {
+        var inp = document.getElementById('password');
+        inp.type = inp.type === 'password' ? 'text' : 'password';
+    }
+
+    function doLogin() {
+        var email = document.getElementById('email').value.trim();
+        var pw    = document.getElementById('password').value;
+        if (!email || !pw) { showError('Inserisci email e password'); return; }
+        setLoading(true);
+        authSignIn(email, pw, function(data, err) {
+            setLoading(false);
+            if (err) { showError(err); return; }
+            window.location.href = 'index.html';
+        });
+    }
+
+    // Invio con Enter
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') doLogin();
+    });
+
+    // Gestisci redirect da email di verifica
+    authHandleRedirect(function(ok) {
+        if (ok) {
+            showSuccess('✅ Email verificata! Accesso in corso...');
+            setTimeout(function() { window.location.href = 'index.html'; }, 1200);
+        }
+    });
+
+    // Se già loggato vai direttamente
+    if (authIsLoggedIn()) {
+        window.location.href = 'index.html';
+    }
+</script>
+</body>
+</html>

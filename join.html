@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Co-gestione — Geco Leopardino</title>
+    <meta name="theme-color" content="#111">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        body {
+            font-family:-apple-system,'Segoe UI',sans-serif;
+            background:#111; color:#f0f0f0; min-height:100vh;
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            padding:24px 20px calc(24px + env(safe-area-inset-bottom));
+        }
+        .card {
+            width:100%; max-width:400px;
+            background:#1a1a1a; border:1px solid #2a2a2a;
+            border-radius:24px; padding:32px 28px;
+        }
+        .logo { text-align:center; margin-bottom:28px; }
+        .logo .emoji { font-size:52px; display:block; margin-bottom:12px; }
+        .logo h1 { font-size:20px; font-weight:800; }
+        .logo p  { font-size:13px; color:#666; margin-top:6px; line-height:1.5; }
+
+        .form-group { margin-bottom:16px; }
+        label { display:block; font-size:12px; font-weight:700; color:#888; margin-bottom:6px; text-transform:uppercase; letter-spacing:.05em; }
+        input[type="text"] {
+            width:100%; background:#111; border:1px solid #2a2a2a; border-radius:12px;
+            color:#ff9940; padding:14px 16px; font-size:16px; font-weight:700;
+            font-family:monospace; outline:none; transition:border-color .2s;
+            -webkit-appearance:none; letter-spacing:.05em;
+        }
+        input:focus { border-color:#ff9940; }
+        input::placeholder { color:#333; font-weight:400; letter-spacing:0; }
+
+        .btn-primary {
+            width:100%; background:#ff9940; color:#111; border:none;
+            border-radius:14px; padding:15px; font-size:16px; font-weight:800;
+            cursor:pointer; transition:opacity .15s;
+        }
+        .btn-primary:active { opacity:.8; }
+        .btn-primary:disabled { background:#2a2a2a; color:#555; cursor:default; }
+
+        .error-box {
+            background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.3);
+            border-radius:12px; padding:12px 14px; font-size:13px; color:#ef4444;
+            margin-bottom:14px; display:none;
+        }
+
+        .divider { text-align:center; color:#444; font-size:13px; margin:20px 0; }
+        .link-row { text-align:center; font-size:14px; color:#666; }
+        .link-row a { color:#ff9940; font-weight:700; text-decoration:none; }
+
+        .info-box {
+            background:#161616; border:1px solid #2a2a2a; border-radius:12px;
+            padding:14px 16px; font-size:13px; color:#666; line-height:1.6;
+            margin-bottom:20px;
+        }
+        .info-box strong { color:#aaa; }
+
+        .spinner {
+            display:inline-block; width:18px; height:18px;
+            border:2px solid rgba(0,0,0,.2); border-top-color:#111;
+            border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle;
+        }
+        @keyframes spin { to{transform:rotate(360deg)} }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="logo">
+        <span class="emoji">🤝</span>
+        <h1>Entra in Co-gestione</h1>
+        <p>Inserisci il codice che ti ha condiviso il proprietario dei gechi</p>
+    </div>
+
+    <div class="info-box">
+        <strong>Come funziona:</strong> il tuo amico trova il codice in <em>Impostazioni → Co-gestione</em> e te lo condivide. Inseriscilo qui sotto per accedere ai suoi gechi.
+    </div>
+
+    <div class="error-box" id="error-box"></div>
+
+    <div class="form-group">
+        <label>Codice co-gestione</label>
+        <input type="text" id="codice" placeholder="gxxxxxxxx" autocomplete="off" autocorrect="off" spellcheck="false">
+    </div>
+
+    <button class="btn-primary" id="btn-join" onclick="doJoin()">Accedi ai gechi</button>
+
+    <div class="divider">oppure</div>
+    <div class="link-row"><a href="login.html">Hai un account? Accedi</a></div>
+    <div class="link-row" style="margin-top:10px;"><a href="register.html">Crea un account</a></div>
+</div>
+
+<script src="supabase-sync.js"></script>
+<script>
+    function showError(msg) {
+        var e = document.getElementById('error-box');
+        e.textContent = msg; e.style.display = 'block';
+    }
+    function setLoading(on) {
+        var btn = document.getElementById('btn-join');
+        btn.disabled = on;
+        btn.innerHTML = on ? '<span class="spinner"></span>' : 'Accedi ai gechi';
+    }
+
+    function doJoin() {
+        var codice = document.getElementById('codice').value.trim();
+        if (!codice) { showError('Inserisci il codice'); return; }
+        setLoading(true);
+        // Verifica che il codice esiste su Supabase
+        supaLeggi(codice, function(data, pasti) {
+            setLoading(false);
+            if (!data) {
+                showError('Codice non trovato. Controlla che sia corretto.');
+                return;
+            }
+            // Salva il codice e vai in monitor mode
+            localStorage.setItem('coGestioneCodice', codice);
+            window.location.href = 'index.html';
+        });
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') doJoin();
+    });
+</script>
+</body>
+</html>

@@ -351,13 +351,16 @@
     if(id) g = getGeckos().find(function(x){ return x.id===id; });
     if(!g && d){ try{ g=JSON.parse(decodeURIComponent(escape(atob(d)))); }catch(e){} }
 
-    if(g){ _gecko=g; render(g, id||null); }
-    else renderNotFound();
-
-    if('serviceWorker' in navigator){
-        navigator.serviceWorker.register('./sw.js').catch(function(){});
-    }
+    authGuard(function() {
+        authRenderWidget();
+        if(g){ _gecko=g; render(g, id||null); }
+        else renderNotFound();
+        if('serviceWorker' in navigator){
+            navigator.serviceWorker.register('./sw.js').catch(function(){});
+        }
+    });
 </script>
+<script src="auth.js"></script>
 <script src="transitions.js"></script>
 </body>
 </html>

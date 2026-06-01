@@ -351,12 +351,15 @@
         renderList();
     }
 
-    renderList();
-
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js').catch(function(){});
-    }
+    authGuard(function() {
+        authRenderWidget();
+        renderList();
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').catch(function(){});
+        }
+    });
 </script>
+<script src="auth.js"></script>
 <script src="transitions.js"></script>
 </body>
 </html>
