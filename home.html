@@ -39,6 +39,12 @@
             padding:8px 18px; font-size:13px; font-weight:800;
             cursor:pointer; text-decoration:none;
         }
+        .nav-btn-ghost {
+            background:none; color:#aaa; border:1px solid #2a2a2a;
+            border-radius:10px; padding:8px 18px; font-size:13px; font-weight:700;
+            cursor:pointer; text-decoration:none;
+        }
+        .nav-actions { display:flex; gap:8px; align-items:center; }
 
         /* ══ HERO ══ */
         .hero {
@@ -277,7 +283,10 @@
         <div class="nav-logo-icon">🦎</div>
         <span class="nav-logo-name">Geco Leopardino</span>
     </a>
-    <a class="nav-btn" href="installa.html">Installa</a>
+    <div class="nav-actions">
+        <a class="nav-btn-ghost" href="login.html">Accedi</a>
+        <a class="nav-btn" href="register.html">Registrati</a>
+    </div>
 </nav>
 
 <!-- HERO -->
@@ -286,7 +295,7 @@
     <div class="hero-orb2"></div>
     <div class="hero-orb3"></div>
 
-    <div class="hero-tag">App gratuita · Nessun account</div>
+    <div class="hero-tag">App gratuita · iOS & Android</div>
     <div class="hero-icon">🦎</div>
 
     <h1 class="hero-title">
@@ -300,18 +309,18 @@
     </p>
 
     <div class="hero-actions">
-        <a href="installa.html" class="btn-hero-primary">📲 Installa gratis</a>
-        <a href="#features"     class="btn-hero-secondary">Scopri →</a>
+        <a href="register.html" class="btn-hero-primary">🦎 Crea account gratis</a>
+        <a href="login.html"    class="btn-hero-secondary">Accedi →</a>
     </div>
 
     <div class="hero-proof">
         <div class="proof-item">✓ Gratis</div>
         <div class="proof-dot"></div>
-        <div class="proof-item">✓ Nessun account</div>
+        <div class="proof-item">✓ Email verificata</div>
         <div class="proof-dot"></div>
         <div class="proof-item">✓ Funziona offline</div>
         <div class="proof-dot"></div>
-        <div class="proof-item">✓ iOS & Android</div>
+        <div class="proof-item">✓ Co-gestione con amici</div>
     </div>
 </section>
 
@@ -458,7 +467,7 @@
 </section>
 
 <footer>
-    <p>🦎 Geco Leopardino · Gratuita · Nessun account · <a href="index.html">Apri l'app</a></p>
+    <p>🦎 Geco Leopardino · Gratuita · <a href="login.html">Accedi</a> · <a href="register.html">Registrati</a></p>
 </footer>
 
 <script>
