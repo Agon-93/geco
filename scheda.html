@@ -4,277 +4,350 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Scheda Geco</title>
-    <meta name="theme-color" content="#1a7a65">
+    <meta name="theme-color" content="#111">
     <link rel="manifest" href="manifest.json">
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
         body {
-            font-family: Arial, 'Helvetica Neue', sans-serif;
-            background: #f0f0f0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 24px 16px;
-            gap: 14px;
+            font-family:-apple-system,'Segoe UI',sans-serif;
+            background:#111; color:#f0f0f0; min-height:100vh;
+            padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+            display:flex; flex-direction:column; align-items:center; gap:12px;
         }
 
         .card {
-            background: #e5f3ee;
-            border: 2px solid #2a9070;
-            border-radius: 16px;
-            overflow: hidden;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 4px 20px rgba(0,0,0,.12);
+            width:100%; max-width:420px;
+            background:#1a1a1a; border-radius:24px;
+            overflow:hidden; border:1px solid #2a2a2a;
         }
 
-        .card-header {
-            background: #1a7a65;
-            color: #fff;
-            text-align: center;
-            padding: 16px 20px;
-            font-size: 17px;
-            font-weight: 800;
-            letter-spacing: .08em;
-            text-transform: uppercase;
+        /* ── HERO ── */
+        .hero {
+            padding:28px 24px 22px;
+            display:flex; flex-direction:column; align-items:center; gap:14px;
+            position:relative;
         }
-
-        .card-body {
-            padding: 20px 24px 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
+        .hero-bg {
+            position:absolute; inset:0;
+            opacity:.08; pointer-events:none;
         }
-
-        .field { display: flex; flex-direction: column; gap: 4px; }
-
-        .field-label {
-            font-size: 11px;
-            font-weight: 700;
-            color: #1a7a65;
-            letter-spacing: .06em;
-            text-transform: uppercase;
+        .hero-foto {
+            width:96px; height:96px; border-radius:50%;
+            object-fit:cover; flex-shrink:0;
+            border:3px solid var(--accent,#ff9940);
+            box-shadow:0 0 0 4px rgba(255,153,64,.15);
+            position:relative; z-index:1;
+            background:#2a2a2a; display:flex; align-items:center; justify-content:center;
+            font-size:44px; overflow:hidden;
         }
-
-        .field-value {
-            font-size: 15px;
-            font-weight: 600;
-            color: #111;
-            border-bottom: 1.5px solid #2a9070;
-            padding-bottom: 6px;
-            min-height: 26px;
-            word-break: break-word;
-            line-height: 1.4;
+        .hero-foto img { width:100%; height:100%; object-fit:cover; }
+        .hero-name {
+            font-size:26px; font-weight:800; text-align:center;
+            color:#fff; position:relative; z-index:1;
         }
+        .hero-chips {
+            display:flex; gap:6px; flex-wrap:wrap; justify-content:center;
+            position:relative; z-index:1;
+        }
+        .chip {
+            font-size:11px; font-weight:700; padding:4px 10px;
+            border-radius:20px; border:1px solid rgba(255,255,255,.12);
+            background:rgba(255,255,255,.06); color:#ccc;
+        }
+        .chip-accent {
+            background:rgba(255,153,64,.12);
+            border-color:rgba(255,153,64,.3);
+            color:var(--accent,#ff9940);
+        }
+        .chip-m { background:rgba(59,130,246,.1); border-color:rgba(59,130,246,.3); color:#60a5fa; }
+        .chip-f { background:rgba(236,72,153,.1); border-color:rgba(236,72,153,.3); color:#f472b6; }
 
-        .field-value.vuoto { color: #bbb; font-weight: 400; font-style: italic; }
+        /* ── DIVIDER ── */
+        .divider { height:1px; background:#222; margin:0; }
 
-        .card-spacer { height: 12px; }
+        /* ── SECTION ── */
+        .section { padding:16px 22px; }
+        .section-label {
+            font-size:10px; font-weight:800; color:#555;
+            text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px;
+        }
+        .section-value { font-size:15px; font-weight:600; color:#e8e8e8; line-height:1.5; }
+        .section-value.muted { color:#666; font-style:italic; font-weight:400; }
 
+        /* ── STATS ── */
+        .stats-row { display:flex; gap:10px; }
+        .stat-box {
+            flex:1; background:#161616; border:1px solid #222;
+            border-radius:14px; padding:12px 14px; text-align:center;
+        }
+        .stat-num  { font-size:22px; font-weight:800; color:var(--accent,#ff9940); }
+        .stat-label{ font-size:10px; color:#555; font-weight:600; text-transform:uppercase; margin-top:3px; }
+
+        .prog-wrap { margin-top:12px; }
+        .prog-bar  {
+            height:6px; background:#222; border-radius:3px; overflow:hidden; margin-top:6px;
+        }
+        .prog-fill {
+            height:100%; border-radius:3px;
+            background:var(--accent,#ff9940); transition:width .8s ease;
+        }
+        .prog-info { display:flex; justify-content:space-between; font-size:11px; color:#555; margin-top:5px; }
+
+        /* ── FOOTER ── */
         .card-footer {
-            padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
-            display: flex;
-            gap: 10px;
-            border-top: 1.5px solid #c5ddd7;
+            padding:14px 20px calc(14px + env(safe-area-inset-bottom));
+            display:flex; gap:8px; border-top:1px solid #222;
         }
-
         .btn {
-            flex: 1; padding: 13px; border-radius: 12px;
-            font-size: 14px; font-weight: 700; cursor: pointer;
-            border: none; text-align: center; text-decoration: none;
-            display: block; transition: opacity .15s;
+            flex:1; padding:13px; border-radius:14px;
+            font-size:14px; font-weight:700; cursor:pointer;
+            border:none; transition:opacity .15s;
         }
-        .btn:active { opacity: .75; }
-        .btn-pdf  { background: #1a7a65; color: #fff; }
-        .btn-img  { background: #c8e8df; color: #1a7a65; }
+        .btn:active { opacity:.75; }
+        .btn-primary { background:var(--accent,#ff9940); color:#1a1a1a; }
+        .btn-secondary { background:#2a2a2a; color:#f0f0f0; border:1px solid #333; }
+        .btn-share { background:rgba(37,211,102,.15); color:#25d366; border:1px solid rgba(37,211,102,.3); }
 
-        /* NOT FOUND */
-        .not-found { text-align:center; padding:40px 24px; }
-        .not-found .icon { font-size:56px; margin-bottom:14px; display:block; }
-        .not-found h2 { font-size:19px; font-weight:700; color:#111; margin-bottom:8px; }
-        .not-found p  { font-size:13px; color:#888; margin-bottom:20px; }
-        .not-found a  { color:#1a7a65; font-weight:700; text-decoration:none; }
+        /* ── APP BADGE ── */
+        .app-badge {
+            width:100%; max-width:420px;
+            display:flex; align-items:center; justify-content:center; gap:8px;
+            padding:10px; font-size:12px; color:#444;
+        }
+
+        /* ── NOT FOUND ── */
+        .not-found {
+            text-align:center; padding:60px 30px;
+            display:flex; flex-direction:column; align-items:center; gap:12px;
+        }
+        .not-found .nf-icon { font-size:56px; opacity:.4; }
+        .not-found h2 { font-size:19px; font-weight:700; }
+        .not-found p  { font-size:14px; color:#666; }
+        .not-found a  {
+            background:var(--accent,#ff9940); color:#111;
+            border-radius:12px; padding:13px 28px;
+            font-size:15px; font-weight:700; text-decoration:none;
+        }
 
         /* STAMPA */
         @media print {
-            @page { margin: 12mm; size: A4; }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            body { background:#fff !important; padding:0 !important; display:block !important; }
-            .card { box-shadow:none !important; max-width:100% !important; width:100% !important; border-radius:10px !important; }
-            .card-header { font-size:19px !important; padding:18px !important; }
-            .card-body { padding:24px 28px 12px !important; gap:18px !important; }
-            .field-label { font-size:12px !important; }
-            .field-value  { font-size:16px !important; padding-bottom:8px !important; }
-            .card-footer  { display:none !important; }
+            @page { margin:12mm; size:A4; }
+            * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+            body { background:#111 !important; padding:0 !important; }
+            .card-footer, .app-badge { display:none !important; }
         }
     </style>
 </head>
 <body>
 
 <div class="card" id="card">
-    <div class="card-header">SCHEDA IDENTIFICAZIONE</div>
-    <div id="card-body" class="card-body">
-        <div style="text-align:center;padding:20px 0;color:#888;">Caricamento...</div>
+    <div id="card-inner">
+        <div style="text-align:center;padding:40px 20px;color:#555;">Caricamento...</div>
     </div>
 </div>
 
+<div class="app-badge">🦎 Geco Leopardino App</div>
+
 <script>
-    var MESI = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
-                'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+    var MESI_L = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+    var MESI_S = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+    var CYCLE  = ['INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO PURO','DIGIUNO','INSETTI + CALCIO + D3','DIGIUNO'];
+    var REF    = new Date(2026,4,30);
 
-    function getGeckos() { try { return JSON.parse(localStorage.getItem('geckos')||'[]'); } catch(e){ return []; } }
+    function getAlim(y,m,d){ var diff=Math.round((new Date(y,m,d)-REF)/86400000); return CYCLE[((diff%8)+8)%8]; }
+    function getDays(m,y){ return new Date(y,m+1,0).getDate(); }
 
-    function formatData(nascita) {
-        if (!nascita) return null;
-        var p = nascita.split('-');
-        if (p.length < 3) return null;
-        return parseInt(p[2]) + ' ' + MESI[parseInt(p[1])-1] + ' ' + p[0];
+    function getGeckos(){ try{ return JSON.parse(localStorage.getItem('geckos')||'[]'); }catch(e){ return []; } }
+
+    function formatData(n){
+        if(!n) return null;
+        var p=n.split('-'); if(p.length<3) return null;
+        return parseInt(p[2])+' '+MESI_L[parseInt(p[1])-1]+' '+p[0];
     }
 
-    function calcEta(nascita) {
-        if (!nascita) return null;
-        var p = nascita.split('-');
-        var dn = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
-        var mesi = Math.floor((new Date() - dn) / (86400000 * 30.5));
-        if (mesi < 1)  return '< 1 mese';
-        if (mesi < 24) return mesi + ' mes' + (mesi===1?'e':'i');
-        var anni = Math.floor(mesi/12), mr = mesi%12;
-        return anni + ' ann' + (anni===1?'o':'i') + (mr>0?' e '+mr+' mesi':'');
+    function calcEta(n){
+        if(!n) return null;
+        var p=n.split('-');
+        var dn=new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));
+        var mesi=Math.floor((new Date()-dn)/(86400000*30.5));
+        if(mesi<1) return '< 1 mese';
+        if(mesi<24) return mesi+' mes'+(mesi===1?'e':'i');
+        var anni=Math.floor(mesi/12), mr=mesi%12;
+        return anni+' ann'+(anni===1?'o':'i')+(mr>0?' e '+mr+' mesi':'');
     }
 
-    function field(label, value) {
-        var cls = value ? 'field-value' : 'field-value vuoto';
-        var val = value || '—';
-        return '<div class="field">' +
-            '<div class="field-label">' + label + '</div>' +
-            '<div class="' + cls + '">' + val + '</div>' +
-        '</div>';
+    function getFeedStats(geckoId){
+        var oggi = new Date();
+        var m = oggi.getMonth(), y = oggi.getFullYear();
+        var giorni = getDays(m,y);
+        var completati=0, totale=0;
+        for(var i=1;i<=giorni;i++){
+            if(getAlim(y,m,i)!=='DIGIUNO'){
+                totale++;
+                var key='feed_'+geckoId+'_'+MESI_S[m]+'_'+i;
+                if(localStorage.getItem(key)==='true') completati++;
+            }
+        }
+        return { completati:completati, totale:totale, mese:MESI_L[m] };
     }
 
-    var gecko = null;
+    function render(g, geckoId){
+        var acc     = g.colore || '#ff9940';
+        var sessoLabel = g.sesso==='M' ? '♂ Maschio' : g.sesso==='F' ? '♀ Femmina' : null;
+        var sessoClass = g.sesso==='M' ? 'chip chip-m' : g.sesso==='F' ? 'chip chip-f' : 'chip';
+        var eta     = calcEta(g.nascita);
+        var nascStr = formatData(g.nascita);
 
-    function render(g) {
-        gecko = g;
-        var sessoLabel = g.sesso === 'M' ? '♂ Maschio' : g.sesso === 'F' ? '♀ Femmina' : null;
-        var nascitaStr = formatData(g.nascita);
-        var eta        = calcEta(g.nascita);
-        var nascitaFull = nascitaStr ? nascitaStr + (eta ? ' (' + eta + ')' : '') : null;
+        document.documentElement.style.setProperty('--accent', acc);
+        document.getElementById('card').style.borderColor = acc + '33';
 
-        document.getElementById('card-body').innerHTML =
-            field('Nome', g.nome) +
-            field('Data di Nascita', nascitaFull) +
-            field('Sesso', sessoLabel) +
-            field('Morfologia', g.morfo) +
-            field('Note', g.noteRapide) +
-            '<div class="card-spacer"></div>';
+        var fotoHTML = g.foto
+            ? '<img src="' + g.foto + '" alt="">'
+            : '<span>' + (g.nome ? g.nome[0].toUpperCase() : '🦎') + '</span>';
 
-        document.getElementById('card').insertAdjacentHTML('beforeend',
-            '<div class="card-footer" id="card-footer">' +
-                '<button class="btn btn-pdf" id="btn-pdf" onclick="salvaPDF()">📄 Salva PDF</button>' +
-                '<button class="btn btn-img" id="btn-img" onclick="salvaImmagine()">📸 Salva Immagine</button>' +
-            '</div>'
-        );
+        var chipsHTML =
+            (sessoLabel ? '<span class="' + sessoClass + '">' + sessoLabel + '</span>' : '') +
+            (eta        ? '<span class="chip">🎂 ' + eta + '</span>' : '') +
+            (g.morfo    ? '<span class="chip chip-accent">🦎 ' + g.morfo + '</span>' : '');
+
+        // Stats (solo se apertura da app con geckoId)
+        var statsHTML = '';
+        if(geckoId){
+            var s   = getFeedStats(geckoId);
+            var pct = s.totale > 0 ? Math.round(s.completati/s.totale*100) : 0;
+            statsHTML =
+                '<div class="divider"></div>' +
+                '<div class="section">' +
+                    '<div class="section-label">Pasti — ' + s.mese + '</div>' +
+                    '<div class="stats-row">' +
+                        '<div class="stat-box"><div class="stat-num">' + s.completati + '</div><div class="stat-label">Completati</div></div>' +
+                        '<div class="stat-box"><div class="stat-num">' + s.totale + '</div><div class="stat-label">Previsti</div></div>' +
+                        '<div class="stat-box"><div class="stat-num">' + pct + '%</div><div class="stat-label">Completamento</div></div>' +
+                    '</div>' +
+                    '<div class="prog-wrap">' +
+                        '<div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>' +
+                        '<div class="prog-info"><span>' + s.completati + ' pasti fatti</span><span>' + (s.totale-s.completati) + ' rimasti</span></div>' +
+                    '</div>' +
+                '</div>';
+        }
+
+        var noteHTML = g.noteRapide
+            ? '<div class="divider"></div><div class="section"><div class="section-label">Note</div><div class="section-value">' + g.noteRapide + '</div></div>'
+            : '';
+
+        document.getElementById('card-inner').innerHTML =
+            '<div class="hero">' +
+                '<div class="hero-bg" style="background:radial-gradient(circle at 50% 0%,' + acc + ',transparent 70%)"></div>' +
+                '<div class="hero-foto">' + fotoHTML + '</div>' +
+                '<div class="hero-name">' + (g.nome||'Geco') + '</div>' +
+                '<div class="hero-chips">' + chipsHTML + '</div>' +
+            '</div>' +
+            (nascStr ? '<div class="divider"></div><div class="section"><div class="section-label">Data di nascita</div><div class="section-value">' + nascStr + '</div></div>' : '') +
+            statsHTML +
+            noteHTML +
+            '<div class="card-footer">' +
+                '<button class="btn btn-share" onclick="condividi()">📤 Condividi</button>' +
+                '<button class="btn btn-secondary" onclick="salvaPDF()">📄 PDF</button>' +
+                '<button class="btn btn-primary" onclick="salvaImmagine()">📸 Salva</button>' +
+            '</div>';
+
+        // Anima barra
+        setTimeout(function(){
+            var fill = document.getElementById('prog-fill');
+            if(fill){ var s2=getFeedStats(geckoId); var p2=s2.totale>0?Math.round(s2.completati/s2.totale*100):0; fill.style.width=p2+'%'; }
+        }, 80);
     }
 
-    function renderNotFound() {
-        document.getElementById('card-body').innerHTML =
+    function renderNotFound(){
+        document.getElementById('card-inner').innerHTML =
             '<div class="not-found">' +
-                '<span class="icon">🦎</span>' +
+                '<div class="nf-icon">🦎</div>' +
                 '<h2>Geco non trovato</h2>' +
-                '<p>Apri l\'app e accedi al profilo del geco</p>' +
+                '<p>Apri l\'app e accedi al profilo del tuo geco</p>' +
                 '<a href="profili.html">Apri l\'app →</a>' +
             '</div>';
     }
 
-    // ── CATTURA ──
-    function cattura(callback) {
-        var footer = document.getElementById('card-footer');
-        if (footer) footer.style.display = 'none';
-        function esegui() {
-            html2canvas(document.getElementById('card'), {
-                scale: 3, useCORS: true, allowTaint: true,
-                backgroundColor: '#e5f3ee', logging: false
-            }).then(function(canvas) {
-                if (footer) footer.style.display = '';
-                callback(canvas);
-            }).catch(function() {
-                if (footer) footer.style.display = '';
-                alert('Errore nella creazione del file');
-            });
+    // ── CONDIVIDI ──
+    function condividi(){
+        var url = window.location.href;
+        if(navigator.share){
+            navigator.share({ title:'Scheda '+(_gecko&&_gecko.nome||'Geco'), url:url }).catch(function(){});
+        } else {
+            navigator.clipboard.writeText(url).then(function(){ alert('Link copiato!'); }).catch(function(){ alert(url); });
         }
-        if (!window.html2canvas) {
-            var s = document.createElement('script');
-            s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-            s.onload = esegui;
-            s.onerror = function() { if (footer) footer.style.display=''; alert('Connessione necessaria la prima volta'); };
+    }
+
+    // ── CATTURA ──
+    var _gecko = null;
+    function cattura(callback){
+        var footer = document.querySelector('.card-footer');
+        if(footer) footer.style.display='none';
+        function esegui(){
+            html2canvas(document.getElementById('card'),{
+                scale:3, useCORS:true, allowTaint:true, backgroundColor:'#1a1a1a', logging:false
+            }).then(function(canvas){
+                if(footer) footer.style.display='';
+                callback(canvas);
+            }).catch(function(){ if(footer) footer.style.display=''; alert('Errore'); });
+        }
+        if(!window.html2canvas){
+            var s=document.createElement('script');
+            s.src='https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+            s.onload=esegui; s.onerror=function(){ if(footer) footer.style.display=''; alert('Connessione necessaria'); };
             document.head.appendChild(s);
         } else { esegui(); }
     }
 
-    // ── SALVA PDF ──
-    function salvaPDF() {
-        var btn = document.getElementById('btn-pdf');
-        btn.textContent = '⏳ Creazione...'; btn.disabled = true;
-        cattura(function(canvas) {
-            function faiPDF() {
-                var nome = (gecko && gecko.nome ? gecko.nome : 'geco').toLowerCase().replace(/\s+/g,'-');
-                var pdf  = new window.jspdf.jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
-                var pw   = pdf.internal.pageSize.getWidth();
-                var iw   = pw - 20;
-                var ih   = (canvas.height * iw) / canvas.width;
-                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 10, iw, ih);
-                pdf.save('scheda-' + nome + '.pdf');
-                btn.textContent = '📄 Salva PDF'; btn.disabled = false;
+    function salvaPDF(){
+        cattura(function(canvas){
+            function fai(){
+                var nome=(_gecko&&_gecko.nome?_gecko.nome:'geco').toLowerCase().replace(/\s+/g,'-');
+                var pdf=new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+                var pw=pdf.internal.pageSize.getWidth();
+                var iw=pw-20; var ih=(canvas.height*iw)/canvas.width;
+                pdf.addImage(canvas.toDataURL('image/png'),'PNG',10,10,iw,ih);
+                pdf.save('scheda-'+nome+'.pdf');
             }
-            if (!window.jspdf) {
-                var s = document.createElement('script');
-                s.src = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
-                s.onload = faiPDF;
-                document.head.appendChild(s);
-            } else { faiPDF(); }
+            if(!window.jspdf){
+                var s=document.createElement('script');
+                s.src='https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
+                s.onload=fai; document.head.appendChild(s);
+            } else { fai(); }
         });
     }
 
-    // ── SALVA IMMAGINE ──
-    function salvaImmagine() {
-        var btn = document.getElementById('btn-img');
-        btn.textContent = '⏳ Creazione...'; btn.disabled = true;
-        cattura(function(canvas) {
-            var nome = (gecko && gecko.nome ? gecko.nome : 'geco').toLowerCase().replace(/\s+/g,'-');
-            var filename = 'scheda-' + nome + '.png';
-            canvas.toBlob(function(blob) {
-                var file = new File([blob], filename, { type:'image/png' });
-                if (navigator.canShare && navigator.canShare({ files:[file] })) {
-                    navigator.share({ files:[file], title:'Scheda ' + (gecko&&gecko.nome||'Geco') })
-                        .catch(function(){ scaricaDiretto(canvas, filename); });
-                } else { scaricaDiretto(canvas, filename); }
-                btn.textContent = '📸 Salva Immagine'; btn.disabled = false;
+    function salvaImmagine(){
+        cattura(function(canvas){
+            var nome=(_gecko&&_gecko.nome?_gecko.nome:'geco').toLowerCase().replace(/\s+/g,'-');
+            var filename='scheda-'+nome+'.png';
+            canvas.toBlob(function(blob){
+                var file=new File([blob],filename,{type:'image/png'});
+                if(navigator.canShare&&navigator.canShare({files:[file]})){
+                    navigator.share({files:[file],title:'Scheda '+(_gecko&&_gecko.nome||'Geco')}).catch(function(){ scarica(canvas,filename); });
+                } else { scarica(canvas,filename); }
             });
         });
     }
 
-    function scaricaDiretto(canvas, filename) {
-        var a = document.createElement('a');
-        a.href = canvas.toDataURL('image/png');
-        a.download = filename; a.click();
+    function scarica(canvas,filename){
+        var a=document.createElement('a'); a.href=canvas.toDataURL('image/png'); a.download=filename; a.click();
     }
 
-    // ── CARICA DATI ──
+    // ── CARICA ──
     var params = new URLSearchParams(window.location.search);
     var id = params.get('id');
     var d  = params.get('d');
     var g  = null;
 
-    if (id) g = getGeckos().find(function(x){ return x.id === id; });
-    if (!g && d) { try { g = JSON.parse(decodeURIComponent(escape(atob(d)))); } catch(e){} }
+    if(id) g = getGeckos().find(function(x){ return x.id===id; });
+    if(!g && d){ try{ g=JSON.parse(decodeURIComponent(escape(atob(d)))); }catch(e){} }
 
-    if (g) render(g);
+    if(g){ _gecko=g; render(g, id||null); }
     else renderNotFound();
 
-    if ('serviceWorker' in navigator) {
+    if('serviceWorker' in navigator){
         navigator.serviceWorker.register('./sw.js').catch(function(){});
     }
 </script>
