@@ -409,9 +409,11 @@
         if (!gecko) return;
         var alim = getAlim(anno, mese, g);
         if (alim === 'DIGIUNO') return;
-        var key = feedKey(gecko.id, MESI[mese], g);
-        if (localStorage.getItem(key) === 'true') localStorage.removeItem(key);
-        else localStorage.setItem(key, 'true');
+        var key   = feedKey(gecko.id, MESI[mese], g);
+        var fatto = localStorage.getItem(key) !== 'true';
+        if (fatto) localStorage.setItem(key, 'true');
+        else localStorage.removeItem(key);
+        supaSyncPasto(gecko.id, MESI[mese], g, fatto);
         buildGrid();
         aggiornaProgress();
     }
@@ -443,6 +445,7 @@
         navigator.serviceWorker.register('./sw.js').catch(function(){});
     }
 </script>
+<script src="supabase-sync.js"></script>
 <script src="transitions.js"></script>
 </body>
 </html>
