@@ -135,7 +135,8 @@ function _authEnsureProfile(token, user, callback) {
     });
 }
 
-// ── HANDLE EMAIL VERIFICATION REDIRECT ──
+// ── HANDLE EMAIL VERIFICATION / RECOVERY REDIRECT ──
+// callback(type) dove type = 'signup' | 'recovery' | false
 function authHandleRedirect(callback) {
     var hash = window.location.hash;
     if (!hash || hash.indexOf('access_token') === -1) { callback(false); return; }
@@ -143,6 +144,7 @@ function authHandleRedirect(callback) {
     var accessToken  = params.get('access_token');
     var refreshToken = params.get('refresh_token');
     var expiresIn    = parseInt(params.get('expires_in') || '3600');
+    var type         = params.get('type') || 'signup';
     if (!accessToken) { callback(false); return; }
     fetch(SUPA_URL + '/auth/v1/user', {
         headers: { 'apikey': SUPA_ANON_KEY, 'Authorization': 'Bearer ' + accessToken }
@@ -153,9 +155,48 @@ function authHandleRedirect(callback) {
             access_token: accessToken, refresh_token: refreshToken,
             expires_at: Math.floor(Date.now()/1000) + expiresIn, user: user
         });
-        _authEnsureProfile(accessToken, user, function() { callback(true); });
+        if (type === 'recovery') {
+            callback('recovery');
+        } else {
+            _authEnsureProfile(accessToken, user, function() { callback('signup'); });
+        }
     })
     .catch(function() { callback(false); });
+}
+
+// ── RESET PASSWORD — manda email ──
+function authResetPassword(email, callback) {
+    fetch(SUPA_URL + '/auth/v1/recover', {
+        method: 'POST',
+        headers: { 'apikey': SUPA_ANON_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (d.error || d.error_code) {
+            callback(d.error_description || d.msg || 'Errore');
+        } else {
+            callback(null);
+        }
+    })
+    .catch(function() { callback('Errore di rete'); });
+}
+
+// ── AGGIORNA PASSWORD (dopo recovery) ──
+function authUpdatePassword(newPassword, callback) {
+    var token = authGetToken();
+    if (!token) { callback('Sessione scaduta, richiedi un nuovo link'); return; }
+    fetch(SUPA_URL + '/auth/v1/user', {
+        method: 'PUT',
+        headers: { 'apikey': SUPA_ANON_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: newPassword })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (d.error || d.error_code) { callback(d.error_description || d.msg || 'Errore'); return; }
+        callback(null);
+    })
+    .catch(function() { callback('Errore di rete'); });
 }
 
 // ── AUTH GUARD — skip se in monitor (co-gestione) ──
