@@ -68,10 +68,11 @@ function supaSyncPasto(geckoId, mese, giorno, fatto) {
 // Legge dati di un altro utente (monitor/co-gestione)
 function supaLeggi(codice, callback) {
     var h = { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' };
+    var t = '&_t=' + Date.now(); // cache buster
     Promise.all([
-        fetch(SUPA_URL + '/rest/v1/sync_data?codice=eq.' + encodeURIComponent(codice) + '&limit=1', { headers: h })
+        fetch(SUPA_URL + '/rest/v1/sync_data?codice=eq.' + encodeURIComponent(codice) + '&limit=1' + t, { headers: h, cache: 'no-store' })
             .then(function(r){ return r.json(); }),
-        fetch(SUPA_URL + '/rest/v1/sync_pasti?codice=eq.' + encodeURIComponent(codice), { headers: h })
+        fetch(SUPA_URL + '/rest/v1/sync_pasti?codice=eq.' + encodeURIComponent(codice) + t, { headers: h, cache: 'no-store' })
             .then(function(r){ return r.json(); })
     ]).then(function(results) {
         callback(results[0][0] || null, results[1] || []);

@@ -1,4 +1,4 @@
-const CACHE = 'geco-v60';
+const CACHE = 'geco-v61';
 const ASSETS = [
     './index.html', './calendario.html', './note.html',
     './notifiche.html', './profili.html', './riproduzione.html',
@@ -31,7 +31,13 @@ self.addEventListener('activate', function(e) {
 
 // Fetch — navigazione va SEMPRE alla rete, assets usano cache
 self.addEventListener('fetch', function(e) {
-    // Richieste di navigazione (click su link): rete diretta
+    var url = e.request.url;
+    // Supabase e Cloudinary: sempre dalla rete, mai dalla cache
+    if (url.indexOf('supabase.co') > -1 || url.indexOf('cloudinary.com') > -1) {
+        e.respondWith(fetch(e.request).catch(function() { return new Response('', { status: 503 }); }));
+        return;
+    }
+    // Richieste di navigazione: rete diretta
     if (e.request.mode === 'navigate') {
         e.respondWith(
             fetch(e.request).catch(function() {
