@@ -836,38 +836,40 @@
     }
 
     authGuard(function() {
-        document.getElementById('skeleton').style.display = 'none';
-        document.getElementById('main-page').style.display = 'flex';
-        renderContent();
-        authRenderWidget();
-        aggiornaAppBadge();
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js').catch(function(){});
-        }
-        if (_monitorMode) {
-            loadMonitorData(_monitorCodice);
-        } else {
-            supaSync();
-            setInterval(function() {
-                supaLeggi(syncCodice(), function(data, pasti) {
-                    if (!pasti || pasti.length === 0) return;
-                    var ids = getGeckos().map(function(gk){ return gk.id; });
-                    var changed = false;
-                    pasti.forEach(function(p) {
-                        var belongs = ids.some(function(id){ return p.chiave.indexOf(id) === 0; });
-                        if (!belongs) return;
-                        var key = 'feed_' + p.chiave;
-                        var current = localStorage.getItem(key) === 'true';
-                        if (p.fatto !== current) {
-                            if (p.fatto) localStorage.setItem(key, 'true');
-                            else localStorage.removeItem(key);
-                            changed = true;
-                        }
+        setTimeout(function() {
+            document.getElementById('skeleton').style.display = 'none';
+            document.getElementById('main-page').style.display = 'flex';
+            renderContent();
+            authRenderWidget();
+            aggiornaAppBadge();
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js').catch(function(){});
+            }
+            if (_monitorMode) {
+                loadMonitorData(_monitorCodice);
+            } else {
+                supaSync();
+                setInterval(function() {
+                    supaLeggi(syncCodice(), function(data, pasti) {
+                        if (!pasti || pasti.length === 0) return;
+                        var ids = getGeckos().map(function(gk){ return gk.id; });
+                        var changed = false;
+                        pasti.forEach(function(p) {
+                            var belongs = ids.some(function(id){ return p.chiave.indexOf(id) === 0; });
+                            if (!belongs) return;
+                            var key = 'feed_' + p.chiave;
+                            var current = localStorage.getItem(key) === 'true';
+                            if (p.fatto !== current) {
+                                if (p.fatto) localStorage.setItem(key, 'true');
+                                else localStorage.removeItem(key);
+                                changed = true;
+                            }
+                        });
+                        if (changed) renderContent();
                     });
-                    if (changed) renderContent();
-                });
-            }, 10000);
-        }
+                }, 10000);
+            }
+        }, 400);
     });
 </script>
 <script src="transitions.js"></script>
