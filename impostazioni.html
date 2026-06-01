@@ -312,7 +312,7 @@
             <div class="row-icon">🔑</div>
             <div class="row-body">
                 <div class="row-title">Il tuo codice personale</div>
-                <div class="row-sub">Salvalo — ti serve per ripristinare su un nuovo telefono</div>
+                <div class="row-sub">Per ripristino su nuovo telefono e co-gestione con amici</div>
             </div>
         </div>
         <div style="padding:0 18px 14px;display:flex;flex-direction:column;gap:8px;">
@@ -322,21 +322,24 @@
             </div>
         </div>
 
-        <!-- Link co-gestione -->
+        <!-- Co-gestione -->
         <div style="border-top:1px solid #1e1e1e;"></div>
         <div class="row">
             <div class="row-icon">🤝</div>
             <div class="row-body">
                 <div class="row-title">Co-gestione con un amico</div>
-                <div class="row-sub">L'amico può segnare i pasti in tempo reale</div>
+                <div class="row-sub">L'amico può vedere e segnare i pasti in tempo reale</div>
             </div>
         </div>
         <div style="padding:0 18px 14px;display:flex;flex-direction:column;gap:8px;">
-            <div style="background:#161616;border:1px solid #2a2a2a;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;">
-                <span style="font-size:12px;color:#555;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="monitor-url">Caricamento...</span>
-                <button onclick="copiaLinkMonitor()" style="background:var(--accent);color:#111;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;">📋 Copia</button>
+            <div style="background:#161616;border:1px solid rgba(255,153,64,.15);border-radius:12px;padding:14px 16px;">
+                <div style="font-size:12px;color:#888;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">Come funziona</div>
+                <div style="font-size:13px;color:#aaa;line-height:1.7;">
+                    1. Copia il <strong style="color:#ff9940;">codice personale</strong> qui sopra<br>
+                    2. Mandalo all'amico (WhatsApp, messaggio...)<br>
+                    3. L'amico apre <strong style="color:#f0f0f0;">agon-93.github.io/geco/join.html</strong> e inserisce il codice
+                </div>
             </div>
-            <div style="font-size:11px;color:#555;">L'amico apre il link una volta sola — poi l'app si ricorda automaticamente.</div>
             <div id="exit-cogest-wrap" style="display:none;">
                 <button onclick="esciCoGestione()" style="width:100%;background:#1e0808;border:1px solid rgba(239,68,68,.3);color:#ef4444;border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;">✕ Esci dalla co-gestione</button>
             </div>
