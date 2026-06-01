@@ -51,12 +51,12 @@ function supaSync() {
         })
     }).catch(function(){});
 
-    // Sync TUTTI i pasti dal localStorage
+    // Sync TUTTI i pasti dal localStorage (sia true che false per propagare annullamenti)
     var pasti = [];
     for (var i = 0; i < localStorage.length; i++) {
         var k = localStorage.key(i);
-        if (k && k.indexOf('feed_') === 0 && localStorage.getItem(k) === 'true') {
-            pasti.push({ codice: codice, chiave: k.substring(5), fatto: true });
+        if (k && k.indexOf('feed_') === 0) {
+            pasti.push({ codice: codice, chiave: k.substring(5), fatto: localStorage.getItem(k) === 'true' });
         }
     }
     if (pasti.length > 0) {
@@ -75,7 +75,7 @@ function supaSyncPasto(geckoId, mese, giorno, fatto) {
         chiave: geckoId + '_' + mese + '_' + giorno,
         fatto:  !!fatto
     });
-    fetch(SUPA_URL + '/rest/v1/sync_pasti', {
+    fetch(SUPA_URL + '/rest/v1/sync_pasti?on_conflict=codice,chiave', {
         method:  'POST',
         headers: supaHeaders(),
         body:    body
