@@ -29,14 +29,30 @@
         }
         .h-left { display:flex; align-items:center; gap:10px; }
         .h-dot  { width:12px; height:12px; border-radius:50%; background:var(--accent); flex-shrink:0; }
-        .h-info h1 { font-size:17px; font-weight:700; }
-        .h-info p  { font-size:11px; color:#888; margin-top:2px; }
+        .h-info h1 { font-size:18px; font-weight:800; }
+        .h-info p  { font-size:11px; color:#777; margin-top:2px; }
 
-        .btn-add-photo {
+        .h-actions { display:flex; gap:8px; }
+        .btn-add {
             background:var(--accent); color:#1a1a1a;
-            border:none; border-radius:50%; width:42px; height:42px;
-            font-size:22px; cursor:pointer; display:flex;
-            align-items:center; justify-content:center; flex-shrink:0;
+            border:none; border-radius:12px;
+            padding:8px 14px; font-size:13px; font-weight:700;
+            cursor:pointer; display:flex; align-items:center; gap:5px;
+        }
+
+        /* ── UPLOAD PROGRESS ── */
+        .upload-bar {
+            background:#1a1a1a; border-bottom:1px solid #2a2a2a;
+            padding:10px 16px; display:none; align-items:center; gap:12px;
+        }
+        .upload-bar.show { display:flex; }
+        .upload-bar-text { font-size:13px; color:#aaa; flex:1; }
+        .upload-bar-prog {
+            flex:1; height:4px; background:#2a2a2a; border-radius:2px; overflow:hidden;
+        }
+        .upload-bar-fill {
+            height:100%; background:var(--accent); border-radius:2px;
+            transition:width .3s; width:0%;
         }
 
         /* ── GRID ── */
@@ -44,19 +60,30 @@
             display:grid; grid-template-columns:repeat(3,1fr); gap:2px;
             padding:2px;
         }
-        .photo-thumb {
+        .media-thumb {
             aspect-ratio:1; overflow:hidden; cursor:pointer;
             background:#1a1a1a; position:relative;
         }
-        .photo-thumb img {
+        .media-thumb img {
             width:100%; height:100%; object-fit:cover;
             display:block; transition:opacity .15s;
         }
-        .photo-thumb:active img { opacity:.8; }
-        .photo-date {
+        .media-thumb:active img { opacity:.8; }
+        .media-date {
             position:absolute; bottom:0; left:0; right:0;
             padding:4px 6px; font-size:9px; color:#fff; font-weight:600;
-            background:linear-gradient(transparent, rgba(0,0,0,.6));
+            background:linear-gradient(transparent, rgba(0,0,0,.65));
+        }
+        .video-badge {
+            position:absolute; top:6px; right:6px;
+            background:rgba(0,0,0,.65); color:#fff;
+            border-radius:6px; padding:2px 6px;
+            font-size:10px; font-weight:700;
+        }
+        .play-icon {
+            position:absolute; inset:0;
+            display:flex; align-items:center; justify-content:center;
+            font-size:28px; opacity:.85;
         }
 
         /* ── EMPTY ── */
@@ -65,12 +92,18 @@
             justify-content:center; padding:60px 30px; text-align:center;
             min-height:60vh;
         }
-        .empty-icon { font-size:64px; margin-bottom:16px; opacity:.4; }
+        .empty-icon  { font-size:64px; margin-bottom:16px; opacity:.4; }
         .empty-title { font-size:18px; font-weight:700; margin-bottom:8px; }
-        .empty-sub   { font-size:14px; color:#666; margin-bottom:24px; }
-        .btn-first-photo {
+        .empty-sub   { font-size:14px; color:#666; margin-bottom:24px; line-height:1.5; }
+        .empty-btns  { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+        .btn-first {
             background:var(--accent); color:#1a1a1a;
-            border:none; border-radius:14px; padding:14px 28px;
+            border:none; border-radius:14px; padding:14px 22px;
+            font-size:15px; font-weight:700; cursor:pointer;
+        }
+        .btn-first-video {
+            background:#2a2a2a; color:#f0f0f0; border:1px solid #3a3a3a;
+            border-radius:14px; padding:14px 22px;
             font-size:15px; font-weight:700; cursor:pointer;
         }
 
@@ -83,7 +116,7 @@
         .viewer-top {
             display:flex; align-items:center; justify-content:space-between;
             padding:calc(16px + env(safe-area-inset-top)) 16px 12px;
-            background:rgba(0,0,0,.6); flex-shrink:0;
+            background:rgba(0,0,0,.7); flex-shrink:0;
         }
         .viewer-back {
             background:none; border:none; color:#fff;
@@ -93,28 +126,29 @@
         .viewer-date { font-size:13px; color:#aaa; }
         .viewer-del  {
             background:none; border:none; color:#ef4444;
-            font-size:15px; font-weight:600; cursor:pointer;
-            padding:6px 10px;
+            font-size:15px; font-weight:600; cursor:pointer; padding:6px 10px;
         }
-        .viewer-img-wrap {
+        .viewer-media-wrap {
             flex:1; display:flex; align-items:center; justify-content:center;
-            overflow:hidden; padding:16px;
+            overflow:hidden; padding:12px; background:#000;
         }
-        .viewer-img-wrap img {
-            max-width:100%; max-height:100%; object-fit:contain;
-            border-radius:8px;
+        .viewer-media-wrap img {
+            max-width:100%; max-height:100%; object-fit:contain; border-radius:6px;
+        }
+        .viewer-media-wrap video {
+            max-width:100%; max-height:100%; border-radius:6px;
+            background:#000;
         }
         .viewer-bottom {
             padding:12px 20px calc(16px + env(safe-area-inset-bottom));
             display:flex; flex-direction:column; align-items:center; gap:10px;
-            flex-shrink:0;
+            flex-shrink:0; background:rgba(0,0,0,.7);
         }
         .viewer-counter { font-size:13px; color:#666; }
         .btn-set-profilo {
             background:var(--accent); color:#1a1a1a;
             border:none; border-radius:12px; padding:13px 28px;
             font-size:14px; font-weight:700; cursor:pointer;
-            transition:opacity .15s;
         }
         .btn-set-profilo:active { opacity:.75; }
 
@@ -128,8 +162,8 @@
             white-space:nowrap; z-index:3000;
         }
         .toast.show { opacity:1; }
+        .toast.err  { background:#ef4444; }
 
-        /* ── BOTTOM NAV ── */
         .bottom-nav {
             position:fixed; bottom:0; left:0; right:0;
             background:#1a1a1a; border-top:1px solid #2a2a2a;
@@ -144,8 +178,7 @@
         .bn-icon  { font-size:20px; line-height:1; }
         .bn-label { font-size:10px; font-weight:600; }
 
-        /* hidden input */
-        #photo-input { display:none; }
+        #photo-input, #video-input { display:none; }
     </style>
 </head>
 <body>
@@ -155,13 +188,22 @@
         <div class="h-dot"></div>
         <div class="h-info">
             <h1 id="h-title">Galleria</h1>
-            <p  id="h-sub">0 foto</p>
+            <p id="h-sub">0 elementi</p>
         </div>
     </div>
-    <button class="btn-add-photo" onclick="document.getElementById('photo-input').click()">＋</button>
+    <div class="h-actions">
+        <button class="btn-add" onclick="document.getElementById('video-input').click()">🎥 Video</button>
+        <button class="btn-add" onclick="document.getElementById('photo-input').click()">📷 Foto</button>
+    </div>
 </header>
 
-<input type="file" id="photo-input" accept="image/*" multiple onchange="handlePhotos(this)">
+<div class="upload-bar" id="upload-bar">
+    <span class="upload-bar-text" id="upload-text">Caricamento...</span>
+    <div class="upload-bar-prog"><div class="upload-bar-fill" id="upload-fill"></div></div>
+</div>
+
+<input type="file" id="photo-input" accept="image/*" multiple onchange="handleFiles(this,'image')">
+<input type="file" id="video-input" accept="video/*" multiple onchange="handleFiles(this,'video')">
 
 <div id="main-content"></div>
 
@@ -170,13 +212,11 @@
     <div class="viewer-top">
         <button class="viewer-back" onclick="closeViewer()">← Indietro</button>
         <span class="viewer-date" id="viewer-date"></span>
-        <button class="viewer-del" onclick="deleteCurrentPhoto()">🗑️ Elimina</button>
+        <button class="viewer-del" onclick="deleteCurrentMedia()">🗑️ Elimina</button>
     </div>
-    <div class="viewer-img-wrap">
-        <img id="viewer-img" src="" alt="">
-    </div>
+    <div class="viewer-media-wrap" id="viewer-media-wrap"></div>
     <div class="viewer-bottom">
-        <button class="btn-set-profilo" onclick="setAsProfilo()">⭐ Imposta come foto profilo</button>
+        <button class="btn-set-profilo" id="btn-set-profilo" onclick="setAsProfilo()">⭐ Imposta come foto profilo</button>
         <div class="viewer-counter" id="viewer-counter"></div>
     </div>
 </div>
@@ -184,39 +224,53 @@
 <div class="toast" id="toast"></div>
 
 <nav class="bottom-nav">
-    <a href="index.html"      class="bn-item"><span class="bn-icon">🏠</span><span class="bn-label">Home</span></a>
-    <a href="calendario.html" class="bn-item"><span class="bn-icon">📅</span><span class="bn-label">Calendario</span></a>
-    <a href="profili.html"    class="bn-item active"><span class="bn-icon">🦎</span><span class="bn-label">Gechi</span></a>
-    <a href="note.html"       class="bn-item"><span class="bn-icon">📝</span><span class="bn-label">Note</span></a>
+    <a href="index.html"        class="bn-item"><span class="bn-icon">🏠</span><span class="bn-label">Home</span></a>
+    <a href="calendario.html"   class="bn-item"><span class="bn-icon">📅</span><span class="bn-label">Calendario</span></a>
+    <a href="profili.html"      class="bn-item active"><span class="bn-icon">🦎</span><span class="bn-label">Gechi</span></a>
+    <a href="note.html"         class="bn-item"><span class="bn-icon">📝</span><span class="bn-label">Note</span></a>
     <a href="impostazioni.html" class="bn-item"><span class="bn-icon">⚙️</span><span class="bn-label">Impostazioni</span></a>
 </nav>
 
 <script>
-    var MESI = ['Jan','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+    var CLOUD_NAME   = 'dueqeiexs';
+    var UPLOAD_PRESET = 'geco_app';
+    var MESI = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
 
-    var geckoId = new URLSearchParams(window.location.search).get('id') || '';
+    var geckoId    = new URLSearchParams(window.location.search).get('id') || '';
     var _viewerIdx = 0;
 
-    function getGeckos() { try { return JSON.parse(localStorage.getItem('geckos')||'[]'); } catch(e){ return []; } }
-    function getGecko()  { return getGeckos().find(function(g){ return g.id === geckoId; }) || null; }
-    function getPhotos() { try { return JSON.parse(localStorage.getItem('gallery_'+geckoId)||'[]'); } catch(e){ return []; } }
-    function savePhotos(arr) { localStorage.setItem('gallery_'+geckoId, JSON.stringify(arr)); }
+    function getGeckos()  { try { return JSON.parse(localStorage.getItem('geckos')||'[]'); } catch(e){ return []; } }
+    function getGecko()   { return getGeckos().find(function(g){ return g.id === geckoId; }) || null; }
+    function getMedia()   { try { return JSON.parse(localStorage.getItem('gallery_'+geckoId)||'[]'); } catch(e){ return []; } }
+    function saveMedia(a) { localStorage.setItem('gallery_'+geckoId, JSON.stringify(a)); }
 
-    function formatDate(iso) {
-        var d = new Date(iso);
-        return d.getDate() + ' ' + MESI[d.getMonth()] + ' ' + d.getFullYear();
+    function formatDate(iso)      { var d=new Date(iso); return d.getDate()+' '+MESI[d.getMonth()]+' '+d.getFullYear(); }
+    function formatDateShort(iso) { var d=new Date(iso); return d.getDate()+'/'+(d.getMonth()+1)+'/'+String(d.getFullYear()).slice(2); }
+
+    function showToast(msg, err) {
+        var t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = 'toast' + (err ? ' err' : '') + ' show';
+        setTimeout(function(){ t.className = 'toast' + (err ? ' err' : ''); }, 2800);
     }
 
-    function formatDateShort(iso) {
-        var d = new Date(iso);
-        return d.getDate() + '/' + (d.getMonth()+1) + '/' + String(d.getFullYear()).slice(2);
+    // ── THUMBNAIL URL ──
+    function getThumbUrl(item) {
+        if (item.data) return item.data; // vecchio formato base64
+        if (item.type === 'video') {
+            return item.url.replace('/video/upload/', '/video/upload/w_400,h_400,c_fill,so_0/').replace(/\.[^.]+$/, '.jpg');
+        }
+        return item.url.replace('/image/upload/', '/image/upload/w_400,h_400,c_fill/');
+    }
+
+    function getFullUrl(item) {
+        return item.data || item.url || '';
     }
 
     // ── INIT ──
     function init() {
         var gecko = getGecko();
-        var photos = getPhotos();
-
+        var media = getMedia();
         if (gecko) {
             document.getElementById('h-title').textContent = gecko.nome + ' — Galleria';
             if (gecko.colore) {
@@ -224,40 +278,56 @@
                 localStorage.setItem('activeColor', gecko.colore);
             }
         }
-        document.getElementById('h-sub').textContent = photos.length + ' foto';
-        renderGrid(photos);
+        updateSubtitle(media);
+        renderGrid(media);
     }
 
-    function renderGrid(photos) {
+    function updateSubtitle(media) {
+        var foto  = media.filter(function(m){ return m.type !== 'video'; }).length;
+        var video = media.filter(function(m){ return m.type === 'video'; }).length;
+        var parts = [];
+        if (foto)  parts.push(foto  + (foto===1  ? ' foto'  : ' foto'));
+        if (video) parts.push(video + (video===1 ? ' video' : ' video'));
+        document.getElementById('h-sub').textContent = parts.length ? parts.join(' · ') : '0 elementi';
+    }
+
+    // ── RENDER GRID ──
+    function renderGrid(media) {
         var content = document.getElementById('main-content');
-        if (photos.length === 0) {
+        if (media.length === 0) {
             content.innerHTML = '<div class="empty-wrap">' +
                 '<div class="empty-icon">📸</div>' +
-                '<div class="empty-title">Nessuna foto ancora</div>' +
-                '<div class="empty-sub">Scatta o carica foto del tuo geco<br>per creare il suo album personale</div>' +
-                '<button class="btn-first-photo" onclick="document.getElementById(\'photo-input\').click()">📷 Aggiungi prima foto</button>' +
+                '<div class="empty-title">Nessun contenuto ancora</div>' +
+                '<div class="empty-sub">Carica foto e video del tuo geco<br>— vengono salvati sul cloud, zero memoria sul telefono</div>' +
+                '<div class="empty-btns">' +
+                    '<button class="btn-first" onclick="document.getElementById(\'photo-input\').click()">📷 Aggiungi foto</button>' +
+                    '<button class="btn-first-video" onclick="document.getElementById(\'video-input\').click()">🎥 Aggiungi video</button>' +
+                '</div>' +
             '</div>';
             return;
         }
 
         // Raggruppa per mese
         var gruppi = {};
-        photos.forEach(function(p) {
-            var d = new Date(p.date);
+        media.forEach(function(m) {
+            var d   = new Date(m.date);
             var key = MESI[d.getMonth()] + ' ' + d.getFullYear();
             if (!gruppi[key]) gruppi[key] = [];
-            gruppi[key].push(p);
+            gruppi[key].push(m);
         });
 
         var html = '';
         Object.keys(gruppi).reverse().forEach(function(mese) {
             html += '<div style="padding:12px 12px 4px;font-size:12px;font-weight:700;color:#888;">' + mese + '</div>';
             html += '<div class="photo-grid">';
-            gruppi[mese].forEach(function(p, i) {
-                var idx = photos.indexOf(p);
-                html += '<div class="photo-thumb" onclick="openViewer(' + idx + ')">' +
-                    '<img src="' + p.data + '" alt="" loading="lazy">' +
-                    '<div class="photo-date">' + formatDateShort(p.date) + '</div>' +
+            gruppi[mese].forEach(function(item) {
+                var idx     = media.indexOf(item);
+                var isVideo = item.type === 'video';
+                var thumb   = getThumbUrl(item);
+                html += '<div class="media-thumb" onclick="openViewer(' + idx + ')">' +
+                    '<img src="' + thumb + '" alt="" loading="lazy">' +
+                    (isVideo ? '<div class="play-icon">▶️</div><div class="video-badge">VIDEO</div>' : '') +
+                    '<div class="media-date">' + formatDateShort(item.date) + '</div>' +
                 '</div>';
             });
             html += '</div>';
@@ -265,95 +335,147 @@
         content.innerHTML = html;
     }
 
-    // ── AGGIUNGI FOTO ──
-    function handlePhotos(input) {
+    // ── UPLOAD SU CLOUDINARY ──
+    function handleFiles(input, forceType) {
         if (!input.files || !input.files.length) return;
-        var files = Array.from(input.files);
-        var photos = getPhotos();
-        var processed = 0;
+        var files   = Array.from(input.files);
+        var bar     = document.getElementById('upload-bar');
+        var fill    = document.getElementById('upload-fill');
+        var text    = document.getElementById('upload-text');
+        var total   = files.length;
+        var done    = 0;
+        var failed  = 0;
+        var media   = getMedia();
 
-        files.forEach(function(file) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                var img = new Image();
-                img.onload = function() {
-                    var canvas = document.createElement('canvas');
-                    var max = 800;
-                    var w = img.width, h = img.height;
-                    if (w > h) { if (w > max) { h = h*max/w; w = max; } }
-                    else       { if (h > max) { w = w*max/h; h = max; } }
-                    canvas.width = Math.round(w); canvas.height = Math.round(h);
-                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                    var data = canvas.toDataURL('image/jpeg', 0.75);
-                    photos.push({ id:'p_'+Date.now()+'_'+Math.random(), data:data, date:new Date().toISOString() });
-                    processed++;
-                    if (processed === files.length) {
-                        savePhotos(photos);
-                        document.getElementById('h-sub').textContent = photos.length + ' foto';
-                        renderGrid(photos);
-                    }
-                };
-                img.src = e.target.result;
+        bar.classList.add('show');
+        fill.style.width = '0%';
+
+        function uploadOne(file) {
+            var resourceType = (forceType === 'video' || file.type.startsWith('video/')) ? 'video' : 'image';
+            text.textContent = 'Caricamento ' + (done+1) + ' di ' + total + '...';
+
+            var fd = new FormData();
+            fd.append('file', file);
+            fd.append('upload_preset', UPLOAD_PRESET);
+            fd.append('folder', 'geco/' + (geckoId || 'generale'));
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/' + resourceType + '/upload');
+
+            xhr.upload.onprogress = function(e) {
+                if (e.lengthComputable) {
+                    var pct = Math.round(((done + e.loaded/e.total) / total) * 100);
+                    fill.style.width = pct + '%';
+                }
             };
-            reader.readAsDataURL(file);
-        });
-        input.value = '';
+
+            xhr.onload = function() {
+                done++;
+                fill.style.width = Math.round(done/total*100) + '%';
+                if (xhr.status === 200) {
+                    var res = JSON.parse(xhr.responseText);
+                    media.push({
+                        id:       'c_' + res.public_id.replace(/\//g,'_'),
+                        url:      res.secure_url,
+                        publicId: res.public_id,
+                        type:     resourceType,
+                        date:     new Date().toISOString()
+                    });
+                } else {
+                    failed++;
+                }
+                if (done === total) {
+                    saveMedia(media);
+                    updateSubtitle(media);
+                    renderGrid(media);
+                    bar.classList.remove('show');
+                    input.value = '';
+                    if (failed > 0) showToast('⚠️ ' + failed + ' file non caricati', true);
+                    else showToast('✅ ' + (total - failed) + ' file caricati!');
+                } else {
+                    uploadOne(files[done]);
+                }
+            };
+
+            xhr.onerror = function() {
+                done++; failed++;
+                if (done === total) {
+                    saveMedia(media);
+                    updateSubtitle(media);
+                    renderGrid(media);
+                    bar.classList.remove('show');
+                    input.value = '';
+                    showToast('Errore di rete durante il caricamento', true);
+                } else {
+                    uploadOne(files[done]);
+                }
+            };
+
+            xhr.send(fd);
+        }
+
+        uploadOne(files[0]);
     }
 
     // ── VIEWER ──
     function openViewer(idx) {
         _viewerIdx = idx;
-        showViewerPhoto();
+        showViewerMedia();
         document.getElementById('viewer').classList.add('open');
     }
 
-    function showViewerPhoto() {
-        var photos = getPhotos();
-        if (!photos[_viewerIdx]) return;
-        document.getElementById('viewer-img').src = photos[_viewerIdx].data;
-        document.getElementById('viewer-date').textContent = formatDate(photos[_viewerIdx].date);
-        document.getElementById('viewer-counter').textContent = (_viewerIdx+1) + ' di ' + photos.length;
+    function showViewerMedia() {
+        var media = getMedia();
+        var item  = media[_viewerIdx];
+        if (!item) return;
+
+        var wrap = document.getElementById('viewer-media-wrap');
+        var isVideo = item.type === 'video';
+
+        if (isVideo) {
+            wrap.innerHTML = '<video src="' + getFullUrl(item) + '" controls playsinline autoplay style="max-width:100%;max-height:100%;border-radius:6px;"></video>';
+            document.getElementById('btn-set-profilo').style.display = 'none';
+        } else {
+            wrap.innerHTML = '<img src="' + getFullUrl(item) + '" alt="">';
+            document.getElementById('btn-set-profilo').style.display = '';
+        }
+
+        document.getElementById('viewer-date').textContent    = formatDate(item.date);
+        document.getElementById('viewer-counter').textContent = (_viewerIdx+1) + ' di ' + media.length;
     }
 
     function closeViewer() {
         document.getElementById('viewer').classList.remove('open');
-        document.getElementById('viewer-img').src = '';
+        document.getElementById('viewer-media-wrap').innerHTML = '';
     }
 
-    function showToast(msg) {
-        var t = document.getElementById('toast');
-        t.textContent = msg; t.classList.add('show');
-        setTimeout(function(){ t.classList.remove('show'); }, 2500);
+    function deleteCurrentMedia() {
+        if (!confirm('Rimuovere questo elemento dalla galleria?')) return;
+        var media = getMedia();
+        media.splice(_viewerIdx, 1);
+        saveMedia(media);
+        updateSubtitle(media);
+        if (media.length === 0) { closeViewer(); renderGrid(media); return; }
+        if (_viewerIdx >= media.length) _viewerIdx = media.length - 1;
+        showViewerMedia();
+        renderGrid(media);
     }
 
     function setAsProfilo() {
-        var photos = getPhotos();
-        if (!photos[_viewerIdx]) return;
+        var media = getMedia();
+        var item  = media[_viewerIdx];
+        if (!item || item.type === 'video') return;
         try {
             var geckos = JSON.parse(localStorage.getItem('geckos')||'[]');
             var idx = geckos.findIndex(function(g){ return g.id === geckoId; });
             if (idx === -1) return;
-            geckos[idx].foto = photos[_viewerIdx].data;
+            geckos[idx].foto = getFullUrl(item);
             localStorage.setItem('geckos', JSON.stringify(geckos));
             showToast('✅ Foto profilo aggiornata!');
-        } catch(e) {
-            showToast('Errore nel salvataggio');
-        }
+        } catch(e) { showToast('Errore nel salvataggio', true); }
     }
 
-    function deleteCurrentPhoto() {
-        if (!confirm('Eliminare questa foto?')) return;
-        var photos = getPhotos();
-        photos.splice(_viewerIdx, 1);
-        savePhotos(photos);
-        document.getElementById('h-sub').textContent = photos.length + ' foto';
-        if (photos.length === 0) { closeViewer(); renderGrid(photos); return; }
-        if (_viewerIdx >= photos.length) _viewerIdx = photos.length - 1;
-        showViewerPhoto();
-        renderGrid(photos);
-    }
-
-    // Swipe sinistra/destra nel viewer
+    // Swipe nel viewer
     var _touchStartX = 0;
     document.getElementById('viewer').addEventListener('touchstart', function(e) {
         _touchStartX = e.touches[0].clientX;
@@ -361,9 +483,9 @@
     document.getElementById('viewer').addEventListener('touchend', function(e) {
         var dx = e.changedTouches[0].clientX - _touchStartX;
         if (Math.abs(dx) < 50) return;
-        var photos = getPhotos();
-        if (dx < 0 && _viewerIdx < photos.length-1) { _viewerIdx++; showViewerPhoto(); }
-        if (dx > 0 && _viewerIdx > 0)               { _viewerIdx--; showViewerPhoto(); }
+        var media = getMedia();
+        if (dx < 0 && _viewerIdx < media.length-1) { _viewerIdx++; showViewerMedia(); }
+        if (dx > 0 && _viewerIdx > 0)              { _viewerIdx--; showViewerMedia(); }
     }, { passive:true });
 
     init();
