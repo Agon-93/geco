@@ -802,6 +802,7 @@
         if (!_editId || _editId === getActiveId()) {
             applyColor(_coloreSel);
         }
+        supaSync();
         closeForm();
         renderList();
         showToast(_editId ? '✅ Profilo aggiornato!' : '✅ ' + nome + ' aggiunto!');
@@ -1051,6 +1052,8 @@
         navigator.serviceWorker.register('./sw.js').catch(function(){});
     }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-sync.js"></script>
 <script src="transitions.js"></script>
 </body>
 </html>

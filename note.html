@@ -262,6 +262,7 @@ Es: 25/05 — Ha rifiutato i grilli, provo le tarme"></textarea>
 
     function saveNotes() {
         localStorage.setItem('gecoNotes', textarea.value);
+        supaSync();
         var now = new Date();
         saveStatus.className = 'saved';
         saveStatus.textContent = '✓ Salvato alle ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
@@ -299,6 +300,8 @@ Es: 25/05 — Ha rifiutato i grilli, provo le tarme"></textarea>
         navigator.serviceWorker.register('./sw.js').catch(function(){});
     }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-sync.js"></script>
 <script src="transitions.js"></script>
 </body>
 </html>

@@ -384,6 +384,27 @@
         setTimeout(function() { document.getElementById('splash').classList.add('hide'); }, 1800);
     }
 
+    // ── MONITOR MODE ──
+    var _monitorMode   = false;
+    var _monitorGeckos = [];
+    var _monitorPasti  = {};
+    var _monitorParam  = new URLSearchParams(location.search).get('monitor');
+
+    if (_monitorParam) {
+        _monitorMode = true;
+        document.title = '👁 Monitoraggio — Geco';
+    }
+
+    function getGeckos() {
+        if (_monitorMode) return _monitorGeckos;
+        try { return JSON.parse(localStorage.getItem('geckos') || '[]'); } catch(e) { return []; }
+    }
+
+    function getFattoKey(k) {
+        if (_monitorMode) return _monitorPasti[k] === true;
+        return localStorage.getItem(k) === 'true';
+    }
+
     // ── DATA ──
     const MESI = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
                   'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
@@ -400,7 +421,6 @@
         return CYCLE[((diff % 8) + 8) % 8];
     }
 
-    function getGeckos()   { try { return JSON.parse(localStorage.getItem('geckos')||'[]'); } catch(e){ return []; } }
     function getActiveId() { return localStorage.getItem('activeGeckoId')||''; }
     function getActive()   { var gs=getGeckos(),id=getActiveId(); return gs.find(function(g){return g.id===id;})||gs[0]||null; }
     function feedKey(gid,m,d){ return 'feed_'+gid+'_'+m+'_'+d; }
@@ -480,13 +500,20 @@
     }
 
     function toggleFatto(geckoId) {
-        var key = feedKey(geckoId, MESI[m], g);
-        if (localStorage.getItem(key) === 'true') {
-            localStorage.removeItem(key);
+        var key   = feedKey(geckoId, MESI[m], g);
+        var fatto = _monitorMode ? !_monitorPasti[key] : localStorage.getItem(key) !== 'true';
+
+        if (_monitorMode) {
+            _monitorPasti[key] = fatto;
         } else {
-            localStorage.setItem(key, 'true');
-            if (navigator.vibrate) navigator.vibrate(40);
+            if (fatto) {
+                localStorage.setItem(key, 'true');
+                if (navigator.vibrate) navigator.vibrate(40);
+            } else {
+                localStorage.removeItem(key);
+            }
         }
+        supaSyncPasto(geckoId, MESI[m], g, fatto);
         renderContent();
     }
 
@@ -501,7 +528,7 @@
             document.getElementById('h-sub').textContent = 'Oggi: giorno di digiuno per tutti';
         } else {
             var fatti = geckos.filter(function(gecko) {
-                return localStorage.getItem(feedKey(gecko.id, MESI[m], g)) === 'true';
+                return getFattoKey(feedKey(gecko.id, MESI[m], g));
             }).length;
             document.getElementById('h-sub').textContent = fatti + ' / ' + geckos.length + ' gechi alimentati oggi';
         }
@@ -579,7 +606,7 @@
 
         // Gecko cerchi scroll
         var geckoCardsHTML = geckos.map(function(gecko) {
-            var fatto = !isDig && localStorage.getItem(feedKey(gecko.id, MESI[m], g)) === 'true';
+            var fatto = !isDig && getFattoKey(feedKey(gecko.id, MESI[m], g));
             var gc    = gecko.colore || '#ff9940';
             var fotoHTML = gecko.foto
                 ? '<img src="' + gecko.foto + '" alt="">'
@@ -609,7 +636,7 @@
             for (var i = 1; i <= giorni; i++) {
                 if (getAlim(oggi.getFullYear(), m, i) !== 'DIGIUNO') {
                     totale++;
-                    if (localStorage.getItem(feedKey(geckoAttivo.id, MESI[m], i)) === 'true') completati++;
+                    if (getFattoKey(feedKey(geckoAttivo.id, MESI[m], i))) completati++;
                 }
             }
         }
@@ -720,7 +747,59 @@
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').catch(function(){});
     }
+
+    // ── MONITOR MODE LOAD ──
+    function loadMonitorData(codice) {
+        var sb = supaClient();
+        if (!sb) { setTimeout(function(){ loadMonitorData(codice); }, 500); return; }
+
+        Promise.all([
+            sb.from('sync_data').select('*').eq('codice', codice).single(),
+            sb.from('sync_pasti').select('*').eq('codice', codice)
+        ]).then(function(results) {
+            var dataRes  = results[0];
+            var pastiRes = results[1];
+
+            if (dataRes.data) {
+                _monitorGeckos = dataRes.data.geckos || [];
+            }
+            if (pastiRes.data) {
+                _monitorPasti = {};
+                pastiRes.data.forEach(function(p) {
+                    _monitorPasti['feed_' + p.chiave] = p.fatto;
+                });
+            }
+            renderContent();
+
+            setSyncCodice(_monitorCodice);
+
+            // Banner co-gestione
+            if (!document.getElementById('cogest-banner')) {
+                var banner = document.createElement('div');
+                banner.id  = 'cogest-banner';
+                var nome   = _monitorGeckos.length > 0 ? _monitorGeckos[0].nome : 'geco';
+                banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:rgba(34,197,94,.85);color:#fff;text-align:center;padding:8px;font-size:13px;font-weight:700;z-index:9998;backdrop-filter:blur(8px);';
+                banner.textContent   = '🤝 Co-gestione attiva — dati condivisi con ' + nome;
+                document.body.appendChild(banner);
+                document.body.style.paddingTop = '36px';
+            }
+        });
+
+        // Realtime subscription
+        sb.channel('monitor-' + codice)
+            .on('postgres_changes', { event:'*', schema:'public', table:'sync_data',  filter:'codice=eq.'+codice }, function() { loadMonitorData(codice); })
+            .on('postgres_changes', { event:'*', schema:'public', table:'sync_pasti', filter:'codice=eq.'+codice }, function() { loadMonitorData(codice); })
+            .subscribe();
+    }
+
+    if (_monitorMode) {
+        loadMonitorData(_monitorParam);
+    } else {
+        supaSync();
+    }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="supabase-sync.js"></script>
 <script src="transitions.js"></script>
 </body>
 </html>
