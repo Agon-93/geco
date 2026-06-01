@@ -24,12 +24,11 @@ function supaHeaders() {
     };
 }
 
-// Sincronizza gechi, note e galleria
+// Sincronizza gechi, note, galleria e TUTTI i pasti
 function supaSync() {
     var geckos = [];
     try { geckos = JSON.parse(localStorage.getItem('geckos') || '[]'); } catch(e) {}
 
-    // Raccoglie galleria di tutti i gechi
     var galleria = {};
     geckos.forEach(function(g) {
         var key  = 'gallery_' + g.id;
@@ -37,18 +36,36 @@ function supaSync() {
         if (data) try { galleria[key] = JSON.parse(data); } catch(e) {}
     });
 
-    var body = JSON.stringify({
-        codice:     syncCodice(),
-        geckos:     geckos,
-        nota:       localStorage.getItem('gecoNotes') || '',
-        galleria:   galleria,
-        aggiornato: new Date().toISOString()
-    });
+    var codice = syncCodice();
+
+    // Sync geckos + note + galleria
     fetch(SUPA_URL + '/rest/v1/sync_data', {
         method:  'POST',
         headers: supaHeaders(),
-        body:    body
+        body:    JSON.stringify({
+            codice:     codice,
+            geckos:     geckos,
+            nota:       localStorage.getItem('gecoNotes') || '',
+            galleria:   galleria,
+            aggiornato: new Date().toISOString()
+        })
     }).catch(function(){});
+
+    // Sync TUTTI i pasti dal localStorage
+    var pasti = [];
+    for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf('feed_') === 0 && localStorage.getItem(k) === 'true') {
+            pasti.push({ codice: codice, chiave: k.substring(5), fatto: true });
+        }
+    }
+    if (pasti.length > 0) {
+        fetch(SUPA_URL + '/rest/v1/sync_pasti?on_conflict=codice,chiave', {
+            method:  'POST',
+            headers: supaHeaders(),
+            body:    JSON.stringify(pasti)
+        }).catch(function(){});
+    }
 }
 
 // Sincronizza singolo pasto
