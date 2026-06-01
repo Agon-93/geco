@@ -179,6 +179,19 @@
         .bn-label { font-size:10px; font-weight:600; }
 
         #photo-input, #video-input { display:none; }
+
+        /* ── TABS ── */
+        .media-tabs {
+            display:flex; background:#1a1a1a;
+            border-bottom:1px solid #2a2a2a;
+            position:sticky; top:67px; z-index:9;
+        }
+        .media-tab {
+            flex:1; padding:11px 8px; font-size:13px; font-weight:700;
+            color:#555; border:none; background:none; cursor:pointer;
+            border-bottom:2px solid transparent; transition:.15s;
+        }
+        .media-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
     </style>
 </head>
 <body>
@@ -204,6 +217,12 @@
 
 <input type="file" id="photo-input" accept="image/*" multiple onchange="handleFiles(this,'image')">
 <input type="file" id="video-input" accept="video/*" multiple onchange="handleFiles(this,'video')">
+
+<div class="media-tabs">
+    <button class="media-tab active" onclick="setTab('tutti',this)">🗂 Tutti</button>
+    <button class="media-tab"        onclick="setTab('image',this)">📷 Foto</button>
+    <button class="media-tab"        onclick="setTab('video',this)">🎥 Video</button>
+</div>
 
 <div id="main-content"></div>
 
@@ -238,6 +257,16 @@
 
     var geckoId    = new URLSearchParams(window.location.search).get('id') || '';
     var _viewerIdx = 0;
+    var _activeTab = 'tutti';
+
+    function setTab(tab, btn) {
+        _activeTab = tab;
+        document.querySelectorAll('.media-tab').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        var media    = getMedia();
+        var filtered = tab === 'tutti' ? media : media.filter(function(m){ return (m.type||'image') === tab; });
+        renderGrid(filtered, media);
+    }
 
     function getGeckos()  { try { return JSON.parse(localStorage.getItem('geckos')||'[]'); } catch(e){ return []; } }
     function getGecko()   { return getGeckos().find(function(g){ return g.id === geckoId; }) || null; }
@@ -279,7 +308,8 @@
             }
         }
         updateSubtitle(media);
-        renderGrid(media);
+        var filtered = _activeTab === 'tutti' ? media : media.filter(function(m){ return (m.type||'image') === _activeTab; });
+        renderGrid(filtered, media);
     }
 
     function updateSubtitle(media) {
@@ -292,7 +322,8 @@
     }
 
     // ── RENDER GRID ──
-    function renderGrid(media) {
+    function renderGrid(media, allMedia) {
+        var full    = allMedia || media;
         var content = document.getElementById('main-content');
         if (media.length === 0) {
             content.innerHTML = '<div class="empty-wrap">' +
@@ -321,7 +352,7 @@
             html += '<div style="padding:12px 12px 4px;font-size:12px;font-weight:700;color:#888;">' + mese + '</div>';
             html += '<div class="photo-grid">';
             gruppi[mese].forEach(function(item) {
-                var idx     = media.indexOf(item);
+                var idx     = full.indexOf(item);
                 var isVideo = item.type === 'video';
                 var thumb   = getThumbUrl(item);
                 html += '<div class="media-thumb" onclick="openViewer(' + idx + ')">' +
@@ -357,7 +388,7 @@
             var fd = new FormData();
             fd.append('file', file);
             fd.append('upload_preset', UPLOAD_PRESET);
-            fd.append('folder', 'geco/' + (geckoId || 'generale'));
+            fd.append('folder', 'geco/' + (geckoId || 'generale') + '/' + resourceType);
 
             var xhr = new XMLHttpRequest();
             xhr.open('POST', 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/' + resourceType + '/upload');
