@@ -99,6 +99,10 @@
 
     <button class="btn-primary" id="btn-login" onclick="doLogin()">Accedi</button>
 
+    <div style="text-align:center;margin-top:12px;">
+        <a href="reset-password.html" style="font-size:13px;color:#666;text-decoration:none;">Ho dimenticato la password</a>
+    </div>
+
     <div class="divider">oppure</div>
 
     <div class="link-row">
@@ -148,11 +152,13 @@
         if (e.key === 'Enter') doLogin();
     });
 
-    // Gestisci redirect da email di verifica
-    authHandleRedirect(function(ok) {
-        if (ok) {
+    // Gestisci redirect da email
+    authHandleRedirect(function(type) {
+        if (type === 'signup') {
             showSuccess('✅ Email verificata! Accesso in corso...');
             setTimeout(function() { window.location.href = 'index.html'; }, 1200);
+        } else if (type === 'recovery') {
+            window.location.href = 'new-password.html';
         }
     });
 

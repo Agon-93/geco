@@ -1,9 +1,10 @@
-const CACHE = 'geco-v66';
+const CACHE = 'geco-v67';
 const ASSETS = [
     './index.html', './calendario.html', './note.html',
     './notifiche.html', './profili.html', './riproduzione.html',
     './galleria.html', './scheda.html', './impostazioni.html',
     './login.html', './register.html', './join.html',
+    './reset-password.html', './new-password.html',
     './auth.js', './supabase-sync.js', './transitions.js',
     './manifest.json', './icon.svg'
 ];
