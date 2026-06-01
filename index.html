@@ -759,17 +759,38 @@
     function loadMonitorData(codice) {
         supaLeggi(codice, function(data, pasti) {
             if (data) {
-                _monitorGeckos = data.geckos || [];
-                // Carica galleria nel localStorage dell'amico
+                var geckos = data.geckos || [];
+                _monitorGeckos = geckos;
+
+                // Scrivi tutto nel localStorage così anche le altre pagine funzionano
+                localStorage.setItem('geckos', JSON.stringify(geckos));
+                if (data.nota) localStorage.setItem('gecoNotes', data.nota);
+                if (geckos.length > 0) {
+                    localStorage.setItem('activeGeckoId', geckos[0].id);
+                    if (geckos[0].colore) localStorage.setItem('activeColor', geckos[0].colore);
+                }
                 if (data.galleria) {
                     Object.keys(data.galleria).forEach(function(key) {
                         try { localStorage.setItem(key, JSON.stringify(data.galleria[key])); } catch(e) {}
                     });
                 }
+
+                // Pulisci i vecchi feed dei gechi del proprietario e riscrivi
+                var ids = geckos.map(function(g){ return g.id; });
+                var toRemove = [];
+                for (var i = 0; i < localStorage.length; i++) {
+                    var k = localStorage.key(i);
+                    if (k && k.indexOf('feed_') === 0) {
+                        if (ids.some(function(id){ return k.indexOf(id) > -1; })) toRemove.push(k);
+                    }
+                }
+                toRemove.forEach(function(k){ localStorage.removeItem(k); });
             }
+
             _monitorPasti = {};
             pasti.forEach(function(p) {
                 _monitorPasti['feed_' + p.chiave] = p.fatto;
+                if (p.fatto) localStorage.setItem('feed_' + p.chiave, 'true');
             });
             renderContent();
 
