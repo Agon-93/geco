@@ -446,6 +446,12 @@
     }
 </script>
 <script src="supabase-sync.js"></script>
+<script>
+    (function() {
+        var cg = localStorage.getItem('coGestioneCodice');
+        if (cg) setSyncCodice(cg);
+    })();
+</script>
 <script src="transitions.js"></script>
 </body>
 </html>
