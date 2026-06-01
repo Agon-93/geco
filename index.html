@@ -103,24 +103,7 @@
 
         .page { padding:14px 16px; max-width:500px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
 
-        /* ══ SKELETON ══ */
-        @keyframes shimmer {
-            0%   { background-position:-400px 0; }
-            100% { background-position: 400px 0; }
-        }
-        .sk {
-            background: linear-gradient(90deg, #1e1e1e 25%, #2a2a2a 50%, #1e1e1e 75%);
-            background-size: 800px 100%;
-            animation: shimmer 1.4s infinite linear;
-            border-radius: 10px;
-        }
-        .sk-card  { height:130px; border-radius:16px; margin-bottom:0; }
-        .sk-row   { height:70px;  border-radius:16px; }
-        .sk-line  { height:14px;  border-radius:8px; margin-bottom:8px; }
-        .sk-line.short { width:55%; }
-        #skeleton { display:flex; flex-direction:column; gap:12px; padding:14px 16px; max-width:500px; margin:0 auto; }
-
-        .date-chip { font-size:11px; color:#666; font-weight:600; text-transform:uppercase; letter-spacing:.06em; }
+.date-chip { font-size:11px; color:#666; font-weight:600; text-transform:uppercase; letter-spacing:.06em; }
 
         /* ══ NO GECKO CARD ══ */
         .empty-card {
@@ -371,14 +354,6 @@
     </div>
     <a href="profili.html" class="h-switch">+ Gechi</a>
 </header>
-
-<!-- SKELETON -->
-<div id="skeleton">
-    <div class="sk sk-line short"></div>
-    <div class="sk sk-card"></div>
-    <div class="sk sk-row"></div>
-    <div class="sk sk-row"></div>
-</div>
 
 <div class="page" id="main-page" style="display:none;">
     <div class="date-chip" id="date-chip"></div>
@@ -837,7 +812,6 @@
 
     authGuard(function() {
         setTimeout(function() {
-            document.getElementById('skeleton').style.display = 'none';
             document.getElementById('main-page').style.display = 'flex';
             renderContent();
             authRenderWidget();
