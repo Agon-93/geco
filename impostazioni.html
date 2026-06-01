@@ -335,6 +335,10 @@
                 <span style="font-size:12px;color:#555;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="monitor-url">Caricamento...</span>
                 <button onclick="copiaLinkMonitor()" style="background:var(--accent);color:#111;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;">📋 Copia</button>
             </div>
+            <div style="font-size:11px;color:#555;">L'amico apre il link una volta sola — poi l'app si ricorda automaticamente.</div>
+            <div id="exit-cogest-wrap" style="display:none;">
+                <button onclick="esciCoGestione()" style="width:100%;background:#1e0808;border:1px solid rgba(239,68,68,.3);color:#ef4444;border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;">✕ Esci dalla co-gestione</button>
+            </div>
         </div>
 
         <!-- Ripristino -->
@@ -660,6 +664,13 @@
         }).catch(function() { showToast(url); });
     }
 
+    function esciCoGestione() {
+        if (!confirm('Uscire dalla co-gestione?\nTornerai a usare i tuoi dati locali.')) return;
+        localStorage.removeItem('coGestioneCodice');
+        showToast('✅ Co-gestione disattivata');
+        document.getElementById('exit-cogest-wrap').style.display = 'none';
+    }
+
     function eseguiRipristino() {
         var codice = document.getElementById('ripristino-input').value.trim();
         if (!codice) { showToast('Inserisci il codice!', true); return; }
@@ -679,6 +690,11 @@
         var codiceEl = document.getElementById('codice-display');
         if (urlEl)    urlEl.textContent    = supaMonitorLink();
         if (codiceEl) codiceEl.textContent = syncCodice();
+        // Mostra bottone "Esci" solo se in co-gestione
+        if (localStorage.getItem('coGestioneCodice')) {
+            var wrap = document.getElementById('exit-cogest-wrap');
+            if (wrap) wrap.style.display = 'block';
+        }
     }, 300);
 </script>
 <script src="supabase-sync.js"></script>

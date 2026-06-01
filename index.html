@@ -391,9 +391,15 @@
     var _monitorPasti  = {};
     var _monitorParam  = new URLSearchParams(location.search).get('monitor');
 
+    // Se arriva un nuovo codice dal link, salvalo
     if (_monitorParam) {
+        localStorage.setItem('coGestioneCodice', _monitorParam);
+    }
+    // Leggi il codice salvato (link o da sessione precedente)
+    var _monitorCodice = _monitorParam || localStorage.getItem('coGestioneCodice');
+
+    if (_monitorCodice) {
         _monitorMode = true;
-        document.title = '👁 Monitoraggio — Geco';
     }
 
     function getGeckos() {
@@ -785,7 +791,7 @@
     }
 
     if (_monitorMode) {
-        loadMonitorData(_monitorParam);
+        loadMonitorData(_monitorCodice);
     } else {
         supaSync();
     }
