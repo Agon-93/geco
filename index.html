@@ -387,28 +387,17 @@
 
     // ── MONITOR MODE ──
     var _monitorMode   = false;
-    var _monitorGeckos = [];
-    var _monitorPasti  = {};
     var _monitorParam  = new URLSearchParams(location.search).get('monitor');
 
-    // Se arriva un nuovo codice dal link, salvalo
-    if (_monitorParam) {
-        localStorage.setItem('coGestioneCodice', _monitorParam);
-    }
-    // Leggi il codice salvato (link o da sessione precedente)
+    if (_monitorParam) localStorage.setItem('coGestioneCodice', _monitorParam);
     var _monitorCodice = _monitorParam || localStorage.getItem('coGestioneCodice');
-
-    if (_monitorCodice) {
-        _monitorMode = true;
-    }
+    if (_monitorCodice) _monitorMode = true;
 
     function getGeckos() {
-        if (_monitorMode) return _monitorGeckos;
         try { return JSON.parse(localStorage.getItem('geckos') || '[]'); } catch(e) { return []; }
     }
 
     function getFattoKey(k) {
-        if (_monitorMode) return _monitorPasti[k] === true;
         return localStorage.getItem(k) === 'true';
     }
 
@@ -508,17 +497,12 @@
 
     function toggleFatto(geckoId) {
         var key   = feedKey(geckoId, MESI[m], g);
-        var fatto = _monitorMode ? !_monitorPasti[key] : localStorage.getItem(key) !== 'true';
-
-        if (_monitorMode) {
-            _monitorPasti[key] = fatto;
+        var fatto = localStorage.getItem(key) !== 'true';
+        if (fatto) {
+            localStorage.setItem(key, 'true');
+            if (navigator.vibrate) navigator.vibrate(40);
         } else {
-            if (fatto) {
-                localStorage.setItem(key, 'true');
-                if (navigator.vibrate) navigator.vibrate(40);
-            } else {
-                localStorage.removeItem(key);
-            }
+            localStorage.removeItem(key);
         }
         supaSyncPasto(geckoId, MESI[m], g, fatto);
         renderContent();
@@ -760,9 +744,8 @@
         supaLeggi(codice, function(data, pasti) {
             if (data) {
                 var geckos = data.geckos || [];
-                _monitorGeckos = geckos;
 
-                // Scrivi tutto nel localStorage così anche le altre pagine funzionano
+                // Scrivi geckos nel localStorage
                 localStorage.setItem('geckos', JSON.stringify(geckos));
                 if (data.nota) localStorage.setItem('gecoNotes', data.nota);
                 if (geckos.length > 0) {
@@ -775,45 +758,44 @@
                     });
                 }
 
-                // Pulisci i vecchi feed dei gechi del proprietario e riscrivi
-                var ids = geckos.map(function(g){ return g.id; });
+                // Rimuovi vecchi feed e riscrivi dal Supabase
+                var ids = geckos.map(function(gk){ return gk.id; });
                 var toRemove = [];
-                for (var i = 0; i < localStorage.length; i++) {
-                    var k = localStorage.key(i);
-                    if (k && k.indexOf('feed_') === 0) {
-                        if (ids.some(function(id){ return k.indexOf(id) > -1; })) toRemove.push(k);
+                for (var ki = 0; ki < localStorage.length; ki++) {
+                    var kk = localStorage.key(ki);
+                    if (kk && kk.indexOf('feed_') === 0) {
+                        for (var ii = 0; ii < ids.length; ii++) {
+                            if (kk.indexOf(ids[ii]) > -1) { toRemove.push(kk); break; }
+                        }
                     }
                 }
-                toRemove.forEach(function(k){ localStorage.removeItem(k); });
-            }
+                toRemove.forEach(function(kk){ localStorage.removeItem(kk); });
 
-            _monitorPasti = {};
-            pasti.forEach(function(p) {
-                _monitorPasti['feed_' + p.chiave] = p.fatto;
-                if (p.fatto) localStorage.setItem('feed_' + p.chiave, 'true');
-            });
-            renderContent();
+                // Scrivi pasti aggiornati
+                pasti.forEach(function(p) {
+                    if (p.fatto) localStorage.setItem('feed_' + p.chiave, 'true');
+                });
+            }
 
             setSyncCodice(codice);
+            renderContent();
 
-            if (!document.getElementById('cogest-banner')) {
-                var banner = document.createElement('div');
-                banner.id  = 'cogest-banner';
-                var nome   = _monitorGeckos.length > 0 ? _monitorGeckos[0].nome : 'geco';
-                banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:rgba(34,197,94,.85);color:#fff;text-align:center;padding:8px;font-size:13px;font-weight:700;z-index:9998;';
-                banner.textContent   = '🤝 Co-gestione attiva con ' + nome;
-                document.body.appendChild(banner);
+            // Banner
+            var gName = '';
+            try { var gs2 = JSON.parse(localStorage.getItem('geckos')||'[]'); if(gs2.length>0) gName=gs2[0].nome; } catch(e){}
+            var now2 = new Date();
+            var ts   = now2.getHours()+':'+String(now2.getMinutes()).padStart(2,'0')+':'+String(now2.getSeconds()).padStart(2,'0');
+            var b    = document.getElementById('cogest-banner');
+            if (!b) {
+                b = document.createElement('div');
+                b.id = 'cogest-banner';
+                b.style.cssText = 'position:fixed;top:0;left:0;right:0;background:rgba(34,197,94,.9);color:#fff;text-align:center;padding:8px;font-size:13px;font-weight:700;z-index:9998;';
+                document.body.appendChild(b);
                 document.body.style.paddingTop = '36px';
             }
+            b.textContent = '🤝 Co-gestione' + (gName ? ' · ' + gName : '') + ' · ' + ts;
 
-            // Aggiorna indicatore sync
-            var b = document.getElementById('cogest-banner');
-            if (b) {
-                var now = new Date();
-                var t   = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
-                b.textContent = '🤝 Co-gestione con ' + (_monitorGeckos.length > 0 ? _monitorGeckos[0].nome : 'geco') + ' · aggiornato ' + t;
-            }
-            // Poll ogni 5 secondi
+            // Prossimo poll
             setTimeout(function() { loadMonitorData(codice); }, 5000);
         });
     }
