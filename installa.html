@@ -98,6 +98,17 @@
         .step-text b { color:#fff; }
 
         .note { font-size:12px; color:#444; margin-top:16px; }
+
+        .copy-row {
+            display:flex; align-items:center; gap:8px;
+            background:#1a1a1a; border:1px solid #2a2a2a;
+            border-radius:12px; padding:10px 14px;
+            width:100%; max-width:340px; margin-top:20px;
+            cursor:pointer; transition:border-color .15s;
+        }
+        .copy-row:active { border-color:#ff9940; }
+        .copy-url { flex:1; font-size:12px; color:#555; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .copy-btn { font-size:12px; font-weight:700; color:#ff9940; flex-shrink:0; }
     </style>
 </head>
 <body>
@@ -132,6 +143,11 @@
 
 <p class="note" id="bottom-note"></p>
 
+<div class="copy-row" onclick="copiaLink()" id="copy-row">
+    <span class="copy-url" id="copy-url">agon-93.github.io/geco/installa.html</span>
+    <span class="copy-btn" id="copy-btn">📋 Copia link</span>
+</div>
+
 <script>
     var deferredPrompt = null;
     var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -160,6 +176,21 @@
                 document.getElementById('btn-open').style.display = 'block';
             }
         }, 800);
+    }
+
+    function copiaLink() {
+        var url = 'https://agon-93.github.io/geco/installa.html';
+        navigator.clipboard.writeText(url).then(function() {
+            var btn = document.getElementById('copy-btn');
+            btn.textContent = '✅ Copiato!';
+            btn.style.color = '#22c55e';
+            setTimeout(function() {
+                btn.textContent = '📋 Copia link';
+                btn.style.color = '';
+            }, 2000);
+        }).catch(function() {
+            prompt('Copia questo link:', url);
+        });
     }
 
     function installa() {
