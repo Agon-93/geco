@@ -752,7 +752,15 @@
     // ── MONITOR MODE LOAD ──
     function loadMonitorData(codice) {
         supaLeggi(codice, function(data, pasti) {
-            if (data) _monitorGeckos = data.geckos || [];
+            if (data) {
+                _monitorGeckos = data.geckos || [];
+                // Carica galleria nel localStorage dell'amico
+                if (data.galleria) {
+                    Object.keys(data.galleria).forEach(function(key) {
+                        try { localStorage.setItem(key, JSON.stringify(data.galleria[key])); } catch(e) {}
+                    });
+                }
+            }
             _monitorPasti = {};
             pasti.forEach(function(p) {
                 _monitorPasti['feed_' + p.chiave] = p.fatto;

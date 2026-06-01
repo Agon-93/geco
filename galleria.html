@@ -271,7 +271,7 @@
     function getGeckos()  { try { return JSON.parse(localStorage.getItem('geckos')||'[]'); } catch(e){ return []; } }
     function getGecko()   { return getGeckos().find(function(g){ return g.id === geckoId; }) || null; }
     function getMedia()   { try { return JSON.parse(localStorage.getItem('gallery_'+geckoId)||'[]'); } catch(e){ return []; } }
-    function saveMedia(a) { localStorage.setItem('gallery_'+geckoId, JSON.stringify(a)); }
+    function saveMedia(a) { localStorage.setItem('gallery_'+geckoId, JSON.stringify(a)); supaSync(); }
 
     function formatDate(iso)      { var d=new Date(iso); return d.getDate()+' '+MESI[d.getMonth()]+' '+d.getFullYear(); }
     function formatDateShort(iso) { var d=new Date(iso); return d.getDate()+'/'+(d.getMonth()+1)+'/'+String(d.getFullYear()).slice(2); }
@@ -525,6 +525,7 @@
         navigator.serviceWorker.register('./sw.js').catch(function(){});
     }
 </script>
+<script src="supabase-sync.js"></script>
 <script src="transitions.js"></script>
 </body>
 </html>

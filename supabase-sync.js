@@ -24,14 +24,24 @@ function supaHeaders() {
     };
 }
 
-// Sincronizza gechi e note
+// Sincronizza gechi, note e galleria
 function supaSync() {
     var geckos = [];
     try { geckos = JSON.parse(localStorage.getItem('geckos') || '[]'); } catch(e) {}
+
+    // Raccoglie galleria di tutti i gechi
+    var galleria = {};
+    geckos.forEach(function(g) {
+        var key  = 'gallery_' + g.id;
+        var data = localStorage.getItem(key);
+        if (data) try { galleria[key] = JSON.parse(data); } catch(e) {}
+    });
+
     var body = JSON.stringify({
         codice:     syncCodice(),
         geckos:     geckos,
         nota:       localStorage.getItem('gecoNotes') || '',
+        galleria:   galleria,
         aggiornato: new Date().toISOString()
     });
     fetch(SUPA_URL + '/rest/v1/sync_data', {
