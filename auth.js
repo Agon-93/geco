@@ -181,7 +181,6 @@ function authGuard(onReady) {
 function authRenderWidget() {
     var header = document.querySelector('header');
     if (!header) return;
-    // Non mostrare in monitor mode
     var monitorParam = new URLSearchParams(location.search).get('monitor');
     if (monitorParam || localStorage.getItem('coGestioneCodice')) return;
 
@@ -194,29 +193,56 @@ function authRenderWidget() {
     var email   = authGetEmail();
     var initial = nick ? nick[0].toUpperCase() : '?';
 
+    // Avatar button
     var btn = document.createElement('div');
     btn.id = 'auth-widget';
-    btn.style.cssText = 'width:34px;height:34px;border-radius:50%;background:rgba(255,153,64,.15);border:2px solid rgba(255,153,64,.4);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#ff9940;cursor:pointer;flex-shrink:0;';
+    btn.style.cssText = 'width:34px;height:34px;border-radius:50%;background:rgba(255,153,64,.15);border:2px solid rgba(255,153,64,.4);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#ff9940;cursor:pointer;flex-shrink:0;user-select:none;';
     btn.textContent = initial;
 
-    var sheet = document.createElement('div');
-    sheet.id = 'auth-sheet';
-    sheet.style.cssText = 'display:none;position:fixed;inset:0;z-index:9999;';
-    sheet.innerHTML =
-        '<div style="position:absolute;inset:0;background:rgba(0,0,0,.65);" id="auth-sheet-bg"></div>' +
-        '<div style="position:absolute;bottom:0;left:0;right:0;background:#1a1a1a;border-radius:22px 22px 0 0;padding:28px 20px calc(24px + env(safe-area-inset-bottom));max-width:500px;left:50%;transform:translateX(-50%);">' +
-            '<div style="text-align:center;margin-bottom:24px;">' +
-                '<div style="width:64px;height:64px;border-radius:50%;background:rgba(255,153,64,.15);border:3px solid rgba(255,153,64,.4);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#ff9940;margin:0 auto 12px;">' + initial + '</div>' +
-                '<div style="font-size:18px;font-weight:800;color:#f0f0f0;">' + nick + '</div>' +
-                '<div style="font-size:12px;color:#666;margin-top:4px;">' + email + '</div>' +
+    // Overlay + sheet
+    var overlay = document.createElement('div');
+    overlay.id = 'auth-sheet';
+    overlay.style.cssText = 'display:none;position:fixed;inset:0;z-index:9999;align-items:flex-end;justify-content:center;';
+
+    var inner =
+        '<div id="auth-sheet-bg" style="position:absolute;inset:0;background:rgba(0,0,0,.65);"></div>' +
+        '<div style="position:relative;width:100%;max-width:500px;background:#1a1a1a;border-radius:22px 22px 0 0;overflow:hidden;z-index:1;">' +
+            // Handle
+            '<div style="text-align:center;padding:12px 0 0;"><div style="width:36px;height:4px;background:#2a2a2a;border-radius:2px;display:inline-block;"></div></div>' +
+            // Avatar + info
+            '<div style="text-align:center;padding:22px 24px 20px;">' +
+                '<div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,rgba(255,153,64,.25),rgba(255,107,0,.15));border:3px solid rgba(255,153,64,.5);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;color:#ff9940;margin:0 auto 14px;">' + initial + '</div>' +
+                '<div style="font-size:20px;font-weight:800;color:#f0f0f0;margin-bottom:4px;">' + nick + '</div>' +
+                '<div style="display:inline-block;background:rgba(255,153,64,.1);border:1px solid rgba(255,153,64,.2);border-radius:20px;padding:3px 12px;font-size:12px;color:#ff9940;font-weight:600;">' + email + '</div>' +
             '</div>' +
-            '<button id="auth-logout-btn" style="width:100%;background:#1e0808;border:1px solid rgba(239,68,68,.3);color:#ef4444;border-radius:14px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">Logout</button>' +
+            // Divider
+            '<div style="height:1px;background:#222;margin:0 20px;"></div>' +
+            // Actions
+            '<div style="padding:16px 20px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px;">' +
+                '<a href="impostazioni.html" style="display:flex;align-items:center;gap:12px;background:#222;border-radius:14px;padding:14px 16px;text-decoration:none;color:#f0f0f0;">' +
+                    '<span style="font-size:18px;">⚙️</span>' +
+                    '<span style="font-size:14px;font-weight:600;">Impostazioni</span>' +
+                    '<span style="margin-left:auto;color:#555;font-size:16px;">›</span>' +
+                '</a>' +
+                '<button id="auth-logout-btn" style="display:flex;align-items:center;gap:12px;width:100%;background:#1e0808;border:1px solid rgba(239,68,68,.25);border-radius:14px;padding:14px 16px;cursor:pointer;color:#ef4444;text-align:left;">' +
+                    '<span style="font-size:18px;">🚪</span>' +
+                    '<span style="font-size:14px;font-weight:700;">Logout</span>' +
+                '</button>' +
+            '</div>' +
         '</div>';
-    document.body.appendChild(sheet);
-    document.getElementById('auth-sheet-bg').onclick = function() { sheet.style.display = 'none'; };
+
+    overlay.innerHTML = inner;
+    overlay.style.display = 'none';
+    document.body.appendChild(overlay);
+
+    document.getElementById('auth-sheet-bg').onclick = function() { overlay.style.display = 'none'; };
     document.getElementById('auth-logout-btn').onclick = function() {
-        authSignOut(function() { window.location.href = 'login.html'; });
+        if (confirm('Vuoi davvero uscire?')) {
+            authSignOut(function() { window.location.href = 'login.html'; });
+        }
     };
-    btn.onclick = function() { sheet.style.display = 'block'; };
+    btn.onclick = function() {
+        overlay.style.cssText = 'display:flex;position:fixed;inset:0;z-index:9999;align-items:flex-end;justify-content:center;';
+    };
     header.appendChild(btn);
 }
