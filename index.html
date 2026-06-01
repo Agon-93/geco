@@ -806,8 +806,15 @@
                 document.body.style.paddingTop = '36px';
             }
 
-            // Poll ogni 10 secondi per aggiornamenti
-            setTimeout(function() { loadMonitorData(codice); }, 10000);
+            // Aggiorna indicatore sync
+            var b = document.getElementById('cogest-banner');
+            if (b) {
+                var now = new Date();
+                var t   = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
+                b.textContent = '🤝 Co-gestione con ' + (_monitorGeckos.length > 0 ? _monitorGeckos[0].nome : 'geco') + ' · aggiornato ' + t;
+            }
+            // Poll ogni 5 secondi
+            setTimeout(function() { loadMonitorData(codice); }, 5000);
         });
     }
 
