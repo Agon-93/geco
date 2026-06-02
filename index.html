@@ -811,7 +811,7 @@
     }
 
     authGuard(function() {
-        setTimeout(function() {
+        function avvia() {
             document.getElementById('main-page').style.display = 'flex';
             renderContent();
             authRenderWidget();
@@ -843,7 +843,15 @@
                     });
                 }, 10000);
             }
-        }, 400);
+        }
+
+        // Nuovo dispositivo: localStorage vuoto → scarica dati da Supabase
+        var geckosLocali = getGeckos();
+        if (!_monitorMode && geckosLocali.length === 0 && syncCodice()) {
+            supaRipristina(syncCodice(), function() { avvia(); }, function() { avvia(); });
+        } else {
+            avvia();
+        }
     });
 </script>
 <script src="transitions.js"></script>
